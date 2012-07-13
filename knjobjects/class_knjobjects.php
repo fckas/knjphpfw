@@ -432,22 +432,22 @@ class knjobjects
 
         if ($id_exists) {
             if ($this->weakmap) {
-        $ref = $this->objects[$ob][$id];
+                $ref = $this->objects[$ob][$id];
 
-        if ($this->weakmap_refs[$ref]) {
-          print "Reusing! " . $ob . "-" . $id . "\n";
-          return $this->weakmap_refs[$ref];
-        }
-      } elseif ($this->weakref) {
-        if ($this->objects[$ob][$id]->acquire()) {
-          print "Reusing! " . $ob . "-" . $id . "\n";
-          $obj = $this->objects[$ob][$id]->get();
-          $this->objects[$ob][$id]->release();
-          return $obj;
-        }
-      } else {
-        return $this->objects[$ob][$id];
-      }
+                if ($this->weakmap_refs[$ref]) {
+                print "Reusing! " . $ob . "-" . $id . "\n";
+                return $this->weakmap_refs[$ref];
+                }
+            } elseif ($this->weakref) {
+                if ($this->objects[$ob][$id]->acquire()) {
+                print "Reusing! " . $ob . "-" . $id . "\n";
+                $obj = $this->objects[$ob][$id]->get();
+                $this->objects[$ob][$id]->release();
+                return $obj;
+                }
+            } else {
+                return $this->objects[$ob][$id];
+            }
         }
 
     if (isset($this->objects[$ob]) && array_key_exists($ob, $this->objects[$ob])) {
