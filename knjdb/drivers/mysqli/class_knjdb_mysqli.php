@@ -271,7 +271,7 @@ class knjdb_mysqli
     }
 
     /**
-     * TODO
+     * Insert row, owerwrite if duplicate exists
      *
      * @param string $table TODO
      * @param array  $arr   TODO
@@ -305,6 +305,57 @@ class knjdb_mysqli
             $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
         }
         $sql .= ")";
+
+        $this->query($sql);
+    }
+
+    /**
+     * Insert value, update if duplicate exists
+     *
+     * @param string $table Table to insert into
+     * @param array  $arr   TODO
+     *
+     * @return object TODO
+     */
+    function insert_update($table, $arr)
+    {
+        $sql = "INSERT INTO " .$this->sep_table .$table .$this->sep_table ." (";
+
+        $first = true;
+        foreach ($arr as $key => $value) {
+            if ($first == true) {
+                $first = false;
+            } else {
+                $sql .= ", ";
+            }
+
+            $sql .= $this->sep_col .$key .$this->sep_col;
+        }
+
+        $sql .= ") VALUES (";
+        $first = true;
+        foreach ($arr as $key => $value) {
+            if ($first == true) {
+                $first = false;
+            } else {
+                $sql .= ", ";
+            }
+
+            $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+        }
+        $sql .= ")
+        ON DUPLICATE KEY UPDATE";
+
+        $first = true;
+        foreach ($arr as $key => $value) {
+            if ($first == true) {
+                $first = false;
+            } else {
+                $sql .= ", ";
+            }
+
+            $sql .= $this->sep_col .$key .$this->sep_col . " = VALUES(" .  $this->sep_col .$key .$this->sep_col . ")";
+        }
 
         $this->query($sql);
     }
