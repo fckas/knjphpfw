@@ -83,52 +83,6 @@ function fs_file_checkMemberOfGroup($user, $group)
 }
 
 /**
- * Returns the user and group that a specified file belongs to. It also returns the mods for the file.
- *
- * @param string $file The file which should be read.
- */
-function fs_getFileInfo($file)
-{
-    if (!file_exists($file)) {
-        throw new Exception("fs_getMods(): The file does not exist (" . $file . ").");
-    }
-
-    require_once "knj/strings.php";
-    require_once "knj/os.php";
-    $stat = knj_os::systemCMD("ls -l " .knj_strings::UnixSafe($file));
-
-    $return["mods"]["user"]["mod"] = substr($stat, 1, 3);
-    $return["mods"]["group"]["mod"] = substr($stat, 4, 3);
-    $return["mods"]["all"]["mod"] = substr($stat, 7, 3);
-
-    foreach ($return["mods"] as $key => $value) {
-        if (substr($value["mod"], 0, 1) == "r") {
-            $return["mods"][$key]["read"] = true;
-        } else {
-            $return["mods"][$key]["read"] = false;
-        }
-
-        if (substr($value["mod"], 1, 1) == "w") {
-            $return["mods"][$key]["write"] = true;
-        } else {
-            $return["mods"][$key]["write"] = false;
-        }
-
-        if (substr($value["mod"], 2, 1) == "x") {
-            $return["mods"][$key]["exe"] = true;
-        } else {
-            $return["mods"][$key]["exe"] = false;
-        }
-    }
-
-    $groups = preg_split("/\s+/", $stat);
-    $return["user"] = $groups[2];
-    $return["group"] = $groups[3];
-
-    return $return;
-}
-
-/**
  * Removes everything inside a directory.
  */
 function fs_cleanDir($dir, $rmdir = false)
@@ -303,24 +257,6 @@ class knj_fs
         }
 
         return knj_fs::getFiles_getDir($dir, &$args);
-    }
-
-    /**
-     * Returns information about a specific file by running the Linux "file"-command on a file.
-     */
-    static function fileInfo($file)
-    {
-        if (!file_exists($file)) {
-            throw new Exception("The file does not exist (" . $file . ").");
-        }
-
-        require_once "knj/os.php";
-        require_once "knj/strings.php";
-
-        $result = knj_os::shellCMD("file " .knj_strings::UnixSafe($file));
-        $result = substr($result["result"], strlen($file) + 2, -1);
-
-        return $result;
     }
 
     /**
