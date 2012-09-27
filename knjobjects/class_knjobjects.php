@@ -1,7 +1,5 @@
 <?php
 
-require_once "knj/knjdb/class_knjdb_row.php";
-
 class knjobjects
 {
     public $objects;
@@ -30,373 +28,11 @@ class knjobjects
         }
     }
 
-    static function array_data($objects, $args = array())
-    {
-        $return = array();
-
-        foreach ($objects as $object) {
-            if (!$args or $args["ids"]) {
-                $return[] = $object->id();
-            } elseif ($args["data"]) {
-                $return[] = $object->g($args["data"]);
-            } else {
-                throw new exception("No data-identifier given.");
-            }
-        }
-
-        return $return;
-    }
-
-    /**
-     * DEPRECATED: Use get_by() instead.
-     */
-    function single_by($obj, $args)
-    {
-        return $this->get_by($obj, $args);
-    }
-
-    function get_by($obj, $args)
-    {
-        $args["limit"] = 1;
-
-        $objs = $this->list_obs($obj, $args);
-        if (!$objs) {
-            return false;
-        }
-
-        $data = each($objs);
-        return $data[1];
-    }
-
-    function cleanMemory()
-    {
-        if ($this->weakref || $this->weakmap) {
-            return false;
-        }
-
-        $usage = memory_get_usage() / 1024 / 1024;
-        if ($usage >= 52) {
-            $this->unset_all();
-        }
-    }
-
-    function unset_all()
-    {
-        if ($this->weakref || $this->weakmap) {
-            return false;
-        }
-
-        $this->objects = array();
-    }
-
-    function unset_class($classname)
-    {
-        if ($this->weakref or $this->weakmap) {
-            return false;
-        }
-
-        unset($this->objects[$classname]);
-    }
-
-    function requirefile($obname)
-    {
-        if ($this->config["require"]) {
-            $fn = $this->config["class_path"] . "/class" . $this->config["class_sep"] . $obname . ".php";
-            if (!file_exists($fn)) {
-                throw new exception("File not found: " . $fn);
-            }
-
-            require_once $fn;
-        }
-
-        if ($this->objects && !array_key_exists($obname, $this->objects)) {
-            $this->objects[$obname] = array();
-        }
-    }
-
-    function listObs($ob, $args = array(), $list_args = array())
-    {
-        return $this->list_obs($ob, $args, $list_args);
-    }
-
-    function list_obs($ob, $args = array(), $list_args = array())
-    {
-        if ($this->objects && !array_key_exists($ob, $this->objects)) {
-            $this->requirefile($ob);
-        }
-
-        $call_args = array($args);
-
-        if ($this->args and array_key_exists("extra_args", $this->args) and $this->args["extra_args"]) {
-            $eargs = $this->args["extra_args"];
-
-            if ($this->args["extra_args_self"]) {
-                $eargs["ob"] = $this;
-            }
-
-            $call_args[] = $eargs;
-        }
-
-        $return = call_user_func_array(array($ob, "getList"), $call_args);
-
-        if ($list_args and array_key_exists("key", $list_args)) {
-            $newreturn = array();
-            foreach ($return as $object) {
-                $newreturn[$object->g($list_args["key"])] = $object;
-            }
-
-            return $newreturn;
-        }
-
-        return $return;
-    }
-
-    function list_reader($args)
-    {
-        if (!$args) {
-            throw new exception("No arguments given.");
-        }
-
-        if (!$args["ob"]) {
-            throw new exception("No object name given.");
-        }
-
-        if (!$args["obargs"]) {
-            throw new exception("No object-arguments given.");
-        }
-
-        $this->list_reader_count++;
-        $id = $this->list_reader_count;
-        $this->list_reader[$id]["from"] = 0;
-
-        if ($args["add"]) {
-            $this->list_reader[$id]["add"] = $args["add"];
-        } else {
-            $this->list_reader[$id]["add"] = 1000;
-        }
-
-        $this->list_reader[$id]["args"] = $args;
-
-        return $id;
-    }
-
-    function list_reader_read($id)
-    {
-        $data = &$this->list_reader[$id];
-        if (!$data) {
-            return false;
-        }
-
-        if (!$this->weakref and !$this->weakmap and $data["obs"]) {
-            foreach ($data["obs"] as $ob) {
-                $this->unset_ob($ob);
-            }
-        }
-
-        $args = $data["args"]["obargs"];
-        $args["limit_from"] = $data["from"];
-        $args["limit_to"] = $data["add"];
-        $data["obs"] = $this->list_obs($data["args"]["ob"], $args);
-
-        if (!$data["obs"]) {
-            unset($this->list_reader[$id]);
-            return false;
-        }
-
-        $data["from"] += $data["add"];
-        return $data["obs"];
-    }
-
-    function list_reader_count($id)
-    {
-        $data = &$this->list_reader[$id];
-        if (!$data) {
-            return false;
-        }
-
-        $args = $data["args"]["obargs"];
-        unset($args["limit_from"], $args["limit_to"]);
-        $args["count"] = true;
-        $count = $this->list_obs($data["args"]["ob"], $args);
-
-        return $count;
-    }
-
-    function listArr($ob, $args = null)
-    {
-        $opts = array();
-        if ($args["none"]) {
-            unset($args["none"]);
-
-            if (function_exists("gtext")) {
-                $opts = array(0 => $this->gtext("None"));
-            } elseif (function_exists("_")) {
-                $opts = array(0 => _("None"));
-            } elseif (function_exists("gettext")) {
-                $opts = array(0 => gettext("None"));
-            }
-        }
-
-        $list = $this->list_obs($ob, $args);
-        foreach ($list as $listitem) {
-            $opts[$listitem->get($this->config["col_id"])] = $listitem->getTitle();
-        }
-
-        return $opts;
-    }
-
-    function sqlargs_orderbylimit($args)
-    {
-        $sql = "";
-
-        if ($args["orderby"] and preg_match("/^[A-z]+$/", $args["orderby"])) {
-            $sql .= " ORDER BY " . $args["orderby"];
-
-            if ($args["ordermode"] == "desc") {
-                $sql .= " DESC";
-            }
-        }
-
-        if ($args["limit"] and is_numeric($args["limit"])) {
-            $sql .= " LIMIT " . $args["limit"];
-        }
-
-        if ($args["limit_from"] and $args["limit_to"] and is_numeric($args["limit_from"]) and is_numeric($args["limit_to"])) {
-            $sql .= " LIMIT " . $args["limit_from"] . ", " . $args["limit_to"];
-        }
-
-        return $sql;
-    }
-
-    function gtext($string)
-    {
-        if (function_exists("gtext")) {
-            return gtext($string);
-        } elseif (function_exists("_")) {
-            return _($string);
-        } elseif (function_exists("gettext")) {
-            return gettext($string);
-        } else {
-            return $string;
-        }
-    }
-
-    function listOpts($ob, $getkey, $args = array())
-    {
-        return $this->list_opts($ob, $getkey, $args);
-    }
-
-    function list_opts($ob, $getkey, $args = null)
-    {
-        $opts = array();
-
-        if ($args["addnew"]) {
-            unset($args["addnew"]);
-            $opts[0] = $this->gtext("Add new");
-        }
-
-        if ($args["none"]) {
-            unset($args["none"]);
-            $opts[0] = $this->gtext("None");
-        }
-
-        if ($args["choose"]) {
-            unset($args["choose"]);
-            $opts[0] = $this->gtext("Choose") . ":";
-        }
-
-        if ($args["all"]) {
-            unset($args["all"]);
-            $opts[0] = $this->gtext("All");
-        }
-
-        if (!$args["col_id"]) {
-            $args["col_id"] = "id";
-        }
-
-        if (!$args["list_args"]) {
-            $args["list_args"] = array();
-        }
-
-        foreach ($this->list_obs($ob, $args["list_args"]) as $object) {
-            if (is_array($getkey) and $getkey["funccall"]) {
-                $value = call_user_func(array($object, $getkey["funccall"]));
-            } else {
-                $value = $object->get($getkey);
-            }
-
-            $opts[$object->get($args["col_id"])] = $value;
-        }
-
-        return $opts;
-    }
-
-    function list_bysql($ob, $sql, $args = array())
-    {
-        $ret = array();
-        $q_obs = $this->config["db"]->query($sql);
-        while ($d_obs = $q_obs->fetch()) {
-            if ($args["col_id"]) {
-                $ret[] = $this->get($ob, $d_obs[$args["col_id"]], $d_obs);
-            } else {
-                $ret[] = $this->get($ob, $d_obs);
-            }
-        }
-        $q_obs->free();
-
-        return $ret;
-    }
-
     function add($ob, $arr)
     {
-        if ($this->objects && !array_key_exists($ob, $this->objects)) {
-            $this->requirefile($ob);
-        }
-
         $call_args = array($arr);
 
-        if ($this->args["extra_args"]) {
-            $eargs = $this->args["extra_args"];
-
-            if ($this->args["extra_args_self"]) {
-                $eargs["ob"] = $this;
-            }
-
-            $call_args[] = $eargs;
-        }
-
         return call_user_func_array(array($ob, "addNew"), $call_args);
-    }
-
-    function unset_ob($ob, $id = null)
-    {
-        return $this->unsetOb($ob, $id);
-    }
-
-    function unsetOb($ob, $id = null)
-    {
-        if ($this->weakref || $this->weakmap) {
-            return false;
-        }
-
-        if (is_object($ob) && is_null($id)) {
-            $id = $ob->id();
-
-            if ($this->objects[get_class($ob)][$id]) {
-                unset($this->objects[get_class($ob)][$id]);
-            }
-        } else {
-            if ($this->objects[$ob][$id]) {
-                unset($this->objects[$ob][$id]);
-            }
-        }
-    }
-
-    function unset_obs($obs)
-    {
-        foreach ($obs as $ob) {
-            $this->unset_ob($ob);
-        }
     }
 
     function get($ob, $id, $data = null)
@@ -450,10 +86,6 @@ class knjobjects
             }
         }
 
-        if (isset($this->objects[$ob]) && array_key_exists($ob, $this->objects[$ob])) {
-            $this->requirefile($ob);
-        }
-
         if ($this->args["get_array"]) {
             $obj = new $ob(array(
                 "data" => $rdata,
@@ -482,37 +114,86 @@ class knjobjects
         return $obj;
     }
 
-    function get_try($ob, $key, $obname = null)
+    function getBy($obj, $args)
     {
-        $class_name = get_class($ob);
+        $args["limit"] = 1;
 
-        if (!$obname and $this->get_try_cache[$class_name][$key]) {
-            $obname = $this->get_try_cache[$class_name][$key];
-        } elseif (!$obname) {
-            if (substr($key, -3, 3) == "_id") {
-                $obname = substr($key, 0, -3);
-                $this->get_try_cache[$class_name][$key] = $obname;
-            } elseif (substr($key, -2, 2) == "Id") {
-                $obname = substr($key, 0, -2);
-                $this->get_try_cache[$class_name][$key] = $obname;
-            } else {
-                throw new exception("Could not figure out the object name from: " . $key);
-            }
-        }
-
-        $id = intval($ob->g($key));
-        if (!$id) {
+        $objs = $this->getList($obj, $args);
+        if (!$objs) {
             return false;
         }
 
-        try {
-            return $this->get($obname, $id);
-        } catch (knjdb_rownotfound_exception $e) {
-            return false;
-        }
+        $data = each($objs);
+        return $data[1];
     }
 
-    function sqlhelper(&$list_args, $args)
+    function getList($ob, $args = array(), $list_args = array())
+    {
+        return call_user_func_array(array($ob, "getList"), array($args));
+    }
+
+    function listOpts($ob, $getkey, $args = null)
+    {
+        $opts = array();
+
+        if ($args["addnew"]) {
+            unset($args["addnew"]);
+            $opts[0] = _("Add new");
+        }
+
+        if ($args["none"]) {
+            unset($args["none"]);
+            $opts[0] = _("None");
+        }
+
+        if ($args["choose"]) {
+            unset($args["choose"]);
+            $opts[0] = _("Choose") . ":";
+        }
+
+        if ($args["all"]) {
+            unset($args["all"]);
+            $opts[0] = _("All");
+        }
+
+        if (!$args["col_id"]) {
+            $args["col_id"] = "id";
+        }
+
+        if (!$args["list_args"]) {
+            $args["list_args"] = array();
+        }
+
+        foreach ($this->getList($ob, $args["list_args"]) as $object) {
+            if (is_array($getkey) and $getkey["funccall"]) {
+                $value = call_user_func(array($object, $getkey["funccall"]));
+            } else {
+                $value = $object->get($getkey);
+            }
+
+            $opts[$object->get($args["col_id"])] = $value;
+        }
+
+        return $opts;
+    }
+
+    function getListBySql($ob, $sql, $args = array())
+    {
+        $ret = array();
+        $q_obs = $this->config["db"]->query($sql);
+        while ($d_obs = $q_obs->fetch()) {
+            if ($args["col_id"]) {
+                $ret[] = $this->get($ob, $d_obs[$args["col_id"]], $d_obs);
+            } else {
+                $ret[] = $this->get($ob, $d_obs);
+            }
+        }
+        $q_obs->free();
+
+        return $ret;
+    }
+
+    function sqlHelper(&$list_args, $args)
     {
         if ($args and array_key_exists("db", $args) and $args["db"]) {
             $db = $args["db"];
@@ -635,59 +316,59 @@ class knjobjects
                 $found = true;
 
                 switch ($match[2]) {
-                    case "from":
-                        $sql_where .= " >= '" . $db->sql($list_val) . "'";
-                        break;
-                    case "to":
-                        $sql_where .= " <= '" . $db->sql($list_val) . "'";
-                        break;
-                    default:
-                        throw new exception("Invalid mode: " . $match[2]);
+                case "from":
+                    $sql_where .= " >= '" . $db->sql($list_val) . "'";
+                    break;
+                case "to":
+                    $sql_where .= " <= '" . $db->sql($list_val) . "'";
+                    break;
+                default:
+                    throw new exception("Invalid mode: " . $match[2]);
                 }
             } elseif (array_key_exists("cols_dates", $args) and preg_match("/^(.+)_(date|time|from|to)/", $list_key, $match) and in_array($match[1], $args["cols_dates"])) {
                 $found = true;
 
                 switch ($match[2]) {
-                    case "date":
-                        if (is_array($list_val)) {
-                            if (empty($list_val)) {
-                                throw new exception("Array was empty!");
-                            }
-
-                            $sql_where .= " AND (";
-                            $first = true;
-
-                            foreach ($list_val as $time_s) {
-                                if ($first) {
-                                    $first = false;
-                                } else {
-                                    $sql_where .= " OR ";
-                                }
-
-                                $sql_where .= "DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
-                                $sql_where .= " = '" . $db->sql($db->date_format($time_s, array("time" => false))) . "'";
-                            }
-
-                            $sql_where .= ")";
-                        } else {
-                            $sql_where .= " AND DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
-                            $sql_where .= " = '" . $db->sql($db->date_format($list_val, array("time" => false))) . "'";
+                case "date":
+                    if (is_array($list_val)) {
+                        if (empty($list_val)) {
+                            throw new exception("Array was empty!");
                         }
 
-                        break;
-                    case "time":
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                        $sql_where .= " = '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
-                    case "from":
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                        $sql_where .= " >= '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
-                        break;
-                    case "to":
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                        $sql_where .= " <= '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
-                        break;
-                    default:
-                        throw new exception("Invalid mode: " . $match[2]);
+                        $sql_where .= " AND (";
+                        $first = true;
+
+                        foreach ($list_val as $time_s) {
+                            if ($first) {
+                                $first = false;
+                            } else {
+                                $sql_where .= " OR ";
+                            }
+
+                            $sql_where .= "DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
+                            $sql_where .= " = '" . $db->sql($db->date_format($time_s, array("time" => false))) . "'";
+                        }
+
+                        $sql_where .= ")";
+                    } else {
+                        $sql_where .= " AND DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
+                        $sql_where .= " = '" . $db->sql($db->date_format($list_val, array("time" => false))) . "'";
+                    }
+
+                    break;
+                case "time":
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
+                    $sql_where .= " = '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
+                case "from":
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
+                    $sql_where .= " >= '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
+                    break;
+                case "to":
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
+                    $sql_where .= " <= '" . $db->sql($db->date_format($list_val, array("time" => true))) . "'";
+                    break;
+                default:
+                    throw new exception("Invalid mode: " . $match[2]);
                 }
             } elseif ($list_key == "limit") {
                 $sql_limit .= " LIMIT " . intval($list_val);
@@ -751,5 +432,53 @@ class knjobjects
         );
     }
 
+    function unsetOb($ob, $id = null)
+    {
+        if ($this->weakref || $this->weakmap) {
+            return false;
+        }
+
+        if (is_object($ob) && is_null($id)) {
+            $id = $ob->id();
+
+            if ($this->objects[get_class($ob)][$id]) {
+                unset($this->objects[get_class($ob)][$id]);
+            }
+        } else {
+            if ($this->objects[$ob][$id]) {
+                unset($this->objects[$ob][$id]);
+            }
+        }
+    }
+
+    function unsetClass($classname)
+    {
+        if ($this->weakref or $this->weakmap) {
+            return false;
+        }
+
+        unset($this->objects[$classname]);
+    }
+
+    function unsetAll()
+    {
+        if ($this->weakref || $this->weakmap) {
+            return false;
+        }
+
+        $this->objects = array();
+    }
+
+    function cleanMemory()
+    {
+        if ($this->weakref || $this->weakmap) {
+            return false;
+        }
+
+        $usage = memory_get_usage() / 1024 / 1024;
+        if ($usage >= 52) {
+            $this->unsetAll();
+        }
+    }
 }
 
