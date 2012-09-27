@@ -101,9 +101,6 @@ function picture_openrandomformat($image, $mime = false)
         return ImageCreateFromJPEG($image);
     } elseif ($mime == "image/gif") {
         return ImageCreateFromGIF($image);
-    } elseif ($mime == "image/bmp") {
-        require_once "knj/functions_knj_picture_bmp.php";
-        return ImageCreateFromBMP($image);
     } elseif ($mime == "image/vnd.wbmp") {
         return ImageCreateFromWBMP($image);
     } elseif ($mime == "image/png") {

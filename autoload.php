@@ -46,7 +46,6 @@ class knj_autoload
             "knj_csv" => "csv",
             "knj_mail" => "mail",
             "knj_strings" => "strings",
-            "knj_fs" => "functions_knj_filesystem",
             "knj_date" => "date",
             "knj_powerset" => "powerset",
             "notfoundexc" => "exceptions",
