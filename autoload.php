@@ -43,7 +43,6 @@ class knj_autoload
             "knjdb" => "db",
             "knjdb_async" => "knjdb/class_knjdb_async",
             "knjobjects" => "objects",
-            "knj_csv" => "csv",
             "knj_mail" => "mail",
             "knj_strings" => "strings",
             "knj_date" => "date",
