@@ -72,59 +72,6 @@ class knj_strings
     }
 
     /**
-     * TODO
-     *
-     * @param string $content TODO
-     *
-     * @return string TODO
-     */
-    static function parseImageHTML($content)
-    {
-        if (preg_match_all("/<img [\s\S]+ \/>/U", $content, $matches)) {
-            foreach ($matches[0] as $key => $value) {
-                $img_html = $value;
-
-                if (preg_match("/src=\"([\s\S]+)\"/U", $img_html, $match_src)) {
-                    $src = $match_src[1];
-                    if (mb_substr($src, 0, 1) == "/") {
-                        $src = mb_substr($src, 1);
-                    }
-
-                    $replace_with = "image.php?picture=" .$src;
-
-                    if (preg_match("/width: ([0-9]+)(px|)/", $img_html, $match_width)) {
-                        $size["width"] = $match_width[1];
-                        $replace_with .= "&width=" .$match_width[1];
-                    }
-
-                    if (preg_match("/height: ([0-9]+)(px|)/", $img_html, $match_height)) {
-                        $size["height"] = $match_height[1];
-                        $replace_with .= "&height=" .$match_width[1];
-                    }
-
-                    if (preg_match_all("/(width|height)=\"([0-9]+)(px|)\"/", $img_html, $match_sizes)) {
-                        $size = array();
-                        foreach ($match_sizes[1] as $key => $sizetype) {
-                            if (!$size[$sizetype]) {
-                                $size[$sizetype] = $match_sizes[2][$key];
-                                $replace_with .= "&" .$sizetype ."=" .$match_sizes[2][$key];
-                            }
-                        }
-                    }
-
-                    if ($size) {
-                        $img_html = str_replace($src, $replace_with, $img_html);
-                        $content = str_replace($value, $img_html, $content);
-                    }
-                }
-            }
-        }
-
-        return $content;
-    }
-
-
-    /**
      * Parse a string so it fits into the command-line of Linux.
      *
      * @param string $string string to process
