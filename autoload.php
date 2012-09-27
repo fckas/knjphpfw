@@ -44,7 +44,6 @@ class knj_autoload
             "knjdb_async" => "knjdb/class_knjdb_async",
             "knjobjects" => "objects",
             "knj_csv" => "csv",
-            "knj_login" => "web_login",
             "knj_mail" => "mail",
             "knj_strings" => "strings",
             "knj_fs" => "functions_knj_filesystem",
