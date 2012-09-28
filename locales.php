@@ -118,8 +118,8 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
             if (defined('LC_MESSAGES')) {
                 setlocale(LC_MESSAGES, $language . ".utf8");
             }
-            setlocale(LC_NUMERIC, 'C');
         }
+        setlocale(LC_NUMERIC, 'C');
 
         bindtextdomain($domain, $dir);
         bind_textdomain_codeset($domain, "UTF-8");
