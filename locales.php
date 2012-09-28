@@ -50,7 +50,39 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
         $language = strtolower($match[1]) . "_" . strtoupper($match[2]);
     }
 
-    $functions_knjlocales["language"] = $language;
+    require_once "knj/functions_knj_os.php";
+    $os = knj_os::getOS();
+    $os = $os['os'];
+
+    /**
+     * Country/Region http://msdn.microsoft.com/en-us/library/cdax410z(v=vs.71).aspx
+     * Language       http://msdn.microsoft.com/en-us/library/39cwe7zf(v=vs.71).aspx
+     */
+    $language_win = $language;
+    if ($os == 'windows') {
+        switch ($language) {
+            case 'da':
+            case 'dk':
+            case 'da_DK':
+                $language_win = 'danish';
+                break;
+            case 'de':
+            case 'de_DE':
+                $language_win = 'german';
+                break;
+            case 'en':
+            case 'uk':
+            case 'en_GB':
+                $language_win = 'english-uk';
+                break;
+            case 'us':
+            case 'en_US':
+                $language_win = 'english-us';
+                break;
+        }
+    }
+
+    $functions_knjlocales["language"] = $language_win;
 
     if (!file_exists($dir)) {
         throw new exception("Dir does not exist: " . $dir);
@@ -60,8 +92,8 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
         require_once "php-gettext/gettext.inc";
         $functions_knjlocales["module"] = "php-gettext";
 
-        _setlocale(LC_ALL, $language);// or die("Locales error 5\n");
-        _setlocale(LC_MESSAGES, $language);// or die("Locales error 6\n");
+        _setlocale(LC_ALL, $language_win);// or die("Locales error 5\n");
+        _setlocale(LC_MESSAGES, $language_win);// or die("Locales error 6\n");
         _bindtextdomain($domain, $dir);
         _bind_textdomain_codeset($domain, "UTF-8");
         _textdomain($domain);
@@ -73,16 +105,21 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
 
         $functions_knjlocales["module"] = "ext";
 
-        putenv("LANGUAGE=" . $language);
-        putenv("LC_ALL=" . $language);
-        putenv("LC_MESSAGE=" . $language);
-        putenv("LANG=" . $language);
+        putenv("LANGUAGE=" . $language_win);
+        putenv("LC_ALL=" . $language_win);
+        putenv("LC_MESSAGE=" . $language_win);
+        putenv("LANG=" . $language_win);
         putenv("LC_NUMERIC=C");
 
-        $locales_language_real = $language . ".utf8";
-        setlocale(LC_ALL, $locales_language_real);
-        setlocale(LC_MESSAGES, $locales_language_real);
-        setlocale(LC_NUMERIC, 'C');
+        if ($os == 'windows') {
+            setlocale(LC_ALL, $language_win);
+        } else {
+            setlocale(LC_ALL, $language . ".utf8");
+            if (defined('LC_MESSAGES')) {
+                setlocale(LC_MESSAGES, $language . ".utf8");
+            }
+            setlocale(LC_NUMERIC, 'C');
+        }
 
         bindtextdomain($domain, $dir);
         bind_textdomain_codeset($domain, "UTF-8");
