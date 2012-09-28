@@ -59,10 +59,6 @@ class knj_autoload
     {
         $class = mb_strtolower($classname);
 
-        if (array_key_exists($class, $this->classes)) {
-            include_once $this->classes[$class];
-        }
-
         if (array_key_exists($class, $this->exts)) {
             include_once "knj/exts.php";
             knj_dl($this->ext[$classname]);
