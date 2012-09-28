@@ -629,7 +629,7 @@ function form_drawInput($args)
 
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<table class="designtable"><tr><td style="width: 100%;"><input type="file" name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args["class"]) .'" /></td><td>';
         if ($fn) {
-            echo '<img src="image.php?picture=' .urlencode($fn) .'&amp;smartsize=80&amp;edgesize=20&amp;equaldim=true" alt="Preview" />';
+            echo '<img src="/' . $fn . '" alt="Preview" height="80" />';
         }
         if ($found && $args["dellink"]) {
             echo '<div style="text-align: center;">(<a onclick="return confirm(\'' ._("Do you want to delete the picture?") .'\')" href="' .htmlspecialchars($args["dellink"]) .'">' ._("delete") .'</a>)';
