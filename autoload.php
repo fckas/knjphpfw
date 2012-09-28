@@ -34,8 +34,6 @@ class knj_autoload
         $this->knj = array(
             "web" => "web",
             "knj_browser" => "web",
-            "knj_cartesian_additions" => "cartesian_additions",
-            "knj_date" => "date",
             "knj_ftp" => "ftp",
             "knj_os" => "os",
             "objects" => "objects",
@@ -43,20 +41,10 @@ class knj_autoload
             "knjdb" => "db",
             "knjdb_async" => "knjdb/class_knjdb_async",
             "knjobjects" => "objects",
-            "knj_mail" => "mail",
             "knj_strings" => "strings",
-            "knj_date" => "date",
-            "knj_powerset" => "powerset",
             "notfoundexc" => "exceptions",
             "dbconnexc" => "exceptions",
-            "noaccessexc" => "exceptions",
-            "knj_translations" => "translations",
             "epay" => "epay"
-        );
-        $this->classes = array(
-            "net_ftp" => "Net/FTP.php",
-            "pclzip" => "libphp-pclzip/pclzip.lib.php",
-            "fpdf" => "fpdf/fpdf.php"
         );
     }
 
