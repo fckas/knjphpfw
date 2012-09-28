@@ -362,10 +362,32 @@ class knjdb
 
     /**
      * A quick way to insert a new row into the database.
+     *
+     * Owerwrite existing duplicates
      */
     function replace($table, $arr)
     {
         $this->conn->replace($table, $arr);
+
+        if ($this->insert_autocommit){ //check wherever autocommit is on.
+            $this->insert_countcommit++;
+
+            if ($this->insert_countcommit >= $this->insert_autocommit) {
+                $this->trans_commit();
+                $this->trans_begin();
+                $this->insert_countcommit = 0;
+            }
+        }
+    }
+
+    /**
+     * A quick way to insert a new row into the database.
+     *
+     * Update existing duplicates
+     */
+    function insert_update($table, $arr)
+    {
+        $this->conn->insert_update($table, $arr);
 
         if ($this->insert_autocommit){ //check wherever autocommit is on.
             $this->insert_countcommit++;

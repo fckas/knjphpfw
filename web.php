@@ -150,7 +150,7 @@ class web
                 preg_match('#^\S+/#u', $_SERVER['REQUEST_URL'], $path);
                 $url['path'] = $path[0] . $url['path'];
             }
-            $url = Knj_Httpbrowser::unparseUrl($url);
+            $url = self::unparseUrl($url);
 
             apache_setenv('no-gzip', 1);
             ini_set('zlib.output_compression', 0);
@@ -281,6 +281,27 @@ class web
     static function sxml_esc($str)
     {
         return strtr($str, array("&" => "&amp;"));
+    }
+
+    /**
+     * Build a url string from an array
+     *
+     * @param array $parsed_url Array as returned by parse_url()
+     *
+     * @return string The URL
+     */
+    static function unparseUrl($parsed_url)
+    {
+        $scheme   = $parsed_url['scheme'] ? $parsed_url['scheme'] .'://' : '';
+        $host     = $parsed_url['host'] ? $parsed_url['host'] : '';
+        $port     = $parsed_url['port'] ? ':' .$parsed_url['port'] : '';
+        $user     = $parsed_url['user'] ? $parsed_url['user'] : '';
+        $pass     = $parsed_url['pass'] ? ':' . $parsed_url['pass'] : '';
+        $pass     .= ($user || $pass) ? '@' : '';
+        $path     = $parsed_url['path'] ? $parsed_url['path'] : '';
+        $query    = $parsed_url['query'] ? '?' . $parsed_url['query'] : '';
+        $fragment = $parsed_url['fragment'] ? '#' . $parsed_url['fragment'] : '';
+        return $scheme .$user .$pass .$host .$port .$path .$query .$fragment;
     }
 }
 
@@ -515,7 +536,7 @@ function form_drawInput($args)
     }
 
     $js_tags = "";
-    $js_tags_arr = array("onkeyup", "onkeydown", "onchange");
+    $js_tags_arr = array("onkeyup", "onkeydown", "onchange", 'onclick');
     foreach ($js_tags_arr as $js_tag) {
         if ($args[$js_tag]) {
             $js_tags .= " " . $js_tag . "=\"" . $args[$js_tag] . "\"";
@@ -546,13 +567,17 @@ function form_drawInput($args)
         if ($args["disabled"]) {
             echo ' disabled="disabled"';
         }
-        echo ' type="' .$args["type"] .'" name="' .$args["name"] .'" id="' .$id .'"';
+        echo ' type="' .$args["type"] .'" class="'. $args['class'] .'" name="' .$args["name"] .'" id="' .$id .'"';
         if ($value) {
             echo ' checked="checked"';
         }
         echo $js_tags .' /><label for="' .$id .'">' .$title_html .'</label></td>';
     } elseif ($args["type"] == "select") {
         $etags = "";
+        if ($args["disabled"]) {
+            $etags .= " disabled=\"disabled\"";
+        }
+
         if ($args["multiple"]) {
             $etags .= " multiple=\"multiple\"";
         }
@@ -604,7 +629,7 @@ function form_drawInput($args)
 
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<table class="designtable"><tr><td style="width: 100%;"><input type="file" name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args["class"]) .'" /></td><td>';
         if ($fn) {
-            echo '<img src="image.php?picture=' .urlencode($fn) .'&amp;smartsize=80&amp;edgesize=20&amp;equaldim=true" alt="Preview" />';
+            echo '<img src="/' . $fn . '" alt="Preview" height="80" />';
         }
         if ($found && $args["dellink"]) {
             echo '<div style="text-align: center;">(<a onclick="return confirm(\'' ._("Do you want to delete the picture?") .'\')" href="' .htmlspecialchars($args["dellink"]) .'">' ._("delete") .'</a>)';
@@ -617,6 +642,9 @@ function form_drawInput($args)
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args["class"]) .'"';
         if ($args["height"]) {
             echo ' style="height: ' .$args["height"] .';"';
+        }
+        if ($args["disabled"]) {
+            echo " disabled=\"disabled\"";
         }
         echo $js_tags .'>' .htmlspecialchars($value, null, 'UTF-8') .'</textarea>' .$td_end_html;
     } elseif ($args["type"] == "fckeditor") {
@@ -649,6 +677,9 @@ function form_drawInput($args)
         echo '<td' .$rowspan .' class="tdheadline" colspan="2">' .$title_html .'</td>';
     } else {
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="' .htmlspecialchars($args["type"]) .'"';
+        if ($args["readonly"]) {
+            echo ' readonly="readonly"';
+        }
         if ($args["disabled"]) {
             echo ' disabled="disabled"';
         }

@@ -11,7 +11,7 @@ require_once "knj/functions_knj_sql.php";
 require_once "knj/class_exceptions.php";
 
 /**
- * This class can connect to different type of databases. It can also output data from each database. 
+ * This class can connect to different type of databases. It can also output data from each database.
  */
 class DBConn extends DBConnDBs
 {
@@ -44,7 +44,7 @@ class DBConn extends DBConnDBs
      * @param string $type The type of the database (mysql, pgsql, sqlite or access).
      * @param string $ip The IP og file-location of the database.
      */
-    function openConn($type, $ip, $port = "", $database = "", $username = null, $password = null, WinStatus $win_status = null)
+    function openConn($type, $ip, $port = "", $database = "", $username = null, $password = null)
 {
         if ($this->conn) {
             $this->CloseConn();
