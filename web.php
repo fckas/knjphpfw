@@ -593,7 +593,12 @@ function form_drawInput($args)
         if ($args["size"]) {
             echo ' size="' .htmlspecialchars($args["size"]) .'"';
         }
-        echo ' name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .$args["class"] .'"' .$js_tags .'>' .select_drawOpts($args["opts"], $value) .'</select>';
+        echo ' name="' .htmlspecialchars($args["name"]);
+        if ($args["multiple"] && mb_substr($args["name"], -2) != "[]") {
+            echo '[]';
+        }
+        echo '" id="' .htmlspecialchars($id) .'" class="' .$args["class"] .'"' .$js_tags .'>' .select_drawOpts($args["opts"], $value) .'</select>';
+
         if ($args["moveable"]) {
             echo '<div style="padding-top: 3px;"><input type="button" value="' ._("Up") .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._("Down") .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
         }
@@ -667,6 +672,9 @@ function form_drawInput($args)
         <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args["name"]) .'" value="' .htmlspecialchars($args["value"]) .'"';
         if ($args["checked"]) {
             echo ' checked="checked"';
+        }
+        if ($args["disabled"]) {
+            echo ' disabled="disabled"';
         }
         echo $js_tags. ' /><label for="' .htmlspecialchars($id) .'">' .$title_html .'</label></td>';
     } elseif ($args["type"] == "info") {
