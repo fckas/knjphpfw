@@ -247,9 +247,22 @@ class knjdb_mssql
             throw new exception("Could not match date.");
         }
 
-        require_once "knj/date.php";
+        $monthMap = array (
+            'jan' => 1,
+            'feb' => 2,
+            'mar' => 3,
+            'apr' => 4,
+            'maj' => 5,
+            'jun' => 6,
+            'jul' => 7,
+            'aug' => 8,
+            'sep' => 9,
+            'okt' => 10,
+            'nov' => 11,
+            'dec' => 12
+        );
 
-        $month_no = date_month3($match[1]);
+        $month_no = $monthMap[$match[1]];
         if (!$month_no) {
             throw new exception("Invalid month str: " . $match[1]);
         }
