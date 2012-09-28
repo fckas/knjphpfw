@@ -121,6 +121,30 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
         }
         setlocale(LC_NUMERIC, 'C');
 
+        // Kim Slot. If its a dev site, then avoid having to restart Apache (due to caching) upon updating gettext
+        // Normally you would have to restart Apache to clear the cached gettext from memory
+        if (getConf('testsite')) {
+            $anticache_deleteold = true;
+            $filename_base = $dir . '/' . $language . '/LC_MESSAGES/';
+            $filename_original = $filename_base . $domain . '.mo';
+            $mtime_original = filemtime($filename_original);
+            $filename_new = $filename_base . $domain . '_' . $mtime_original . '.mo';
+            // Create mtime file if it doesnt exist
+            if (!file_exists($filename_new)) {
+                if ($anticache_deleteold) {
+                    $delete_dir = scandir($filename_base, @constant(SCANDIR_SORT_NONE)); // SCANDIR_SORT_NONE in >= 5.4.0
+                    foreach ($delete_dir as $delete_file) {
+                        // Only delete files with a mtime for $domain
+                        if (preg_match('/' . $domain . '_\d+\.mo/i', $delete_file, $matches)) {
+                            unlink($filename_base . $delete_file);
+                        }
+                    }
+                }
+                copy($filename_original, $filename_new);
+            }
+            $domain = $domain . '_' . $mtime_original;
+        }
+
         bindtextdomain($domain, $dir);
         bind_textdomain_codeset($domain, "UTF-8");
         textdomain($domain);
