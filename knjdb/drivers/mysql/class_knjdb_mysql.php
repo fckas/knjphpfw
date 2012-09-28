@@ -87,7 +87,7 @@ class knjdb_mysql
     function sql($string)
     {
         if (is_object($string) or is_array($string)) {
-            throw new exception("Given argument was a valid string.");
+            throw new exception("Given argument was not a valid string.");
         }
 
         return mysql_real_escape_string($string);
