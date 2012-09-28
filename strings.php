@@ -161,22 +161,6 @@ class knj_strings
     }
 
     /**
-     * Test if a string is a valid email
-     *
-     * @param string $str String to test
-     *
-     * @return bool Returns true if it is a valid email, false if not
-     */
-    static function is_email($str)
-    {
-        if (preg_match("/^(.+)@(.+)\.(.+)/", $str)) {
-            return true;
-        }
-
-        return false;
-    }
-
-    /**
      * Convert chars with accents to nearest equvilant
      *
      * @param string $string String to process
@@ -200,39 +184,6 @@ class knj_strings
         $string = html_entity_decode($string, ENT_QUOTES, 'UTF-8');
 
         return $string;
-    }
-
-    /**
-     * Parse a string so it will be a valid filename.
-     *
-     * @param string $filename String to process
-     * @param string $so       OS to comply with.
-     *
-     * @return string
-     */
-    static function filename_safe($filename, $os = null)
-    {
-        if (!$os) {
-            include_once "knj/os.php";
-            $os = knj_os::getOS();
-            $os = $os["os"];
-        }
-
-        if ($os == "windows") {
-            $search  = '/["*:<>?\|]+/u';
-            $replace = '';
-        } elseif ($os == "linux") {
-            $search  = '#/#u';
-            $replace = '';
-        } elseif ($os == "posix") {
-            $string = unaccent($string);
-            $search  = '/[^A-z0-9._-]+/u';
-            $replace = '';
-        } else {
-            throw new Exception("Unsupported OS.");
-        }
-
-        return preg_replace($search, $replace, $string);
     }
 }
 
