@@ -6,9 +6,8 @@ require_once "knj/dbconn/class_dbconn_tables.php";
 require_once "knj/dbconn/class_dbconn_dbs.php";
 require_once "knj/dbconn/class_dbconn_row.php";
 require_once "knj/dbconn/class_dbconn_fetchresult.php";
-require_once "knj/functions_knj_extensions.php";
-require_once "knj/functions_knj_sql.php";
-require_once "knj/class_exceptions.php";
+require_once "knj/sql.php";
+require_once "knj/exceptions.php";
 
 /**
  * This class can connect to different type of databases. It can also output data from each database.
@@ -53,7 +52,7 @@ class DBConn extends DBConnDBs
         $this->type_try = $type;
 
         if ($type == "mysql") {
-            if (!function_exists("mysql_connect") && !knj_dl("mysql")) {
+            if (!function_exists("mysql_connect")) {
                 throw new Exception("Could not load the MySQL-extension.");
             }
 
@@ -116,7 +115,7 @@ class DBConn extends DBConnDBs
             $this->type = "pgsql";
             $this->pg_version = pg_version($this->conn);
         } elseif ($type == "sqlite") {
-            if (!function_exists("sqlite_open") && !knj_dl("sqlite")) {
+            if (!function_exists("sqlite_open")) {
                 throw new Exception("Could not load the SQLite-extension.");
             }
 
@@ -129,9 +128,6 @@ class DBConn extends DBConnDBs
                 return false;
             }
         } elseif ($type == "sqlite3") {
-            knj_dl("pdo");
-            knj_dl("pdo_sqlite");
-
             try{
                 $this->conn = new PDO("sqlite:" . $ip);
                 $this->type = "sqlite3";

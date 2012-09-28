@@ -39,9 +39,6 @@ class knjdb_mysqli
     {
         $this->_args  = $args;
         $this->_knjdb = $knjdb;
-
-        include_once "knj/functions_knj_extensions.php";
-        knj_dl("mysqli");
     }
 
     /**

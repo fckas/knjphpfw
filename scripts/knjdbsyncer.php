@@ -124,4 +124,3 @@ foreach ($tables1 as $table1) {
         }
     }
 }
-

@@ -709,29 +709,6 @@ function form_drawInput($args)
 }
 
 /**
- * A shortcut-function to get data from a database through a column value.
- *
- * @param string $in_id     TODO
- * @param string $in_db     TODO
- * @param string $in_fields TODO
- *
- * @return array The data
- */
-function GOne($in_id, $in_db, $in_fields)
-{
-    global $knj_web;
-
-    if ($knj_web["dbconn"]) {
-        return $knj_web["dbconn"]->query("SELECT " . $in_fields . " FROM " . $in_db . " WHERE " . $knj_web["col_id_name"] . " = '" . $knj_web["dbconn"]->sql($in_id) . "' LIMIT 1")->fetch();
-    } else {
-        $f_gone = mysql_query("SELECT " . $in_fields . " FROM " . $in_db . " WHERE " . $knj_web["col_id_name"] . " = '" . mysql_escape_string($in_id) . "' LIMIT 1") || die("MySQL-error: " . mysql_error());
-        $d_gone = mysql_fetch_array($f_gone);
-    }
-
-    return $d_gone;
-}
-
-/**
  * A shortcut-function to get data from a database through am ID.
  *
  * @param int    $in_id TODO
@@ -849,7 +826,6 @@ class knj_browser
      */
     static function getOS()
     {
-        include_once "knj/functions_array.php";
         $bots = array(
             "yahoo! slurp",
             "msnbot",
