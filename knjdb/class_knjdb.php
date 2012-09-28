@@ -183,14 +183,6 @@ class knjdb
     }
 
     /**
-     * Only has the function because it should be compatible with the DBConn-framework.
-     */
-    function getLastInsertedID()
-    {
-        return $this->getLastID();
-    }
-
-    /**
      * Sets the options of the object.
      */
     function setOpts($args)

@@ -39,7 +39,6 @@ class knj_autoload
             "knjobjects" => "objects",
             "knj_strings" => "strings",
             "notfoundexc" => "exceptions",
-            "dbconnexc" => "exceptions",
             "epay" => "epay"
         );
     }
