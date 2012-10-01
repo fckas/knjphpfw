@@ -206,7 +206,7 @@ function knj_error_reporter_activate($args = array())
         }
     }
 
-    require_once "knj/web.php";
+    require_once "web.php";
 
     $activate = true;
     if (

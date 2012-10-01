@@ -11,7 +11,7 @@
  * @link     https://github.com/kaspernj/knjphpfw
  */
 
-require_once "knj/knjdb/interfaces/class_knjdb_driver_rows.php";
+require_once "../../interfaces/class_knjdb_driver_rows.php";
 
 /**
  * TODO
