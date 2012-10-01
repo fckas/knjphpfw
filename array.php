@@ -1,50 +1,7 @@
 <?php
 
-function array_compare($arr1, $arr2)
-{
-    return knjarray::compare($arr1, $arr2);
-}
-
-function array_keydiffs($arr1, $arr2)
-{
-    return knjarray::keydiffs($arr1, $arr2);
-}
-
-/**
- * Searches a string for an array of posibilities.
- */
-function array_stringsearch($string, $arr)
-{
-    return knjarray::stringsearch($string, $arr);
-}
-
 class knjarray
 {
-    function compare($arr1, $arr2)
-    {
-        foreach ($arr1 as $key => $value) {
-            if (!array_key_exists($key, $arr2)) {
-                return false;
-            }
-
-            if ($value != $arr2[$key]) {
-                return false;
-            }
-        }
-
-        foreach ($arr2 as $key => $value) {
-            if (!array_key_exists($key, $arr1)) {
-                return false;
-            }
-
-            if ($value != $arr1[$key]) {
-                return false;
-            }
-        }
-
-        return true;
-    }
-
     function keydiffs($arr1, $arr2)
     {
         $arr_res = array();
@@ -158,18 +115,4 @@ class knjarray
 
         return $arr;
     }
-
-    function force_no_cols($arr, $no)
-    {
-        while (count($arr) > $no) {
-            array_pop($arr);
-        }
-
-        while (count($arr) < $no) {
-            $arr[] = "";
-        }
-
-        return $arr;
-    }
 }
-

@@ -10,12 +10,11 @@ $functions_knjlocales = array(
 /**
  * Initilializes the chosen locales-module.
  */
-function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto")
+function knjlocales_setmodule($domain, $dir, $language = "auto")
 {
     global $functions_knjlocales;
 
     $functions_knjlocales["dir"] = $dir;
-    $functions_knjlocales["module"] = $module;
 
     if ($language == "auto") {
         if (array_key_exists("HTTP_ACCEPT_LANGUAGE", $_SERVER) and $_SERVER["HTTP_ACCEPT_LANGUAGE"]) {
@@ -56,104 +55,20 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
         throw new exception("Dir does not exist: " . $dir);
     }
 
-    if ($module == "php-gettext") {
-        require_once "php-gettext/gettext.inc";
-        $functions_knjlocales["module"] = "php-gettext";
+    putenv("LANGUAGE=" . $language);
+    putenv("LC_ALL=" . $language);
+    putenv("LC_MESSAGE=" . $language);
+    putenv("LANG=" . $language);
+    putenv("LC_NUMERIC=C");
 
-        _setlocale(LC_ALL, $language);// or die("Locales error 5\n");
-        _setlocale(LC_MESSAGES, $language);// or die("Locales error 6\n");
-        _bindtextdomain($domain, $dir);
-        _bind_textdomain_codeset($domain, "UTF-8");
-        _textdomain($domain);
-    } elseif ($module == "ext") {
-        require_once "knj/functions_knj_extensions.php";
-        if (!knj_dl("gettext")) {
-            throw new exception("gettext-module could not be loaded.");
-        }
+    $locales_language_real = $language . ".utf8";
+    setlocale(LC_ALL, $locales_language_real);
+    setlocale(LC_MESSAGES, $locales_language_real);
+    setlocale(LC_NUMERIC, 'C');
 
-        $functions_knjlocales["module"] = "ext";
-
-        putenv("LANGUAGE=" . $language);
-        putenv("LC_ALL=" . $language);
-        putenv("LC_MESSAGE=" . $language);
-        putenv("LANG=" . $language);
-        putenv("LC_NUMERIC=C");
-
-        $locales_language_real = $language . ".utf8";
-        setlocale(LC_ALL, $locales_language_real);
-        setlocale(LC_MESSAGES, $locales_language_real);
-        setlocale(LC_NUMERIC, 'C');
-
-        bindtextdomain($domain, $dir);
-        bind_textdomain_codeset($domain, "UTF-8");
-        textdomain($domain);
-    } else {
-        throw new exception("knjlocales (" . __FILE__ . ":" . __LINE__ . "): No such module: " . $module . "\n");
-    }
-}
-
-/**
- * Returns the current language in use.
- */
-function knjlocales_getLanguage()
-{
-    global $functions_knjlocales;
-    return $functions_knjlocales["language"];
-}
-
-/**
- * Sets options.
- */
-function knjlocales_setOptions($args)
-{
-    global $functions_knjlocales;
-
-    foreach ($args as $key => $value) {
-        if ($key == "encodeout") {
-            $functions_knjlocales["encodeout"] = $value;
-        } elseif ($key == "date_in_callback" || $key == "date_out_callback") {
-            if (!is_callable($value)) {
-                throw new exception("The given value is not callable.");
-            }
-
-            $functions_knjlocales[$key] = $value;
-        } elseif ($key == "date_out_format" || $key == "date_out_format_time" || $key == "date_out_short_format") {
-            $functions_knjlocales[$key] = $value;
-        } else {
-            die("Unknown option: " . $key);
-        }
-    }
-}
-
-/**
- * Gets the translated string for the chosen locales-module.
- */
-function knjgettext($msgid)
-{
-    global $functions_knjlocales;
-
-    if ($functions_knjlocales["module"] == "ext") {
-        $return = gettext($msgid);
-    } elseif ($functions_knjlocales["module"] == "php-gettext") {
-        $return = _gettext($msgid);
-    } else {
-        $return = $msgid;
-        #throw new exception("No supported module chosen.");
-    }
-
-    if (array_key_exists("encodeout", $functions_knjlocales) and $functions_knjlocales["encodeout"] == "decode_utf8") {
-        $return = utf8_decode($return);
-    }
-
-    return $return;
-}
-
-/**
- * Shorter version of knjgettext().
- */
-function gtext($msgid)
-{
-    return knjgettext($msgid);
+    bindtextdomain($domain, $dir);
+    bind_textdomain_codeset($domain, "UTF-8");
+    textdomain($domain);
 }
 
 function date_out($unixt = null, $args = null)
@@ -217,17 +132,15 @@ function knjlocales_localeconv($lang = null)
         $lang = $functions_knjlocales["language"];
     }
 
-    if ($functions_knjlocales["module"] == "ext") {
-        putenv('LC_MONETARY=' . $lang);
-        setlocale(LC_MONETARY, $lang . '.utf8');
+    putenv('LC_MONETARY=' . $lang);
+    setlocale(LC_MONETARY, $lang . '.utf8');
 
-        $return = localeconv();
+    $return = localeconv();
 
-        putenv('LC_MONETARY=' . $functions_knjlocales["language"]);
-        setlocale(LC_MONETARY, $functions_knjlocales["language"] . '.utf8');
+    putenv('LC_MONETARY=' . $functions_knjlocales["language"]);
+    setlocale(LC_MONETARY, $functions_knjlocales["language"] . '.utf8');
 
-        return $return;
-    }
+    return $return;
 
     if (in_array($lang, array('da_DK', 'de_DE'))) {
         return array(
@@ -258,14 +171,6 @@ function number_in($number, $local = null)
     }
 
     return (float) $number;
-}
-
-function number_in_dk($num)
-{
-    return floatval(strtr($num, array(
-        "," => ".",
-        "." => ""
-    )));
 }
 
 class InvalidDate extends exception

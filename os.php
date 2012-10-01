@@ -6,6 +6,37 @@
 class knj_os
 {
     /**
+     * Runs a command as a pipe and returns the output.
+     */
+    static function shellCMD($cmd)
+    {
+        //Send command to Unix-prompt.
+        $descriptorspec = array(
+            0 => array("pipe", "r"),	// stdin is a pipe that the child will read from
+            1 => array("pipe", "w"),	// stdout is a pipe that the child will write to
+            2 => array("pipe", "w")		// stderr is a file to write to
+        );
+        $process = proc_open($cmd, $descriptorspec, $pipes);
+
+        //Read result-
+        $result = "";
+        while (!feof($pipes[1])) {
+            $result .= fread($pipes[1], 4096);
+        }
+
+        //Read errors.
+        $error = "";
+        while (!feof($pipes[2])) {
+            $error .= fread($pipes[2], 4096);
+        }
+
+        return array(
+            "result" => $result,
+            "error" => $error
+        );
+    }
+
+    /**
      * Returns runnning processes.
      */
     static function getProcs($args = null)
@@ -14,7 +45,6 @@ class knj_os
             $grep = $args["grep"];
             $command = "ps aux | " . $grep;
         } elseif (is_string($args) && strlen($args) > 0) {
-            require_once "knj/functions_knj_strings.php";
             $grep = "grep " .knj_strings::UnixSafe($args);
             $command = "ps aux | " . $grep;
         } else {

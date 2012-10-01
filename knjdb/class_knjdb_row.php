@@ -45,7 +45,6 @@ class knjdb_row
             }
         } else {
             $this->db = $dbconn;
-            $this->dbconn = $dbconn;
             $this->id = $id;
             $this->table = $table;
         }
@@ -69,28 +68,6 @@ class knjdb_row
         }
 
         $this->updateData($data);
-    }
-
-    function ob()
-    {
-        if ($this->ob) {
-            return $this->ob;
-        }
-
-        throw new exception("Could not figure out the object handler to use.");
-    }
-
-    function db()
-    {
-        if ($this->db) {
-            return $this->db;
-        } elseif ($this->dbconn) {
-            return $this->dbconn;
-        } elseif ($this->ob) {
-            return $this->ob->config["db"];
-        }
-
-        throw new exception("Could not figure out the database to use.");
     }
 
     function table_name()
@@ -143,11 +120,6 @@ class knjdb_row
         return $this->get($key);
     }
 
-    function g_date($key)
-    {
-        return $this->db->date_in($this->g($key));
-    }
-
     /**
      * Returns the row as an array.
      */
@@ -172,11 +144,6 @@ class knjdb_row
         }
 
         return true;
-    }
-
-    function setData($arr, $args = null)
-    {
-        return $this->update($arr, $args);
     }
 
     function id()

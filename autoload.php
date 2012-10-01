@@ -27,36 +27,19 @@ class knj_autoload
      */
     function __construct()
     {
-        $this->exts = array(
-            "mysql" => "mysql",
-            "sqlite3" => "sqlite"
-        );
         $this->knj = array(
             "web" => "web",
             "knj_browser" => "web",
-            "knj_cartesian_additions" => "cartesian_additions",
-            "knj_date" => "date",
             "knj_ftp" => "ftp",
             "knj_os" => "os",
             "objects" => "objects",
-            "knjarray" => "functions_array",
+            "knjarray" => "array",
             "knjdb" => "db",
             "knjdb_async" => "knjdb/class_knjdb_async",
             "knjobjects" => "objects",
-            "knj_mail" => "mail",
             "knj_strings" => "strings",
-            "knj_date" => "date",
-            "knj_powerset" => "powerset",
             "notfoundexc" => "exceptions",
-            "dbconnexc" => "exceptions",
-            "noaccessexc" => "exceptions",
-            "knj_translations" => "translations",
             "epay" => "epay"
-        );
-        $this->classes = array(
-            "net_ftp" => "Net/FTP.php",
-            "pclzip" => "libphp-pclzip/pclzip.lib.php",
-            "fpdf" => "fpdf/fpdf.php"
         );
     }
 
@@ -70,37 +53,8 @@ class knj_autoload
     function load($classname)
     {
         $class = mb_strtolower($classname);
-
-        if (array_key_exists($class, $this->classes)) {
-            include_once $this->classes[$class];
-        }
-
-        if (array_key_exists($class, $this->exts)) {
-            include_once "knj/exts.php";
-            knj_dl($this->ext[$classname]);
-        }
-
         if (array_key_exists($class, $this->knj)) {
             include_once "knj/" .$this->knj[$class] .".php";
-        }
-    }
-
-    /**
-     * TODO
-     *
-     * @param mixed  $class TODO
-     * @param string $file  TODO
-     *
-     * @return null
-     */
-    function add($class, $file = null)
-    {
-        if (is_array($class)) {
-            foreach ($class as $key => $value) {
-                $this->add($key, $value);
-            }
-        } else {
-            $this->classes[mb_strtolower($class)] = $file;
         }
     }
 }

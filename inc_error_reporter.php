@@ -15,12 +15,6 @@ function knj_error_get_specific($file, $line)
     return false;
 }
 
-function knj_error_last_error()
-{
-    global $knj_error_reporter;
-    return $knj_error_reporter["last_error"];
-}
-
 /**
  * Handels error on FComputer's website.
  *
@@ -235,15 +229,6 @@ function knj_error_reporter_activate($args = array())
         error_reporting(E_ALL ^ E_NOTICE);
         register_shutdown_function("knj_error_shutdown");
     }
-}
-
-function knj_error_reporter_deactivate()
-{
-    global $knj_error_reporter;
-    $knj_error_reporter = null;
-
-    restore_error_handler();
-    restore_exception_handler();
 }
 
 function knj_error_shutdown()
