@@ -10,12 +10,11 @@ $functions_knjlocales = array(
 /**
  * Initilializes the chosen locales-module.
  */
-function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto")
+function knjlocales_setmodule($domain, $dir, $language = "auto")
 {
     global $functions_knjlocales;
 
     $functions_knjlocales["dir"] = $dir;
-    $functions_knjlocales["module"] = $module;
 
     if ($language == "auto") {
         if (array_key_exists("HTTP_ACCEPT_LANGUAGE", $_SERVER) and $_SERVER["HTTP_ACCEPT_LANGUAGE"]) {
@@ -50,7 +49,13 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
         $language = strtolower($match[1]) . "_" . strtoupper($match[2]);
     }
 
-    require_once "knj/functions_knj_os.php";
+    $functions_knjlocales["language"] = $language;
+
+    if (!file_exists($dir)) {
+        throw new exception("Dir does not exist: " . $dir);
+    }
+
+    require_once "knj/os.php";
     $os = knj_os::getOS();
     $os = $os['os'];
 
@@ -84,137 +89,52 @@ function knjlocales_setmodule($domain, $dir, $module = "ext", $language = "auto"
 
     $functions_knjlocales["language"] = $language_win;
 
-    if (!file_exists($dir)) {
-        throw new exception("Dir does not exist: " . $dir);
-    }
-
-    if ($module == "php-gettext") {
-        require_once "php-gettext/gettext.inc";
-        $functions_knjlocales["module"] = "php-gettext";
-
-        _setlocale(LC_ALL, $language_win);// or die("Locales error 5\n");
-        _setlocale(LC_MESSAGES, $language_win);// or die("Locales error 6\n");
-        _bindtextdomain($domain, $dir);
-        _bind_textdomain_codeset($domain, "UTF-8");
-        _textdomain($domain);
-    } elseif ($module == "ext") {
-        require_once "knj/functions_knj_extensions.php";
-        if (!knj_dl("gettext")) {
-            throw new exception("gettext-module could not be loaded.");
-        }
-
-        $functions_knjlocales["module"] = "ext";
-
+    if ($os == 'windows') {
         putenv("LANGUAGE=" . $language_win);
         putenv("LC_ALL=" . $language_win);
         putenv("LC_MESSAGE=" . $language_win);
         putenv("LANG=" . $language_win);
-        putenv("LC_NUMERIC=C");
-
-        if ($os == 'windows') {
-            setlocale(LC_ALL, $language_win);
-        } else {
-            setlocale(LC_ALL, $language . ".utf8");
-            if (defined('LC_MESSAGES')) {
-                setlocale(LC_MESSAGES, $language . ".utf8");
-            }
+        setlocale(LC_ALL, $language_win);
+    } else {
+        putenv("LANGUAGE=" . $language);
+        putenv("LC_ALL=" . $language);
+        putenv("LC_MESSAGE=" . $language);
+        putenv("LANG=" . $language);
+        setlocale(LC_ALL, $language . ".utf8");
+        if (defined('LC_MESSAGES')) {
+            setlocale(LC_MESSAGES, $language . ".utf8");
         }
-        setlocale(LC_NUMERIC, 'C');
+    }
+    putenv("LC_NUMERIC=C");
+    setlocale(LC_NUMERIC, 'C');
 
-        // Kim Slot. If its a dev site, then avoid having to restart Apache (due to caching) upon updating gettext
-        // Normally you would have to restart Apache to clear the cached gettext from memory
-        if (getConf('testsite')) {
-            $anticache_deleteold = true;
-            $filename_base = $dir . '/' . $language . '/LC_MESSAGES/';
-            $filename_original = $filename_base . $domain . '.mo';
-            $mtime_original = filemtime($filename_original);
-            $filename_new = $filename_base . $domain . '_' . $mtime_original . '.mo';
-            // Create mtime file if it doesnt exist
-            if (!file_exists($filename_new)) {
-                if ($anticache_deleteold) {
-                    $delete_dir = scandir($filename_base, @constant(SCANDIR_SORT_NONE)); // SCANDIR_SORT_NONE in >= 5.4.0
-                    foreach ($delete_dir as $delete_file) {
-                        // Only delete files with a mtime for $domain
-                        if (preg_match('/' . $domain . '_\d+\.mo/i', $delete_file, $matches)) {
-                            unlink($filename_base . $delete_file);
-                        }
+    // Kim Slot. If its a dev site, then avoid having to restart Apache (due to caching) upon updating gettext
+    // Normally you would have to restart Apache to clear the cached gettext from memory
+    if (getConf('testsite')) {
+        $anticache_deleteold = true;
+        $filename_base = $dir . '/' . $language . '/LC_MESSAGES/';
+        $filename_original = $filename_base . $domain . '.mo';
+        $mtime_original = filemtime($filename_original);
+        $filename_new = $filename_base . $domain . '_' . $mtime_original . '.mo';
+        // Create mtime file if it doesnt exist
+        if (!file_exists($filename_new)) {
+            if ($anticache_deleteold) {
+                $delete_dir = scandir($filename_base, @constant(SCANDIR_SORT_NONE)); // SCANDIR_SORT_NONE in >= 5.4.0
+                foreach ($delete_dir as $delete_file) {
+                    // Only delete files with a mtime for $domain
+                    if (preg_match('/' . $domain . '_\d+\.mo/i', $delete_file, $matches)) {
+                        unlink($filename_base . $delete_file);
                     }
                 }
-                copy($filename_original, $filename_new);
             }
-            $domain = $domain . '_' . $mtime_original;
+            copy($filename_original, $filename_new);
         }
-
-        bindtextdomain($domain, $dir);
-        bind_textdomain_codeset($domain, "UTF-8");
-        textdomain($domain);
-    } else {
-        throw new exception("knjlocales (" . __FILE__ . ":" . __LINE__ . "): No such module: " . $module . "\n");
-    }
-}
-
-/**
- * Returns the current language in use.
- */
-function knjlocales_getLanguage()
-{
-    global $functions_knjlocales;
-    return $functions_knjlocales["language"];
-}
-
-/**
- * Sets options.
- */
-function knjlocales_setOptions($args)
-{
-    global $functions_knjlocales;
-
-    foreach ($args as $key => $value) {
-        if ($key == "encodeout") {
-            $functions_knjlocales["encodeout"] = $value;
-        } elseif ($key == "date_in_callback" || $key == "date_out_callback") {
-            if (!is_callable($value)) {
-                throw new exception("The given value is not callable.");
-            }
-
-            $functions_knjlocales[$key] = $value;
-        } elseif ($key == "date_out_format" || $key == "date_out_format_time" || $key == "date_out_short_format") {
-            $functions_knjlocales[$key] = $value;
-        } else {
-            die("Unknown option: " . $key);
-        }
-    }
-}
-
-/**
- * Gets the translated string for the chosen locales-module.
- */
-function knjgettext($msgid)
-{
-    global $functions_knjlocales;
-
-    if ($functions_knjlocales["module"] == "ext") {
-        $return = gettext($msgid);
-    } elseif ($functions_knjlocales["module"] == "php-gettext") {
-        $return = _gettext($msgid);
-    } else {
-        $return = $msgid;
-        #throw new exception("No supported module chosen.");
+        $domain = $domain . '_' . $mtime_original;
     }
 
-    if (array_key_exists("encodeout", $functions_knjlocales) and $functions_knjlocales["encodeout"] == "decode_utf8") {
-        $return = utf8_decode($return);
-    }
-
-    return $return;
-}
-
-/**
- * Shorter version of knjgettext().
- */
-function gtext($msgid)
-{
-    return knjgettext($msgid);
+    bindtextdomain($domain, $dir);
+    bind_textdomain_codeset($domain, "UTF-8");
+    textdomain($domain);
 }
 
 function date_out($unixt = null, $args = null)
@@ -278,17 +198,8 @@ function knjlocales_localeconv($lang = null)
         $lang = $functions_knjlocales["language"];
     }
 
-    if ($functions_knjlocales["module"] == "ext") {
-        putenv('LC_MONETARY=' . $lang);
-        setlocale(LC_MONETARY, $lang . '.utf8');
-
-        $return = localeconv();
-
-        putenv('LC_MONETARY=' . $functions_knjlocales["language"]);
-        setlocale(LC_MONETARY, $functions_knjlocales["language"] . '.utf8');
-
-        return $return;
-    }
+    putenv('LC_MONETARY=' . $lang);
+    setlocale(LC_MONETARY, $lang . '.utf8');
 
     if (in_array($lang, array('da_DK', 'de_DE'))) {
         return array(
@@ -319,14 +230,6 @@ function number_in($number, $local = null)
     }
 
     return (float) $number;
-}
-
-function number_in_dk($num)
-{
-    return floatval(strtr($num, array(
-        "," => ".",
-        "." => ""
-    )));
 }
 
 class InvalidDate extends exception

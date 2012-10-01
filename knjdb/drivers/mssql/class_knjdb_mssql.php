@@ -12,9 +12,6 @@ class knjdb_mssql
     {
         $this->args = $args;
         $this->knjdb = $knjdb;
-
-        require_once "knj/functions_knj_extensions.php";
-        knj_dl("mssql");
     }
 
     function connect()

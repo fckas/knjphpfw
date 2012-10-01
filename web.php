@@ -11,11 +11,6 @@
  * @link     https://github.com/kaspernj/knjphpfw
  */
 
-global $knj_web;
-$knj_web = array(
-    "col_id_name" => "id"
-);
-
 /**
  * TODO
  *
@@ -181,109 +176,6 @@ class web
     }
 
     /**
-     * TODO
-     *
-     * @return array TODO
-     */
-    function rewrite_replaces()
-    {
-        return array(
-            "&" => "",
-            "æ" => "ae",
-            "ø" => "oe",
-            "å" => "aa",
-            "Æ" => "AE",
-            "Å" => "AA",
-            "Ø" => "OE",
-            "é" => "e",
-            "\"" => "",
-            "(" => "",
-            ")" => "",
-            "*" => "",
-            ":" => "-",
-            "+" => "_",
-            "." => "-",
-            "," => "-",
-            "®" => "",
-            "▒" => "",
-            "┬" => "",
-            "?" => "-"
-        );
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $string TODO
-     *
-     * @return string TODO
-     */
-    function rewritesafe($string)
-    {
-        $string = strtr($string, Web::rewrite_replaces());
-        $string = preg_replace("/\s+/", "_", $string);
-
-        return $string;
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $str TODO
-     *
-     * @return string TODO
-     */
-    function rewritesafe_removeothers($str)
-    {
-        $str = Web::rewritesafe($str);
-        preg_match_all("/[\/A-z_-\d]+/", $str, $matches);
-        $newstr = implode("_", $matches[0]);
-        return $newstr;
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $string TODO
-     *
-     * @return string TODO
-     */
-    function rewriteback($string)
-    {
-        return strtr($string, array("_" => " "));
-    }
-
-    /**
-     * TODO
-     *
-     * @return string TODO
-     */
-    static function current_url()
-    {
-        if ($_SERVER["HTTPS"] == "on") {
-            $url = "https://";
-        } else {
-            $url = "http://";
-        }
-
-        $url .= $_SERVER["HTTP_HOST"] . $_SERVER["REQUEST_URI"];
-
-        return $url;
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $str TODO
-     *
-     * @return string TODO
-     */
-    static function sxml_esc($str)
-    {
-        return strtr($str, array("&" => "&amp;"));
-    }
-
-    /**
      * Build a url string from an array
      *
      * @param array $parsed_url Array as returned by parse_url()
@@ -303,42 +195,6 @@ class web
         $fragment = $parsed_url['fragment'] ? '#' . $parsed_url['fragment'] : '';
         return $scheme .$user .$pass .$host .$port .$path .$query .$fragment;
     }
-}
-
-/**
- * TODO
- *
- * @param string $file TODO
- *
- * @return null
- */
-function secCheckInclude($file)
-{
-    if (strpos($file, "..") !== false) {
-        throw new exception("Possible hack.");
-    }
-}
-
-/**
- * Alias of Web::rewrite_replaces()
- *
- * @param string $msg See Web::rewrite_replaces()
- *
- * @return null
- */
-function alert($msg)
-{
-    Web::alert();
-}
-
-/**
- * TODO
- *
- * @return null
- */
-function jsback()
-{
-    Web::rewrite_replaces();
 }
 
 /**
@@ -717,29 +573,6 @@ function form_drawInput($args)
 }
 
 /**
- * A shortcut-function to get data from a database through a column value.
- *
- * @param string $in_id     TODO
- * @param string $in_db     TODO
- * @param string $in_fields TODO
- *
- * @return array The data
- */
-function GOne($in_id, $in_db, $in_fields)
-{
-    global $knj_web;
-
-    if ($knj_web["dbconn"]) {
-        return $knj_web["dbconn"]->query("SELECT " . $in_fields . " FROM " . $in_db . " WHERE " . $knj_web["col_id_name"] . " = '" . $knj_web["dbconn"]->sql($in_id) . "' LIMIT 1")->fetch();
-    } else {
-        $f_gone = mysql_query("SELECT " . $in_fields . " FROM " . $in_db . " WHERE " . $knj_web["col_id_name"] . " = '" . mysql_escape_string($in_id) . "' LIMIT 1") || die("MySQL-error: " . mysql_error());
-        $d_gone = mysql_fetch_array($f_gone);
-    }
-
-    return $d_gone;
-}
-
-/**
  * A shortcut-function to get data from a database through am ID.
  *
  * @param int    $in_id TODO
@@ -752,9 +585,9 @@ function GID($in_id, $in_db)
     global $knj_web;
 
     if ($knj_web["dbconn"]) {
-        return $knj_web["dbconn"]->selectsingle($in_db, array($knj_web["col_id_name"] => (int) $in_id));
+        return $knj_web["dbconn"]->selectsingle($in_db, array('id' => (int) $in_id));
     } else {
-        $sql = "SELECT * FROM " . sql($in_db) . " WHERE " . $knj_web["col_id_name"] . " = '" . sql($in_id) . "' LIMIT 1";
+        $sql = "SELECT * FROM " . sql($in_db) . " WHERE id = '" . sql($in_id) . "' LIMIT 1";
         $f_gid = mysql_query($sql) || die("MySQL-error: " . mysql_error() . "\nSQL: " . $sql);
         $d_gid = mysql_fetch_array($f_gid);
     }
@@ -857,7 +690,6 @@ class knj_browser
      */
     static function getOS()
     {
-        include_once "knj/functions_array.php";
         $bots = array(
             "yahoo! slurp",
             "msnbot",

@@ -26,7 +26,7 @@ class knjdb
     }
 
     /**
-     * Returns the current type (mysql, sqlite2, pdo...).
+     * Returns the current type (mysqli, mssql...).
      */
     function getType()
     {
@@ -175,19 +175,6 @@ class knjdb
     function getLastID()
     {
         return $this->conn->getLastID();
-    }
-
-    function last_id()
-    {
-        return $this->getLastID();
-    }
-
-    /**
-     * Only has the function because it should be compatible with the DBConn-framework.
-     */
-    function getLastInsertedID()
-    {
-        return $this->getLastID();
     }
 
     /**
