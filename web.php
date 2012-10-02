@@ -504,8 +504,11 @@ function form_drawInput($args)
         if ($args["height"]) {
             echo ' style="height: ' .$args["height"] .';"';
         }
+        if ($args["readonly"]) {
+            echo ' readonly="readonly"';
+        }
         if ($args["disabled"]) {
-            echo " disabled=\"disabled\"";
+            echo ' disabled="disabled"';
         }
         echo $js_tags .'>' .htmlspecialchars($value, null, 'UTF-8') .'</textarea>' .$td_end_html;
     } elseif ($args["type"] == "fckeditor") {
@@ -525,7 +528,7 @@ function form_drawInput($args)
     } elseif ($args["type"] == "radio") {
         $id = $id ."_" .$value;
         echo '<td' .$rowspan .' class="tdt" colspan="2">
-        <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args["name"]) .'" value="' .htmlspecialchars($args["value"]) .'"';
+        <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args["name"]) .'" value="' .htmlspecialchars($args["value"]) .'"  class="' .htmlspecialchars($args["class"]) .'"';
         if ($args["checked"]) {
             echo ' checked="checked"';
         }
