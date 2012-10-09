@@ -22,7 +22,7 @@ class knj_ftp
             throw new exception('Could not log in.');
         }
 
-        if (!array_key_exists('passive', $this->args) or $this->args['passive']) {
+        if (!array_key_exists('passive', $this->args) || $this->args['passive']) {
             if (!ftp_pasv($this->ftp, true)) {
                 throw new exception('Could not enable passive mode.');
             }

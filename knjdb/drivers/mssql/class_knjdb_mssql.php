@@ -231,7 +231,7 @@ class knjdb_mssql
     {
         $format = 'm/d/Y';
 
-        if (!array_key_exists('time', $args) or $args['time']) {
+        if (!array_key_exists('time', $args) || $args['time']) {
             $format .= ' H:i:s';
         }
 

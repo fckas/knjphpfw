@@ -19,15 +19,15 @@ function opt_set($arr)
         }
     }
 
-    if (!array_key_exists('table', $knj_options) or !$knj_options['table']) {
+    if (!array_key_exists('table', $knj_options) || !$knj_options['table']) {
         $knj_options['table'] = 'options';
     }
 
-    if (!array_key_exists('keycol', $knj_options) or !$knj_options['keycol']) {
+    if (!array_key_exists('keycol', $knj_options) || !$knj_options['keycol']) {
         $knj_options['keycol'] = 'title';
     }
 
-    if (!array_key_exists('valcol', $knj_options) or !$knj_options['valcol']) {
+    if (!array_key_exists('valcol', $knj_options) || !$knj_options['valcol']) {
         $knj_options['valcol'] = 'value';
     }
 }

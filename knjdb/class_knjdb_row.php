@@ -56,7 +56,7 @@ class knjdb_row
         foreach ($args as $key => $value) {
             if ($key == 'col_id') {
                 $this->$key = $value;
-            } elseif ($key == 'db' or $key == 'data' or $key == 'table') {
+            } elseif ($key == 'db' || $key == 'data' || $key == 'table') {
                 //do nothing.
             } else {
                 throw new Exception('Invalid argument: "' . $key . '".');
