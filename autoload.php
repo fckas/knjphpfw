@@ -54,7 +54,7 @@ class knj_autoload
     {
         $class = mb_strtolower($classname);
         if (array_key_exists($class, $this->knj)) {
-            include_once 'knj/' .$this->knj[$class] .'.php';
+            include_once $this->knj[$class] .'.php';
         }
     }
 }

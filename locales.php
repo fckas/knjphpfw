@@ -25,7 +25,7 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
                 break;
             }
         } elseif ($_SERVER['LANG']) {
-            if (preg_match("/^([a-z]{2}_[A-Z]{2})/", $_SERVER['LANG'], $match)) {
+            if (preg_match('/^([a-z]{2}_[A-Z]{2})/u', $_SERVER['LANG'], $match)) {
                 $language = $match[1];
             } else {
                 //Language could not be matched - default english.
@@ -45,8 +45,39 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     $language = strtr($language, array(
         '-' => '_'
     ));
-    if (preg_match("/^([A-z]{2})_([A-z]{2})$/", $language, $match)) {
+    if (preg_match('/^([A-z]{2})_([A-z]{2})$/u', $language, $match)) {
         $language = strtolower($match[1]) . '_' . strtoupper($match[2]);
+    }
+
+    require_once 'os.php';
+    $os = knj_os::getOS();
+    $os = $os['os'];
+
+    /**
+     * Country/Region http://msdn.microsoft.com/en-us/library/cdax410z(v=vs.71).aspx
+     * Language       http://msdn.microsoft.com/en-us/library/39cwe7zf(v=vs.71).aspx
+     */
+    if ($os == 'windows') {
+        switch ($language) {
+            case 'da':
+            case 'dk':
+            case 'da_DK':
+                $language = 'danish';
+                break;
+            case 'de':
+            case 'de_DE':
+                $language = 'german';
+                break;
+            case 'en':
+            case 'uk':
+            case 'en_GB':
+                $language = 'english-uk';
+                break;
+            case 'us':
+            case 'en_US':
+                $language = 'english-us';
+                break;
+        }
     }
 
     $functions_knjlocales['language'] = $language;
@@ -60,10 +91,14 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     putenv('LC_MESSAGE=' . $language);
     putenv('LANG=' . $language);
     putenv('LC_NUMERIC=C');
-
-    $locales_language_real = $language . '.utf8';
-    setlocale(LC_ALL, $locales_language_real);
-    setlocale(LC_MESSAGES, $locales_language_real);
+    if ($os == 'windows') {
+        setlocale(LC_ALL, $language);
+    } else {
+        setlocale(LC_ALL, $language . '.utf8');
+        if (defined('LC_MESSAGES')) {
+            setlocale(LC_MESSAGES, $language . '.utf8');
+        }
+    }
     setlocale(LC_NUMERIC, 'C');
 
     bindtextdomain($domain, $dir);
@@ -132,6 +167,24 @@ function knjlocales_localeconv($lang = null)
         $lang = $functions_knjlocales['language'];
     }
 
+    require_once 'os.php';
+    $os = knj_os::getOS();
+    $os = $os['os'];
+
+    if ($os == 'windows') {
+        if (in_array($lang, array('da_DK', 'de_DE'))) {
+            return array(
+                'mon_decimal_point' => ',',
+                'mon_thousands_sep' => '.'
+            );
+        } else {
+            return array(
+                'mon_decimal_point' => '.',
+                'mon_thousands_sep' => ','
+            );
+        }
+    }
+
     putenv('LC_MONETARY=' . $lang);
     setlocale(LC_MONETARY, $lang . '.utf8');
 
@@ -141,18 +194,6 @@ function knjlocales_localeconv($lang = null)
     setlocale(LC_MONETARY, $functions_knjlocales['language'] . '.utf8');
 
     return $return;
-
-    if (in_array($lang, array('da_DK', 'de_DE'))) {
-        return array(
-            'mon_decimal_point' => ',',
-            'mon_thousands_sep' => '.'
-        );
-    } else {
-        return array(
-            'mon_decimal_point' => '.',
-            'mon_thousands_sep' => ','
-        );
-    }
 }
 
 function number_out($number, $len = 0, $local = null)

@@ -113,6 +113,8 @@ class knj_os
         if (!$knj_getos) {
             if (array_key_exists('OS', $_SERVER) && strpos(strtolower($_SERVER['OS']), 'windows') !== false) {
                 $knj_getos['os'] = 'windows';
+            } elseif (isset($_SERVER['WINDIR']) && stripos($_SERVER['WINDIR'], 'windows')) {
+                $knj_getos['os'] = 'windows';
             } else {
                 $knj_getos['os'] = 'linux';
             }

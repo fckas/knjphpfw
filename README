@@ -1,7 +1,7 @@
 #About this branch:
-UPDATE: as of commit c56fa1c11b1beee1ac1c75ee4d0d1844a1d97fea, compatability and fature set is no longer maintained.
+UPDATE: As of commit c56fa1c11b1beee1ac1c75ee4d0d1844a1d97fea, compatibility and feature set is no longer maintained.
 
-The focus of this branch is to make the code easyer to maintain, document it and make it work properly with UTF-8 encoding.
+The focus of this branch is to make the code easier to maintain, document it and make it work properly with UTF-8 encoding.
 This will mainly be done by making the code style comply with PEAR style. The framework will expect UTF-8 as the internal encoding. Depricated code and non OOP code will be removed and be replaced with OOP code.
 
 #HOW TO INSTALL

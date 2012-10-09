@@ -173,7 +173,7 @@ function knj_error_reporter_email($msg, $args = array())
             $title = "Error reported by knj's error reporter";
         }
 
-        require_once 'knj/strings.php';
+        require_once 'strings.php';
         $err_msg = knj_strings::shorten($args['error_msg'], 38);
         $title = sprintf($title, $err_msg);
 
@@ -206,7 +206,7 @@ function knj_error_reporter_activate($args = array())
         }
     }
 
-    require_once 'knj/web.php';
+    require_once 'web.php';
 
     $activate = true;
     if (
