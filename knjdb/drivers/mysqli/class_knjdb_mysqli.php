@@ -49,21 +49,21 @@ class knjdb_mysqli
     static function getArgs()
     {
         return array(
-            "host" => array(
-                "type" => "text",
-                "title" => "Hostname"
+            'host' => array(
+                'type' => 'text',
+                'title' => 'Hostname'
             ),
-            "user" => array(
-                "type" => "text",
-                "title" => "Username"
+            'user' => array(
+                'type' => 'text',
+                'title' => 'Username'
             ),
-            "pass" => array(
-                "type" => "passwd",
-                "title" => "Password"
+            'pass' => array(
+                'type' => 'passwd',
+                'title' => 'Password'
             ),
-            "db" => array(
-                "type" => "text",
-                "title" => "Database"
+            'db' => array(
+                'type' => 'text',
+                'title' => 'Database'
             )
         );
     }
@@ -76,15 +76,15 @@ class knjdb_mysqli
     function connect()
     {
         $this->conn = new MySQLi(
-            $this->_args["host"],
-            $this->_args["user"],
-            $this->_args["pass"],
-            $this->_args["db"]
+            $this->_args['host'],
+            $this->_args['user'],
+            $this->_args['pass'],
+            $this->_args['db']
         );
 
          //do not use the OO-way - it was broken until 5.2.9.
         if (mysqli_connect_error()) {
-            $msg = "Could not connect (" .mysqli_connect_errno() ."): "
+            $msg = 'Could not connect (' .mysqli_connect_errno() .'): '
             .mysqli_connect_error();
             throw new Exception($msg);
         }
@@ -112,7 +112,7 @@ class knjdb_mysqli
     {
         $res = $this->conn->query($query);
         if (!$res) {
-            $msg = "Query error: " .$this->error() ."\n\nSQL: " .$query;
+            $msg = 'Query error: ' .$this->error() ."\n\nSQL: " .$query;
             throw new exception($msg);
         }
 
@@ -129,7 +129,7 @@ class knjdb_mysqli
     function query_ubuf($query)
     {
         if (!$this->conn->real_query($query)) {
-            throw new exception("Query error: " . $this->error() . "\n\nSQL: " . $query);
+            throw new exception('Query error: ' . $this->error() . "\n\nSQL: " . $query);
         }
 
         return new knjdb_result($this->knjdb, $this, $this->conn->use_result());
@@ -200,8 +200,8 @@ class knjdb_mysqli
      */
     function escape_table($string)
     {
-        if (strpos($string, "`")) {
-            throw new exception("Tablename contains invalid character.");
+        if (strpos($string, '`')) {
+            throw new exception('Tablename contains invalid character.');
         }
 
         return $string;
@@ -426,12 +426,12 @@ class knjdb_mysqli
             $sql .= " WHERE " .$this->makeWhere($where);
         }
 
-        if ($args["orderby"]) {
-            $sql .= " ORDER BY " .$args["orderby"];
+        if ($args['orderby']) {
+            $sql .= " ORDER BY " .$args['orderby'];
         }
 
-        if ($args["limit"]) {
-            $sql .= " LIMIT " .$args["limit"];
+        if ($args['limit']) {
+            $sql .= " LIMIT " .$args['limit'];
         }
 
         return $this->query($sql);
@@ -502,10 +502,10 @@ class knjdb_mysqli
         }
 
         $data = array(
-            "array" => $tables,
-            "surr" => "`",
-            "impl" => ",",
-            "self_callback" => array($this, "escape_table")
+            'array' => $tables,
+            'surr' => '`',
+            'impl' => ',',
+            'self_callback' => array($this, 'escape_table')
         );
         $sql = "OPTIMIZE TABLE " .knjarray::implode($data);
 
@@ -531,10 +531,10 @@ class knjdb_mysqli
 
             if (is_array($value)) {
                 $data = array(
-                    "array" => $value,
-                    "impl" => ",",
-                    "surr" => "'",
-                    "self_callback" => array($this, "sql")
+                    'array' => $value,
+                    'impl' => ',',
+                    'surr' => "'",
+                    'self_callback' => array($this, 'sql')
                 );
                 $sql .= $this->sep_col .$key .$this->sep_col ." IN ("
                 .knjarray::implode($data) .")";
@@ -569,10 +569,10 @@ class knjdb_mysqli
      */
     function date_format($unixt, $args = array())
     {
-        $format = "Y-m-d";
+        $format = 'Y-m-d';
 
-        if (!array_key_exists("time", $args) || $args["time"]) {
-            $format .= " H:i:s";
+        if (!array_key_exists('time', $args) || $args['time']) {
+            $format .= ' H:i:s';
         }
 
         return date($format, $unixt);

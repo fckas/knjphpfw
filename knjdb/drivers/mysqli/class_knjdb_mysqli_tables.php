@@ -46,14 +46,14 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
         if ($this->tables_changed) {
             $f_gt = $this->knjdb->query("SHOW TABLE STATUS");
             while ($d_gt = $f_gt->fetch()) {
-                if (!$this->tables[$d_gt["Name"]]) {
+                if (!$this->tables[$d_gt['Name']]) {
                     $data = array(
-                        "name"      => $d_gt["Name"],
-                        "engine"    => $d_gt["Engine"],
-                        "collation" => $d_gt["Collation"],
-                        "rows"      => $d_gt["Rows"]
+                        'name'      => $d_gt['Name'],
+                        'engine'    => $d_gt['Engine'],
+                        'collation' => $d_gt['Collation'],
+                        'rows'      => $d_gt['Rows']
                     );
-                    $this->tables[$d_gt["Name"]] = new knjdb_table(
+                    $this->tables[$d_gt['Name']] = new knjdb_table(
                         $this->knjdb,
                         $data
                     );
@@ -77,13 +77,13 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
     function renameTable(knjdb_table $table, $newname)
     {
         $this->knjdb->query(
-            "ALTER TABLE " .$this->knjdb->conn->sep_table .$table->get("name")
+            "ALTER TABLE " .$this->knjdb->conn->sep_table .$table->get('name')
             .$this->knjdb->conn->sep_table ." RENAME TO "
             .$this->knjdb->conn->sep_table .$newname .$this->knjdb->conn->sep_table
         );
 
-        unset($this->tables[$table->get("name")]);
-        $table->data["name"] = $newname;
+        unset($this->tables[$table->get('name')]);
+        $table->data['name'] = $newname;
         $this->tables[$newname] = $table;
     }
 
@@ -100,7 +100,7 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
     {
         $sql = "CREATE";
 
-        if ($args["temp"]) {
+        if ($args['temp']) {
             $sql .= " TEMPORARY";
         }
 
@@ -120,7 +120,7 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
         }
         $sql .= ")";
 
-        if ($args["returnsql"]) {
+        if ($args['returnsql']) {
             return $sql;
         }
 
@@ -138,10 +138,10 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
     function dropTable(knjdb_table $table)
     {
         $this->knjdb->query(
-            "DROP TABLE " .$this->knjdb->conn->sep_table .$table->get("name")
+            "DROP TABLE " .$this->knjdb->conn->sep_table .$table->get('name')
             .$this->knjdb->conn->sep_table
         );
-        unset($this->tables[$table->get("name")]);
+        unset($this->tables[$table->get('name')]);
     }
 
     /**
@@ -154,7 +154,7 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
     function truncateTable(knjdb_table $table)
     {
         $this->knjdb->query(
-            "TRUNCATE " .$this->knjdb->conn->sep_table .$table->get("name")
+            "TRUNCATE " .$this->knjdb->conn->sep_table .$table->get('name')
             .$this->knjdb->conn->sep_table
         );
     }
@@ -169,7 +169,7 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
     function optimizeTable(knjdb_table $table)
     {
         $this->knjdb->query(
-            "OPTIMIZE TABLE " .$this->knjdb->conn->sep_table .$table->get("name")
+            "OPTIMIZE TABLE " .$this->knjdb->conn->sep_table .$table->get('name')
             .$this->knjdb->conn->sep_table
         );
     }

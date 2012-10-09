@@ -5,7 +5,7 @@ class knjdb_async
     function __construct($args = array())
     {
         $this->args = $args;
-        $this->conn = $args["conn"];
+        $this->conn = $args['conn'];
         $this->conn->query("SET autocommit=0;");
     }
 
@@ -16,7 +16,7 @@ class knjdb_async
         }
 
         if ($this->conn->multi_query("START TRANSACTION; " . $str . "; COMMIT;") === false) {
-            throw new exception("Query failed: " . $this->conn->error);
+            throw new exception('Query failed: ' . $this->conn->error);
         }
 
         $this->query_ran = true;

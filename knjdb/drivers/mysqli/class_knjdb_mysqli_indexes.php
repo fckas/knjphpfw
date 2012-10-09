@@ -11,7 +11,7 @@
  * @link     https://github.com/kaspernj/knjphpfw
  */
 
-require_once "knj/knjdb/interfaces/class_knjdb_driver_indexes.php";
+require_once 'knj/knjdb/interfaces/class_knjdb_driver_indexes.php';
 
 /**
  * TODO
@@ -49,7 +49,7 @@ class knjdb_mysqli_indexes implements knjdb_driver_indexes
 
         $columns = array();
         foreach ($index->getColumns() as $column) {
-            $columns[] = $this->knjdb->connob->sep_col .$column->get("name")
+            $columns[] = $this->knjdb->connob->sep_col .$column->get('name')
             .$this->knjdb->connob->sep_col;
         }
 
@@ -57,9 +57,9 @@ class knjdb_mysqli_indexes implements knjdb_driver_indexes
             return $sql;
         }
 
-        $sql = "CREATE INDEX " .$this->knjdb->connob->sep_col .$index->get("name")
+        $sql = "CREATE INDEX " .$this->knjdb->connob->sep_col .$index->get('name')
         .$this->knjdb->connob->sep_col ." ON " .$this->knjdb->connob->sep_table
-        .$index->getTable()->get("name") .$this->knjdb->connob->sep_table ." ("
+        .$index->getTable()->get('name') .$this->knjdb->connob->sep_table ." ("
         .implode(", ", $columns) .");\n";
 
         return $sql;
@@ -80,27 +80,27 @@ class knjdb_mysqli_indexes implements knjdb_driver_indexes
         if (!$name) {
             $name = "index";
             foreach ($cols as $col) {
-                $name .= "_" .$col->get("name");
+                $name .= "_" .$col->get('name');
             }
         }
         $sql = "CREATE";
 
-        if ($args["unique"]) {
+        if ($args['unique']) {
             $sql .= " UNIQUE";
         }
 
         $columns = array();
         foreach ($cols as $column) {
-            $columns[] = $this->knjdb->connob->sep_column .$column->get("name")
+            $columns[] = $this->knjdb->connob->sep_column .$column->get('name')
             .$this->knjdb->connob->sep_column;
         }
 
         $sql .= " INDEX " .$this->knjdb->connob->sep_table .$name
         .$this->knjdb->connob->sep_table ." ON " .$this->knjdb->connob->sep_table
-        .$table->get("name") .$this->knjdb->connob->sep_table ." ("
+        .$table->get('name') .$this->knjdb->connob->sep_table ." ("
         .implode(", ", $columns) .")";
 
-        if ($args["returnsql"]) {
+        if ($args['returnsql']) {
             return $sql;
         }
 
@@ -118,11 +118,11 @@ class knjdb_mysqli_indexes implements knjdb_driver_indexes
      */
     function removeIndex(knjdb_table $table, knjdb_index $index)
     {
-        $sql = "DROP INDEX " .$this->knjdb->conn->sep_index .$index->get("name")
+        $sql = "DROP INDEX " .$this->knjdb->conn->sep_index .$index->get('name')
         .$this->knjdb->conn->sep_index ." ON " .$this->knjdb->conn->sep_table
-        .$table->get("name") .$this->knjdb->conn->sep_table;
+        .$table->get('name') .$this->knjdb->conn->sep_table;
         $this->knjdb->query($sql);
-        unset($table->indexes[$index->get("name")]);
+        unset($table->indexes[$index->get('name')]);
     }
 
     /**
@@ -136,14 +136,14 @@ class knjdb_mysqli_indexes implements knjdb_driver_indexes
     {
         if ($table->indexes_changed) {
             $sql = "SHOW INDEX FROM " .$this->knjdb->connob->sep_table
-            .$table->get("name") .$this->knjdb->connob->sep_table;
+            .$table->get('name') .$this->knjdb->connob->sep_table;
             $f_gi = $this->knjdb->query($sql);
             while ($d_gi = $f_gi->fetch()) {
-                if ($d_gi["Key_name"] != "PRIMARY") {
-                    $key                 = $d_gi["Key_name"];
-                    $index[$key]["name"] = $d_gi["Key_name"];
-                    $index[$key]["columns"][]
-                        = $table->getColumn($d_gi["Column_name"]);
+                if ($d_gi['Key_name'] != 'PRIMARY') {
+                    $key                 = $d_gi['Key_name'];
+                    $index[$key]['name'] = $d_gi['Key_name'];
+                    $index[$key]['columns'][]
+                        = $table->getColumn($d_gi['Column_name']);
                 }
             }
 

@@ -15,8 +15,8 @@ class knjdb_mssql_tables implements knjdb_driver_tables
         if ($this->tables_changed) {
             $f_gt = $this->knjdb->query("SELECT * FROM INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME");
             while ($d_gt = $f_gt->fetch()) {
-                $this->tables[$d_gt["TABLE_NAME"]] = new knjdb_table($this->knjdb, array(
-                        "name" => $d_gt["TABLE_NAME"]
+                $this->tables[$d_gt['TABLE_NAME']] = new knjdb_table($this->knjdb, array(
+                        'name' => $d_gt['TABLE_NAME']
                     )
                 );
             }
@@ -44,7 +44,7 @@ class knjdb_mssql_tables implements knjdb_driver_tables
         }
         $sql .= ")";
 
-        if ($args["returnsql"]) {
+        if ($args['returnsql']) {
             return $sql;
         }
 
@@ -54,17 +54,17 @@ class knjdb_mssql_tables implements knjdb_driver_tables
 
     function renameTable(knjdb_table $table, $newname)
     {
-        throw new Exception("Not supported.");
+        throw new Exception('Not supported.');
     }
 
     function dropTable(knjdb_table $table)
     {
-        throw new Exception("Not supported.");
+        throw new Exception('Not supported.');
     }
 
     function truncateTable(knjdb_table $table)
     {
-        throw new Exception("Not supported.");
+        throw new Exception('Not supported.');
     }
 }
 

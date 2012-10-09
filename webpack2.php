@@ -33,12 +33,12 @@ class webpack2
      */
     function __construct($paras)
     {
-        $this->_customerNo = $paras["customer_no"];
-        $this->_password = $paras["password"];
+        $this->_customerNo = $paras['customer_no'];
+        $this->_password = $paras['password'];
 
-        $soapUrl = "http://www2.postdanmark.dk/webpack2/ParcelLabelWsService?wsdl";
-        if ($paras["test"]) {
-            $soapUrl = "http://www2.postdanmark.dk/webpack2demo/ParcelLabelWsService?wsdl";
+        $soapUrl = 'http://www2.postdanmark.dk/webpack2/ParcelLabelWsService?wsdl';
+        if ($paras['test']) {
+            $soapUrl = 'http://www2.postdanmark.dk/webpack2demo/ParcelLabelWsService?wsdl';
         }
 
         $this->_soap = new SoapClient($soapUrl);
@@ -54,12 +54,12 @@ class webpack2
     function generateParcelLabel($data)
     {
         $authentication = array(
-            "customerNo" => $this->_customerNo,
-            "password" => $this->_password
+            'customerNo' => $this->_customerNo,
+            'password' => $this->_password
         );
         $args = array(
-            "authentication" => $authentication,
-            "parcels" => $data
+            'authentication' => $authentication,
+            'parcels' => $data
         );
         $status = $this->_soap->generateParcelLabel($args);
 
@@ -68,7 +68,7 @@ class webpack2
         }
 
         if (!$status->parcelLabel->label) {
-            throw new exception(_("No label was returned from Webpack2."));
+            throw new exception(_('No label was returned from Webpack2.'));
         }
 
         return $status;

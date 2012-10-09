@@ -3,10 +3,10 @@
 class knjdb_mssql
 {
     private $args;
-    public $sep_col = "";
+    public $sep_col = '';
     public $sep_val = "'";
-    public $sep_table = "";
-    public $sep_index = "";
+    public $sep_table = '';
+    public $sep_index = '';
 
     function __construct($knjdb, $args)
     {
@@ -16,14 +16,14 @@ class knjdb_mssql
 
     function connect()
     {
-        $this->conn = @mssql_connect($this->args["host"], $this->args["user"], $this->args["pass"]);
+        $this->conn = @mssql_connect($this->args['host'], $this->args['user'], $this->args['pass']);
         if (!$this->conn) {
-            throw new Exception("Could not connect to the database.");
+            throw new Exception('Could not connect to the database.');
         }
 
-        if ($this->args["db"]) {
-            if (!mssql_select_db($this->args["db"], $this->conn)) {
-                throw new Exception("Could not select database.");
+        if ($this->args['db']) {
+            if (!mssql_select_db($this->args['db'], $this->conn)) {
+                throw new Exception('Could not select database.');
             }
         }
     }
@@ -38,7 +38,7 @@ class knjdb_mssql
     {
         $res = mssql_query($sql, $this->conn);
         if (!$res) {
-            throw new Exception("Query error: " . mssql_get_last_message());
+            throw new Exception('Query error: ' . mssql_get_last_message());
         }
 
         return new knjdb_result($this->knjdb, $this, $res);
@@ -52,10 +52,10 @@ class knjdb_mssql
             /** NOTE: This prevents the weird empty columns from MS-SQL. */
             foreach ($data as $key => $value) {
                 if (strlen($value) == 1 and ord($value) == 2) {
-                    $data[$key] = "";
+                    $data[$key] = '';
                 }
 
-                if ($this->args["encoding"] == "utf8") {
+                if ($this->args['encoding'] == 'utf8') {
                     $data[$key] = utf8_encode($data[$key]);
                 }
             }
@@ -66,7 +66,7 @@ class knjdb_mssql
 
     function error()
     {
-        throw new Exception("Not supported.");
+        throw new Exception('Not supported.');
     }
 
     function free($res)
@@ -83,8 +83,8 @@ class knjdb_mssql
 
     function escape_table($string)
     {
-        if (strpos($string, "`")) {
-            throw new exception("Tablename contains invalid character.");
+        if (strpos($string, '`')) {
+            throw new exception('Tablename contains invalid character.');
         }
 
         return $string;
@@ -92,7 +92,7 @@ class knjdb_mssql
 
     function getLastID()
     {
-        throw new Exception("Not supported.");
+        throw new Exception('Not supported.');
     }
 
     /**
@@ -102,8 +102,8 @@ class knjdb_mssql
     {
         $sql = "SELECT";
 
-        if ($args["limit"]) {
-            $sql .= " TOP " . $args["limit"];
+        if ($args['limit']) {
+            $sql .= " TOP " . $args['limit'];
         }
 
         $sql .= " * FROM [" . $table . "]";
@@ -112,8 +112,8 @@ class knjdb_mssql
             $sql .= " WHERE " . $this->makeWhere($where);
         }
 
-        if ($args["orderby"]) {
-            $sql .= " ORDER BY " . $args["orderby"];
+        if ($args['orderby']) {
+            $sql .= " ORDER BY " . $args['orderby'];
         }
 
         return $this->query($sql);
@@ -171,7 +171,7 @@ class knjdb_mssql
     function update($table, $data, $where = null)
     {
         if (!is_array($data)) {
-            throw new Exception("Second argument must be an array with data.");
+            throw new Exception('Second argument must be an array with data.');
         }
 
         $sql .= "UPDATE [" . $table . "] SET ";
@@ -229,10 +229,10 @@ class knjdb_mssql
 
     function date_format($unixt, $args = array())
     {
-        $format = "m/d/Y";
+        $format = 'm/d/Y';
 
-        if (!array_key_exists("time", $args) or $args["time"]) {
-            $format .= " H:i:s";
+        if (!array_key_exists('time', $args) or $args['time']) {
+            $format .= ' H:i:s';
         }
 
         return date($format, $unixt);
@@ -240,8 +240,8 @@ class knjdb_mssql
 
     function date_in($str)
     {
-        if (!preg_match("/^([a-z]{3})\s+(\d+)\s+(\d+)\s+(\d+):(\d+):(\d+):(\d+)$/", $str, $match)) {
-            throw new exception("Could not match date.");
+        if (!preg_match('/^([a-z]{3})\s+(\d+)\s+(\d+)\s+(\d+):(\d+):(\d+):(\d+)$/', $str, $match)) {
+            throw new exception('Could not match date.');
         }
 
         $monthMap = array (
@@ -261,13 +261,13 @@ class knjdb_mssql
 
         $month_no = $monthMap[$match[1]];
         if (!$month_no) {
-            throw new exception("Invalid month str: " . $match[1]);
+            throw new exception('Invalid month str: ' . $match[1]);
         }
 
         $unixt = mktime($match[4], $match[5], $match[6], $month_no, $match[2], $match[3]);
 
         if (!$unixt) {
-            throw new exception("Could not make time.");
+            throw new exception('Could not make time.');
         }
 
         return $unixt;

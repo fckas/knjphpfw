@@ -32,7 +32,7 @@ class web
      */
     function inputs($args)
     {
-        $html = "";
+        $html = '';
         foreach ($args as $arg) {
             $html .= web::input($arg);
         }
@@ -84,7 +84,7 @@ class web
     /**
      * Preform bool operation based on checkbox on/off values
      *
-     * @param string $val  "on"/"off" value
+     * @param string $val  'on'/'off' value
      * @param mixed  $opt1 Return value if $val is on, default is 1
      * @param mixed  $opt2 Return value if $val is off, default is 0
      *
@@ -92,7 +92,7 @@ class web
      */
     function checkVal($val, $opt1 = 1, $opt2 = 0)
     {
-        if ($val == "on") {
+        if ($val == 'on') {
             return $opt1;
         } else {
             return $opt2;
@@ -115,7 +115,7 @@ class web
         echo '<script type="text/javascript"><!--
             alert("' .$msg .'");
         --></script>';
-        $knj_web["alert_sent"] = true;
+        $knj_web['alert_sent'] = true;
     }
 
     /**
@@ -131,7 +131,7 @@ class web
     {
         global $knj_web;
 
-        if (!headers_sent() && !$knj_web["alert_sent"]) {
+        if (!headers_sent() && !$knj_web['alert_sent']) {
             $url = parse_url($url);
             if (!$url['scheme']) {
                 $url['scheme'] = $_SERVER['HTTPS'] != 'on' ? 'http' : 'https';
@@ -213,22 +213,22 @@ function select_drawOpts($opts, $selected = null)
         $selected = call_user_func(array($selected[0], $selected[1]), $selected[2]);
     }
 
-    $html = "";
+    $html = '';
     foreach ($opts as $key => $value) {
-        $html .= "<option";
+        $html .= '<option';
 
         $is_selected = false;
         if (is_array($selected) && in_array($key, $selected)) {
             $is_selected = true;
-        } elseif (is_array($selected) && ($selected["type"] == "arr_rows" || $selected["type"] == "arr_values")) {
-            if (is_array($selected["values"])) {
-                foreach ($selected["values"] as $sel_key => $sel_val) {
-                    if (is_a($sel_val, "knjdb_row")) {
+        } elseif (is_array($selected) && ($selected['type'] == 'arr_rows' || $selected['type'] == 'arr_values')) {
+            if (is_array($selected['values'])) {
+                foreach ($selected['values'] as $sel_key => $sel_val) {
+                    if (is_a($sel_val, 'knjdb_row')) {
                         if ($key == $sel_val->id()) {
                             $is_selected = true;
                         }
                     } else {
-                        if ($selected["type"] == "arr_values") {
+                        if ($selected['type'] == 'arr_values') {
                             if ($key == $sel_val) {
                                 $is_selected = true;
                             }
@@ -265,17 +265,17 @@ function select_drawOpts($opts, $selected = null)
  */
 function form_drawInput($args)
 {
-    if (is_array($args["value"]) && is_callable($args["value"])) {
-        $value = call_user_func($args["value"]);
-    } elseif (is_array($args["value"]) && ($args["value"]["type"] == "arr_rows" || $args["value"]["type"] == "arr_values")) {
+    if (is_array($args['value']) && is_callable($args['value'])) {
+        $value = call_user_func($args['value']);
+    } elseif (is_array($args['value']) && ($args['value']['type'] == 'arr_rows' || $args['value']['type'] == 'arr_values')) {
         //do nothing.
-    } elseif (is_array($args["value"]) && is_object($args["value"][0])) {
-        $value = $args["value"][0]->$args["value"][1]($args["value"][2]);
+    } elseif (is_array($args['value']) && is_object($args['value'][0])) {
+        $value = $args['value'][0]->$args['value'][1]($args['value'][2]);
     } else {
-        if ($args["value"] === null && array_key_exists("default", $args)) {
-            $value = $args["default"];
+        if ($args['value'] === null && array_key_exists('default', $args)) {
+            $value = $args['default'];
         } else {
-            $value = $args["value"];
+            $value = $args['value'];
         }
     }
 
@@ -283,61 +283,61 @@ function form_drawInput($args)
         $value = null;
     }
 
-    if (is_null($value) && array_key_exists("default", $args)) {
-        $value = $args["default"];
+    if (is_null($value) && array_key_exists('default', $args)) {
+        $value = $args['default'];
     }
 
-    if ($value && $args["value_callback"]) {
-        if (array_key_exists(1, $args["value_callback"])) {
-            $value = call_user_func($args["value_callback"][0], $value, $args["value_callback"][1]);
+    if ($value && $args['value_callback']) {
+        if (array_key_exists(1, $args['value_callback'])) {
+            $value = call_user_func($args['value_callback'][0], $value, $args['value_callback'][1]);
         } else {
-            $value = call_user_func($args["value_callback"][0], $value);
+            $value = call_user_func($args['value_callback'][0], $value);
         }
     }
 
-    if (!$args["type"]) {
-        $f3 = substr($args["name"], 0, 3);
-        if ($f3 == "che") {
-            $args["type"] = "checkbox";
-        } elseif ($f3 == "tex") {
-            $args["type"] = "text";
-        } elseif ($f3 == "sel" || array_key_exists("opts", $args)) {
-            $args["type"] = "select";
-        } elseif ($f3 == "fil") {
-            $args["type"] = "file";
-        } elseif ($f3 == "rad") {
-            $args["type"] = "radio";
+    if (!$args['type']) {
+        $f3 = substr($args['name'], 0, 3);
+        if ($f3 == 'che') {
+            $args['type'] = 'checkbox';
+        } elseif ($f3 == 'tex') {
+            $args['type'] = 'text';
+        } elseif ($f3 == 'sel' || array_key_exists('opts', $args)) {
+            $args['type'] = 'select';
+        } elseif ($f3 == 'fil') {
+            $args['type'] = 'file';
+        } elseif ($f3 == 'rad') {
+            $args['type'] = 'radio';
         }
     }
 
-    if (!$args["id"]) {
-        $id = $args["name"];
+    if (!$args['id']) {
+        $id = $args['name'];
     } else {
-        $id = $args["id"];
+        $id = $args['id'];
     }
 
-    if (!$args["type"]) {
-        $args["type"] = "text";
+    if (!$args['type']) {
+        $args['type'] = 'text';
     }
 
-    if ($args["type"] == "password" && !$args["class"]) {
-        $args["class"] = "input_text";
+    if ($args['type'] == 'password' && !$args['class']) {
+        $args['class'] = 'input_text';
     }
 
-    if (!$args["class"]) {
-        $args["class"] = "input_" . $args["type"];
+    if (!$args['class']) {
+        $args['class'] = 'input_' . $args['type'];
     }
 
-    if ($args["colspan"]) {
-        $colspan_cont = $args["colspan"] - 1;
+    if ($args['colspan']) {
+        $colspan_cont = $args['colspan'] - 1;
     }
 
     $classes_tr = array();
-    if ($args["classes_tr"]) {
-        $classes_tr = array_merge($classes_tr, $args["classes_tr"]);
+    if ($args['classes_tr']) {
+        $classes_tr = array_merge($classes_tr, $args['classes_tr']);
     }
 
-    if (!array_key_exists("tr", $args) || $args["tr"]) {
+    if (!array_key_exists('tr', $args) || $args['tr']) {
         if (!empty($classes_tr)) {
             echo '<tr class="' .implode(' ', $classes_tr) ,'">';
         } else {
@@ -345,131 +345,131 @@ function form_drawInput($args)
         }
     }
 
-    if ($args["title"]) {
-        $title_html = htmlspecialchars($args["title"]);
-    } elseif ($args["title_html"]) {
-        $title_html = $args["title_html"];
+    if ($args['title']) {
+        $title_html = htmlspecialchars($args['title']);
+    } elseif ($args['title_html']) {
+        $title_html = $args['title_html'];
     }
 
-    if ($args["div"]) {
-        $title_html = "<div>" . $title_html . "</div>";
+    if ($args['div']) {
+        $title_html = '<div>' . $title_html . '</div>';
     }
 
     $css = array();
-    $td_html = "<td class=\"tdc\"";
-    if ($args["td_width"]) {
-        $css["width"] = $args["td_width"];
+    $td_html = '<td class="tdc"';
+    if ($args['td_width']) {
+        $css['width'] = $args['td_width'];
     }
-    if ($args["align"]) {
-        $css["text-align"] = $args["align"];
+    if ($args['align']) {
+        $css['text-align'] = $args['align'];
     }
 
     if (!empty($css)) {
-        $td_html .= " style=\"";
+        $td_html .= ' style="';
         foreach ($css as $key => $val) {
-            $td_html .= $key . ": " . $val . ";";
+            $td_html .= $key . ': ' . $val . ';';
         }
-        $td_html .= "\"";
+        $td_html .= '"';
     }
 
     if ($colspan_cont > 1) {
-        $td_html .= " colspan=\"" . $colspan_cont . "\"";
+        $td_html .= ' colspan="' . $colspan_cont . '"';
     }
 
     $rowspan = '';
-    if ($args["rowspan"] > 1) {
-        $rowspan = ' rowspan="' .$args["rowspan"] .'"';
+    if ($args['rowspan'] > 1) {
+        $rowspan = ' rowspan="' .$args['rowspan'] .'"';
         $td_html .= $rowspan;
     }
 
-    $td_html .= ">";
+    $td_html .= '>';
 
-    if ($args["div"]) {
-        $td_end_html = "</div></td>";
-        $td_html .= "<div>";
+    if ($args['div']) {
+        $td_end_html = '</div></td>';
+        $td_html .= '<div>';
     } else {
-        $td_end_html = "</td>";
+        $td_end_html = '</td>';
     }
 
-    $js_tags = "";
-    $js_tags_arr = array("onkeyup", "onkeydown", "onchange", 'onclick');
+    $js_tags = '';
+    $js_tags_arr = array('onkeyup', 'onkeydown', 'onchange', 'onclick');
     foreach ($js_tags_arr as $js_tag) {
         if ($args[$js_tag]) {
-            $js_tags .= " " . $js_tag . "=\"" . $args[$js_tag] . "\"";
+            $js_tags .= ' ' . $js_tag . '="' . $args[$js_tag] . '"';
         }
     }
 
-    if (array_key_exists("autocomplete", $args) && !$args["autocomplete"]) {
-        $js_tags .= " autocomplete=\"off\"";
+    if (array_key_exists('autocomplete', $args) && !$args['autocomplete']) {
+        $js_tags .= ' autocomplete="off"';
     }
 
-    if ($args["type"] == "numeric") {
-        $value = number_out($value, $args["decis"]);
+    if ($args['type'] == 'numeric') {
+        $value = number_out($value, $args['decis']);
     }
 
-    if ($args["classes"]) {
-        $classes = $args["classes"];
+    if ($args['classes']) {
+        $classes = $args['classes'];
     } else {
         $classes = array();
     }
 
-    $classes[] = $args["class"];
-    $args["class"] = implode(" ", $classes);
+    $classes[] = $args['class'];
+    $args['class'] = implode(' ', $classes);
 
-    if ($args["type"] == "spacer") {
+    if ($args['type'] == 'spacer') {
         echo '<td' .$rowspan .' colspan="2">&nbsp;</td>';
-    } elseif ($args["type"] == "checkbox") {
+    } elseif ($args['type'] == 'checkbox') {
         echo '<td' .$rowspan .' colspan="2" class="tdcheck"><input';
-        if ($args["disabled"]) {
+        if ($args['disabled']) {
             echo ' disabled="disabled"';
         }
-        echo ' type="' .$args["type"] .'" class="'. $args['class'] .'" name="' .$args["name"] .'" id="' .$id .'"';
+        echo ' type="' .$args['type'] .'" class="'. $args['class'] .'" name="' .$args['name'] .'" id="' .$id .'"';
         if ($value) {
             echo ' checked="checked"';
         }
         echo $js_tags .' /><label for="' .$id .'">' .$title_html .'</label></td>';
-    } elseif ($args["type"] == "select") {
-        $etags = "";
-        if ($args["disabled"]) {
-            $etags .= " disabled=\"disabled\"";
+    } elseif ($args['type'] == 'select') {
+        $etags = '';
+        if ($args['disabled']) {
+            $etags .= ' disabled="disabled"';
         }
 
-        if ($args["multiple"]) {
-            $etags .= " multiple=\"multiple\"";
+        if ($args['multiple']) {
+            $etags .= ' multiple="multiple"';
         }
 
-        if ($args["height"]) {
-            $etags .= " height=\"" . htmlspecialchars($args["height"]) . "\"";
+        if ($args['height']) {
+            $etags .= ' height="' . htmlspecialchars($args['height']) . '"';
         }
 
-        if (is_null($value) && is_array($args["value"])) {
-            $value = $args["value"];
+        if (is_null($value) && is_array($args['value'])) {
+            $value = $args['value'];
         }
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<select' .$etags;
-        if ($args["size"]) {
-            echo ' size="' .htmlspecialchars($args["size"]) .'"';
+        if ($args['size']) {
+            echo ' size="' .htmlspecialchars($args['size']) .'"';
         }
-        echo ' name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .$args["class"] .'"' .$js_tags .'>' .select_drawOpts($args["opts"], $value) .'</select>';
-        if ($args["moveable"]) {
-            echo '<div style="padding-top: 3px;"><input type="button" value="' ._("Up") .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._("Down") .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
+        echo ' name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"' .$js_tags .'>' .select_drawOpts($args['opts'], $value) .'</select>';
+        if ($args['moveable']) {
+            echo '<div style="padding-top: 3px;"><input type="button" value="' ._('Up') .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._('Down') .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
         }
         echo $td_end_html;
-    } elseif ($args["type"] == "imageupload") {
-        if ($args["filetype"]) {
-            $ftype = $args["filetype"];
+    } elseif ($args['type'] == 'imageupload') {
+        if ($args['filetype']) {
+            $ftype = $args['filetype'];
         } else {
-            $ftype = "jpg";
+            $ftype = 'jpg';
         }
 
         if (!$value) {
             $fn = null;
         } else {
-            $fn = $args["path"] ."/" .$value ."." .$ftype;
+            $fn = $args['path'] .'/' .$value .'.' .$ftype;
         }
 
         if (!$fn || !file_exists($fn)) {
             $found = false;
-            $fn_nopic = "images/nopicture.jpg";
+            $fn_nopic = 'images/nopicture.jpg';
             $fn = null;
 
             if (file_exists($fn_nopic)) {
@@ -479,37 +479,37 @@ function form_drawInput($args)
             $found = true;
         }
 
-        if ($args["dellink"]) {
-            $args["dellink"] = str_replace("%value%", $value, $args["dellink"]);
+        if ($args['dellink']) {
+            $args['dellink'] = str_replace('%value%', $value, $args['dellink']);
         }
 
-        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<table class="designtable"><tr><td style="width: 100%;"><input type="file" name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args["class"]) .'" /></td><td>';
+        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<table class="designtable"><tr><td style="width: 100%;"><input type="file" name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'" /></td><td>';
         if ($fn) {
             echo '<img src="/' . $fn . '" alt="Preview" height="80" />';
         }
-        if ($found && $args["dellink"]) {
-            echo '<div style="text-align: center;">(<a onclick="return confirm(\'' ._("Do you want to delete the picture?") .'\')" href="' .htmlspecialchars($args["dellink"]) .'">' ._("delete") .'</a>)';
+        if ($found && $args['dellink']) {
+            echo '<div style="text-align: center;">(<a onclick="return confirm(\'' ._('Do you want to delete the picture?') .'\')" href="' .htmlspecialchars($args['dellink']) .'">' ._('delete') .'</a>)';
         }
         echo '</div>';
         echo '</td></tr></table>' .$td_end_html;
-    } elseif ($args["type"] == "file") {
-        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="file" class="input_' .$args["type"] .'" name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
-    } elseif ($args["type"] == "textarea") {
-        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($args["name"]) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args["class"]) .'"';
-        if ($args["height"]) {
-            echo ' style="height: ' .$args["height"] .';"';
+    } elseif ($args['type'] == 'file') {
+        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="file" class="input_' .$args['type'] .'" name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
+    } elseif ($args['type'] == 'textarea') {
+        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'"';
+        if ($args['height']) {
+            echo ' style="height: ' .$args['height'] .';"';
         }
-        if ($args["disabled"]) {
-            echo " disabled=\"disabled\"";
+        if ($args['disabled']) {
+            echo ' disabled="disabled"';
         }
         echo $js_tags .'>' .htmlspecialchars($value, null, 'UTF-8') .'</textarea>' .$td_end_html;
-    } elseif ($args["type"] == "fckeditor") {
+    } elseif ($args['type'] == 'fckeditor') {
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html;
 
-        $fck = new fckeditor($args["name"]);
+        $fck = new fckeditor($args['name']);
 
-        if ($args["height"]) {
-            $fck->Height = $args["height"];
+        if ($args['height']) {
+            $fck->Height = $args['height'];
         } else {
             $fck->Height = 300;
         }
@@ -517,47 +517,47 @@ function form_drawInput($args)
         $fck->Value = $value;
         $fck->Create();
         echo $td_end_html;
-    } elseif ($args["type"] == "radio") {
-        $id = $id ."_" .$value;
+    } elseif ($args['type'] == 'radio') {
+        $id = $id .'_' .$value;
         echo '<td' .$rowspan .' class="tdt" colspan="2">
-        <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args["name"]) .'" value="' .htmlspecialchars($args["value"]) .'"';
-        if ($args["checked"]) {
+        <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args['name']) .'" value="' .htmlspecialchars($args['value']) .'"';
+        if ($args['checked']) {
             echo ' checked="checked"';
         }
         echo $js_tags. ' /><label for="' .htmlspecialchars($id) .'">' .$title_html .'</label></td>';
-    } elseif ($args["type"] == "info") {
+    } elseif ($args['type'] == 'info') {
         echo '<td' .$rowspan .' class="tdt">' .$title_html. '</td>' .$td_html .$value .$td_end_html;
-    } elseif ($args["type"] == "plain") {
+    } elseif ($args['type'] == 'plain') {
         echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .htmlspecialchars($value) .$td_end_html;
-    } elseif ($args["type"] == "headline") {
+    } elseif ($args['type'] == 'headline') {
         echo '<td' .$rowspan .' class="tdheadline" colspan="2">' .$title_html .'</td>';
     } else {
-        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="' .htmlspecialchars($args["type"]) .'"';
-        if ($args["readonly"]) {
+        echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="' .htmlspecialchars($args['type']) .'"';
+        if ($args['readonly']) {
             echo ' readonly="readonly"';
         }
-        if ($args["disabled"]) {
+        if ($args['disabled']) {
             echo ' disabled="disabled"';
         }
-        if ($args["maxlength"]) {
-            echo ' maxlength="' .$args["maxlength"] .'"';
+        if ($args['maxlength']) {
+            echo ' maxlength="' .$args['maxlength'] .'"';
         }
-        echo ' class="' .$args["class"] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args["name"]) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
+        echo ' class="' .$args['class'] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args['name']) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
     }
 
-    if (!array_key_exists("tr", $args) || $args["tr"]) {
+    if (!array_key_exists('tr', $args) || $args['tr']) {
         echo '</tr>';
     }
 
-    if ($args["descr"]) {
-        $descr = $args["descr"];
+    if ($args['descr']) {
+        $descr = $args['descr'];
 
-        if ($args["div"]) {
+        if ($args['div']) {
             $descr = '<div class="td">' .$descr .'</div>';
         }
 
         echo '<tr><td' .$rowspan .' colspan="2"';
-        if (!$args["div"]) {
+        if (!$args['div']) {
             echo ' class="tdd"';
         }
         echo '>' .$descr .'</td></tr>';
@@ -576,11 +576,11 @@ function GID($in_id, $in_db)
 {
     global $knj_web;
 
-    if ($knj_web["dbconn"]) {
-        return $knj_web["dbconn"]->selectsingle($in_db, array('id' => (int) $in_id));
+    if ($knj_web['dbconn']) {
+        return $knj_web['dbconn']->selectsingle($in_db, array('id' => (int) $in_id));
     } else {
         $sql = "SELECT * FROM " . sql($in_db) . " WHERE id = '" . sql($in_id) . "' LIMIT 1";
-        $f_gid = mysql_query($sql) || die("MySQL-error: " . mysql_error() . "\nSQL: " . $sql);
+        $f_gid = mysql_query($sql) || die('MySQL-error: ' . mysql_error() . "\nSQL: " . $sql);
         $d_gid = mysql_fetch_array($f_gid);
     }
 
@@ -606,26 +606,26 @@ class knj_browser
     {
         global $knj_web;
 
-        $uagent = "";
-        if (array_key_exists("HTTP_USER_AGENT", $_SERVER)) {
-            $uagent = $_SERVER["HTTP_USER_AGENT"];
+        $uagent = '';
+        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $uagent = $_SERVER['HTTP_USER_AGENT'];
         }
 
-        if (strpos($uagent, "MSIE") !== false) {
-            return "ie";
-        } elseif (strpos($uagent, "Chrome") !== false) {
-            return "chrome";
-        } elseif (strpos($uagent, "Safari") !== false) {
-            return "safari";
-        } elseif (strpos($uagent, "Konqueror") !== false) {
-            return "konqueror";
-        } elseif (strpos($uagent, "Opera") !== false) {
-            return "opera";
+        if (strpos($uagent, 'MSIE') !== false) {
+            return 'ie';
+        } elseif (strpos($uagent, 'Chrome') !== false) {
+            return 'chrome';
+        } elseif (strpos($uagent, 'Safari') !== false) {
+            return 'safari';
+        } elseif (strpos($uagent, 'Konqueror') !== false) {
+            return 'konqueror';
+        } elseif (strpos($uagent, 'Opera') !== false) {
+            return 'opera';
         } else {
-            if ($knj_web && array_key_exists("return_mozilla", $knj_web) && $knj_web["return_mozilla"] == true) {
-                return "mozilla";
+            if ($knj_web && array_key_exists('return_mozilla', $knj_web) && $knj_web['return_mozilla'] == true) {
+                return 'mozilla';
             } else {
-                return "firefox";
+                return 'firefox';
             }
         }
     }
@@ -637,37 +637,37 @@ class knj_browser
      */
     static function getVersion()
     {
-        $uagent = "";
-        if (array_key_exists("HTTP_USER_AGENT", $_SERVER)) {
-            $uagent = $_SERVER["HTTP_USER_AGENT"];
+        $uagent = '';
+        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $uagent = $_SERVER['HTTP_USER_AGENT'];
         }
 
-        if (knj_browser::getBrowser() == "ie") {
-            if (preg_match("/MSIE (\d+)/", $uagent, $match)) {
+        if (knj_browser::getBrowser() == 'ie') {
+            if (preg_match('/MSIE (\d+)/', $uagent, $match)) {
                 return $match[1];
-            } elseif (strpos($uagent, "7.0") !== false) {
+            } elseif (strpos($uagent, '7.0') !== false) {
                 return 7;
             } else {
                 return 6;
             }
-        } elseif (knj_browser::getBrowser() == "safari") {
-            if (strpos($uagent, "Version/4.0") !== false) {
+        } elseif (knj_browser::getBrowser() == 'safari') {
+            if (strpos($uagent, 'Version/4.0') !== false) {
                 return 4;
             }
-        } elseif (knj_browser::getBrowser() == "konqueror") {
-            if (strpos($uagent, "Konqueror/3") !== false) {
+        } elseif (knj_browser::getBrowser() == 'konqueror') {
+            if (strpos($uagent, 'Konqueror/3') !== false) {
                 return 3;
-            } elseif (strpos($uagent, "Konqueror/4") !== false) {
+            } elseif (strpos($uagent, 'Konqueror/4') !== false) {
                 return 4;
             }
-        } elseif (knj_browser::getBrowser() == "mozilla" || knj_browser::getBrowser() == "firefox") {
-            if (strpos($uagent, "Firefox/3") !== false) {
+        } elseif (knj_browser::getBrowser() == 'mozilla' || knj_browser::getBrowser() == 'firefox') {
+            if (strpos($uagent, 'Firefox/3') !== false) {
                 return 3;
-            } elseif (strpos($uagent, "Firefox/2") !== false) {
+            } elseif (strpos($uagent, 'Firefox/2') !== false) {
                 return 2;
             }
-        } elseif (knj_browser::getBrowser() == "chrome") {
-            if (strpos($uagent, "Chrome/4") !== false) {
+        } elseif (knj_browser::getBrowser() == 'chrome') {
+            if (strpos($uagent, 'Chrome/4') !== false) {
                 return 4;
             }
         }
@@ -683,61 +683,61 @@ class knj_browser
     static function getOS()
     {
         $bots = array(
-            "yahoo! slurp",
-            "msnbot",
-            "googlebot",
-            "adsbot",
-            "ask jeeves",
-            "conpilot crawler",
-            "yandex",
-            "exabot",
-            "hostharvest",
-            "dotbot",
-            "ia_archiver",
-            "httpclient",
-            "spider.html",
-            "comodo-certificates-spider",
-            "sbider",
-            "speedy spider",
-            "spbot",
-            "aihitbot",
-            "scoutjet",
-            "com_bot",
-            "aihitbot",
-            "robot.html",
-            "robot.htm",
-            "catchbot",
-            "baiduspider",
-            "setoozbot",
-            "sslbot",
-            "browsershots",
-            "perl",
-            "wget",
-            "w3c_validator"
+            'yahoo! slurp',
+            'msnbot',
+            'googlebot',
+            'adsbot',
+            'ask jeeves',
+            'conpilot crawler',
+            'yandex',
+            'exabot',
+            'hostharvest',
+            'dotbot',
+            'ia_archiver',
+            'httpclient',
+            'spider.html',
+            'comodo-certificates-spider',
+            'sbider',
+            'speedy spider',
+            'spbot',
+            'aihitbot',
+            'scoutjet',
+            'com_bot',
+            'aihitbot',
+            'robot.html',
+            'robot.htm',
+            'catchbot',
+            'baiduspider',
+            'setoozbot',
+            'sslbot',
+            'browsershots',
+            'perl',
+            'wget',
+            'w3c_validator'
         );
 
-        if (array_key_exists("HTTP_USER_AGENT", $_SERVER)) {
-            $ua = strtolower($_SERVER["HTTP_USER_AGENT"]);
+        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+            $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
         } else {
-            return "unknown";
+            return 'unknown';
         }
 
-        if (strpos($ua, "windows") !== false) {
-            return "windows";
-        } elseif (strpos($ua, "linux") !== false) {
-            return "linux";
-        } elseif (strpos($ua, "mac") !== false) {
-            return "mac";
-        } elseif (strpos($ua, "playstation") !== false) {
-            return "playstation";
-        } elseif (strpos($ua, "nintendo wii") !== false) {
-            return "wii";
+        if (strpos($ua, 'windows') !== false) {
+            return 'windows';
+        } elseif (strpos($ua, 'linux') !== false) {
+            return 'linux';
+        } elseif (strpos($ua, 'mac') !== false) {
+            return 'mac';
+        } elseif (strpos($ua, 'playstation') !== false) {
+            return 'playstation';
+        } elseif (strpos($ua, 'nintendo wii') !== false) {
+            return 'wii';
         } elseif (knjarray::stringsearch($ua, $bots)) {
-            return "bot";
-        } elseif (strpos($ua, "sunos") !== false) {
-            return "sun";
+            return 'bot';
+        } elseif (strpos($ua, 'sunos') !== false) {
+            return 'sun';
         } else {
-            return "unknown";
+            return 'unknown';
         }
     }
 
@@ -748,30 +748,30 @@ class knj_browser
      */
     static function getOSVersion()
     {
-        $version = "unknown";
+        $version = 'unknown';
 
-        if (knj_browser::getOS() == "windows") {
-            if (preg_match("/Windows\s+NT\s+([\d\.]+)/", $_SERVER["HTTP_USER_AGENT"], $match)) {
+        if (knj_browser::getOS() == 'windows') {
+            if (preg_match('/Windows\s+NT\s+([\d\.]+)/', $_SERVER['HTTP_USER_AGENT'], $match)) {
                 if ($match[1] == 6.0) {
-                    $version = "vista";
+                    $version = 'vista';
                 } elseif ($match[1] == 5.1) {
-                    $version = "xp";
+                    $version = 'xp';
                 }
             } else {
-                throw new exception("Could not match version.");
+                throw new exception('Could not match version.');
             }
-        } elseif (knj_browser::getOS() == "linux") {
-            if (preg_match("/Ubuntu\/([\d+\.]+)/", $_SERVER["HTTP_USER_AGENT"], $match)) {
-                $version = "ubuntu_" . str_replace(".", "_", $match[1]);
+        } elseif (knj_browser::getOS() == 'linux') {
+            if (preg_match('/Ubuntu\/([\d+\.]+)/', $_SERVER['HTTP_USER_AGENT'], $match)) {
+                $version = 'ubuntu_' . str_replace('.', '_', $match[1]);
             } else {
-                throw new exception("Unknown user-agent for OS '" . knj_browser::getOS() . "': " . $_SERVER["HTTP_USER_AGENT"]);
+                throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
             }
         } else {
-            throw new exception("Unknown user-agent for OS '" . knj_browser::getOS() . "': " . $_SERVER["HTTP_USER_AGENT"]);
+            throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
         }
 
         return array(
-            "version" => $version
+            'version' => $version
         );
     }
 
@@ -788,7 +788,7 @@ class knj_browser
             $servervar = $_SERVER;
         }
 
-        $locale = explode(",", $servervar["HTTP_ACCEPT_LANGUAGE"]);
+        $locale = explode(',', $servervar['HTTP_ACCEPT_LANGUAGE']);
         if (preg_match("/^([a-z]{2})(_|-)[A-Z]{2}/i", $locale[0], $match)) {
             $locale = $match[1];
         } elseif (preg_match("/^([a-z]{2})$/", $locale[0], $match)) {

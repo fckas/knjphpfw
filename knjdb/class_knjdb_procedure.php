@@ -13,7 +13,7 @@ class knjdb_procedure
     function get($key)
     {
         if (!array_key_exists($key, $this->data)) {
-            throw new Exception("Key does not exist.");
+            throw new Exception('Key does not exist.');
         }
 
         return $this->data[$key];

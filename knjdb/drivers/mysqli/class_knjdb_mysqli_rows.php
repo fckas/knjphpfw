@@ -11,7 +11,7 @@
  * @link     https://github.com/kaspernj/knjphpfw
  */
 
-require_once "knj/knjdb/interfaces/class_knjdb_driver_rows.php";
+require_once 'knj/knjdb/interfaces/class_knjdb_driver_rows.php';
 
 /**
  * TODO
@@ -48,7 +48,7 @@ class knjdb_mysqli_rows implements knjdb_driver_rows
         $data = $row->getAsArray();
         $table = $row->getTable();
 
-        return $this->getArrInsertSQL($table->get("name"), $data);
+        return $this->getArrInsertSQL($table->get('name'), $data);
     }
 
     /**
@@ -62,7 +62,7 @@ class knjdb_mysqli_rows implements knjdb_driver_rows
     function getArrInsertSQL($tablename, $data)
     {
         if (!is_array($data)) {
-            throw new Exception("This function only accepts an array.");
+            throw new Exception('This function only accepts an array.');
         }
 
         $sql = "INSERT INTO " .$this->driver->sep_table .$tablename

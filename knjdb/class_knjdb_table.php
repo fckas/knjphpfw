@@ -20,7 +20,7 @@ class knjdb_table
     function rename($newname)
     {
         $this->knjdb->tables()->renameTable($this, $newname);
-        $this->data["name"] = $newname;
+        $this->data['name'] = $newname;
     }
 
     /**
@@ -29,7 +29,7 @@ class knjdb_table
     function get($key)
     {
         if (!array_key_exists($key, $this->data)) {
-            throw new Exception("The key does not exist: \"" . $key . "\".");
+            throw new Exception('The key does not exist: "' . $key . '".');
         }
 
         return $this->data[$key];
@@ -42,12 +42,12 @@ class knjdb_table
         }
 
         foreach ($this->getIndexes() as $index) {
-            if ($index->get("name") == $name) {
+            if ($index->get('name') == $name) {
                 return $index;
             }
         }
 
-        throw new Exception("Index not found: \"" . $name . "\" on table \"" . $this->get("name") . "\".");
+        throw new Exception('Index not found: "' . $name . '" on table "' . $this->get('name') . '".');
     }
 
     /**
@@ -55,8 +55,8 @@ class knjdb_table
      */
     function countRows()
     {
-        $d_c = $this->knjdb->query("SELECT COUNT(*) AS count FROM " . $this->knjdb->conn->sep_table . $this->get("name") . $this->knjdb->conn->sep_table)->fetch();
-        return $d_c["count"];
+        $d_c = $this->knjdb->query("SELECT COUNT(*) AS count FROM " . $this->knjdb->conn->sep_table . $this->get('name') . $this->knjdb->conn->sep_table)->fetch();
+        return $d_c['count'];
     }
 
     function addColumns($columns)
@@ -67,10 +67,10 @@ class knjdb_table
     function addIndex($cols, $name = null, $args = array())
     {
         if (!$name) {
-            $name = "table_" . $this->get("name") . "_cols";
+            $name = 'table_' . $this->get('name') . '_cols';
 
             foreach ($cols as $col) {
-                $name .= "_" . $col->get("name");
+                $name .= '_' . $col->get('name');
             }
         }
 
@@ -100,12 +100,12 @@ class knjdb_table
 
         $cols = $this->getColumns();
         foreach ($cols as $col) {
-            if ($col->get("name") == $name) {
+            if ($col->get('name') == $name) {
                 return $col;
             }
         }
 
-        throw new Exception("The column was not found (" . $name . ").");
+        throw new Exception('The column was not found (' . $name . ').');
     }
 
     function getIndexes()
