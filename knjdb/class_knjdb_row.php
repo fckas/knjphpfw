@@ -131,15 +131,15 @@ class knjdb_row
     /**
      * Updates the row.
      */
-    function update($arr, $args = null)
+    function update(array $arr, $args = null)
     {
-        if (!is_array($arr) or empty($arr)) {
-            throw new exception("No array given or array was empty.");
+        if (empty($arr)) {
+            return true;
         }
 
         $this->db->update($this->table_name(), $arr, array($this->col_id => $this->id));
 
-        if (!$args or !$args["reload"]) {
+        if (!$args || !$args["reload"]) {
             $this->updateData();
         }
 
