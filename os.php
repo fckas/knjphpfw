@@ -5,6 +5,8 @@
  */
 class knj_os
 {
+    static private $os;
+
     /**
      * Runs a command as a pipe and returns the output.
      */
@@ -105,22 +107,22 @@ class knj_os
 
     /**
      * Returns the type of running OS ('windows', 'linux'...).
+     *
+     * @return string
      */
     static function getOS()
     {
-        global $knj_getos;
-
-        if (!$knj_getos) {
-            if (array_key_exists('OS', $_SERVER) && strpos(strtolower($_SERVER['OS']), 'windows') !== false) {
-                $knj_getos['os'] = 'windows';
-            } elseif (isset($_SERVER['WINDIR']) && stripos($_SERVER['WINDIR'], 'windows')) {
-                $knj_getos['os'] = 'windows';
+        if (!self::$os) {
+            if ((isset($_SERVER['OS']) && mb_stripos($_SERVER['OS'], 'windows') !== false)
+             || (isset($_SERVER['WINDIR']) && mb_stripos($_SERVER['WINDIR'], 'windows'))
+            ) {
+                self::$os = 'windows';
             } else {
-                $knj_getos['os'] = 'linux';
+                self::$os = 'linux';
             }
         }
 
-        return $knj_getos;
+        return self::$os;
     }
 }
 

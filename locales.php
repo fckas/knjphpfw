@@ -51,7 +51,6 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
 
     require_once 'os.php';
     $os = knj_os::getOS();
-    $os = $os['os'];
 
     /**
      * Country/Region http://msdn.microsoft.com/en-us/library/cdax410z(v=vs.71).aspx
@@ -169,7 +168,6 @@ function knjlocales_localeconv($lang = null)
 
     require_once 'os.php';
     $os = knj_os::getOS();
-    $os = $os['os'];
 
     if ($os == 'windows') {
         if (in_array($lang, array('da_DK', 'de_DE'))) {
