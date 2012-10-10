@@ -186,12 +186,7 @@ function knjlocales_localeconv($lang = null)
     putenv('LC_MONETARY=' . $lang);
     setlocale(LC_MONETARY, $lang . '.utf8');
 
-    $return = localeconv();
-
-    putenv('LC_MONETARY=' . $functions_knjlocales['language']);
-    setlocale(LC_MONETARY, $functions_knjlocales['language'] . '.utf8');
-
-    return $return;
+    return localeconv();
 }
 
 function number_out($number, $len = 0, $local = null)
