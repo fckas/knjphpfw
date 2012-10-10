@@ -186,7 +186,7 @@ class knjdb
             $this->args[$key] = $value;
         }
 
-        if ($this->args['autoconnect'] and !$this->conn) {
+        if ($this->args['autoconnect'] && !$this->conn) {
             $this->connect();
         }
     }
@@ -262,7 +262,7 @@ class knjdb
 
     function escape_column($string)
     {
-        if ($this->conn->sep_col and strpos($string, $this->conn->sep_col) !== false) {
+        if ($this->conn->sep_col && strpos($string, $this->conn->sep_col) !== false) {
             throw new exception('Possible trying to hack the database!');
         }
 
@@ -302,7 +302,7 @@ class knjdb
         $result = $this->select($table, $where, $args);
         $results = array();
         while ($data = $result->fetch($result)) {
-            if (array_key_exists('return', $args) and $args['return'] == 'array') {
+            if (array_key_exists('return', $args) && $args['return'] == 'array') {
                 $results[] = $data;
             } else {
                 $results[] = $this->getRow($data, $table);

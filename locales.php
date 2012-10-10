@@ -17,7 +17,7 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     $functions_knjlocales['dir'] = $dir;
 
     if ($language == 'auto') {
-        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) and $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
+        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) && $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
             $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             foreach (explode(',', $accept) as $value) {
                 $value = explode(';', $value);

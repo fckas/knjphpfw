@@ -15,7 +15,7 @@ class knjdb_row
      */
     function __construct($dbconn, $table = null, $id = null, $data = null, $args = array())
     {
-        if (is_array($dbconn) and $dbconn['ob']->config['version'] == 2) {
+        if (is_array($dbconn) && $dbconn['ob']->config['version'] == 2) {
             $this->ob = $dbconn['ob'];
             $this->db = $dbconn['ob']->config['db'];
 
@@ -32,7 +32,7 @@ class knjdb_row
             $this->db = $this->row_args['db'];
             $this->table = $this->row_args['table'];
 
-            if ($this->row_args['ob'] and !$dbconn) {
+            if ($this->row_args['ob'] && !$dbconn) {
                 $dbconn = $this->row_args['ob']->config['db'];
             }
 
