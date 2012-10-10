@@ -12,6 +12,10 @@ $functions_knjlocales = array(
  */
 function knjlocales_setmodule($domain, $dir, $language = 'auto')
 {
+    if (!file_exists($dir)) {
+        throw new Exception('Dir does not exist: ' . $dir);
+    }
+    
     global $functions_knjlocales;
 
     $functions_knjlocales['dir'] = $dir;
@@ -80,10 +84,6 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     }
 
     $functions_knjlocales['language'] = $language;
-
-    if (!file_exists($dir)) {
-        throw new exception('Dir does not exist: ' . $dir);
-    }
 
     putenv('LANGUAGE=' . $language);
     putenv('LC_ALL=' . $language);
