@@ -42,14 +42,14 @@ class knjdb_mysqli_dbs implements knjdb_driver_dbs
     function getDBs()
     {
         $return = array();
-        $f_gdbs = $this->_knjdb->query("SHOW DATABASES");
+        $f_gdbs = $this->_knjdb->query('SHOW DATABASES');
         while ($d_gdbs = $f_gdbs->fetch()) {
-            if ($d_gdbs["Database"] != "mysql"
-                && $d_gdbs["Database"] != "information_schema"
+            if ($d_gdbs['Database'] != 'mysql'
+                && $d_gdbs['Database'] != 'information_schema'
             ) {
                 $return[] = new knjdb_db(
                     array(
-                        "name" => $d_gdbs["Database"]
+                        'name' => $d_gdbs['Database']
                     )
                 );
             }
@@ -73,7 +73,7 @@ class knjdb_mysqli_dbs implements knjdb_driver_dbs
             }
         }
 
-        throw new Exception("Could not find the database.");
+        throw new Exception('Could not find the database.');
     }
 
     /**
@@ -97,11 +97,11 @@ class knjdb_mysqli_dbs implements knjdb_driver_dbs
      */
     function createDB($data)
     {
-        if (!$data["name"]) {
-            throw new Exception("No name given.");
+        if (!$data['name']) {
+            throw new Exception('No name given.');
         }
 
-        $this->_knjdb->query("CREATE DATABASE " .$data["name"]);
+        $this->_knjdb->query("CREATE DATABASE " .$data['name']);
     }
 }
 

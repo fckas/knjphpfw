@@ -11,7 +11,7 @@ class knjdb_db
 
     function getName()
     {
-        return $this->data["name"];
+        return $this->data['name'];
     }
 
     function getTables()

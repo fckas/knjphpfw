@@ -21,7 +21,7 @@ class knjdb_column
     {
         $changed = false;
         foreach ($this->data as $key => $value) {
-            if ($key != "input_type" && $arr[$key] != $value) {
+            if ($key != 'input_type' && $arr[$key] != $value) {
                 $changed = true;
                 break;
             }
@@ -43,7 +43,7 @@ class knjdb_column
     function get($key)
     {
         if (!array_key_exists($key, $this->data)) {
-            throw new Exception("The key does not exist: \"" . $key . "\".");
+            throw new Exception('The key does not exist: "' . $key . '".');
         }
 
         return $this->data[$key];

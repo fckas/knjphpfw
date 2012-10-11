@@ -53,15 +53,15 @@ class knj_strings
     {
         $array = array();
 
-        if (preg_match_all("/\"(.*)\"/U", $string, $matches)) {
+        if (preg_match_all('/"(.*?)"/u', $string, $matches)) {
             foreach ($matches[1] as $key => $value) {
                 $array[] = $value;
-                $string = str_replace($matches[0][$key], "", $string);
+                $string = str_replace($matches[0][$key], '', $string);
             }
         }
 
         if (mb_strlen($string) > 0) {
-            foreach (preg_split("/\s/", $string) as $value) {
+            foreach (preg_split('/\s/', $string) as $value) {
                 if (mb_strlen(trim($value)) > 0) {
                     $array[] = $value;
                 }
@@ -105,9 +105,9 @@ class knj_strings
     static function HeaderSafe($string)
     {
         $replace = array(
-            "\r\n" => " ",
-            "\n" => " ",
-            "\r" => " "
+            "\r\n" => ' ',
+            "\n" => ' ',
+            "\r" => ' '
         );
         return strtr($string, $replace);
     }
@@ -170,8 +170,8 @@ class knj_strings
     static function unaccent($string)
     {
         $charmap = array(
-            "ø" => "oe",
-            "å" => "aa",
+            'ø' => 'oe',
+            'å' => 'aa',
         );
         $string = strtr($string, $charmap);
 

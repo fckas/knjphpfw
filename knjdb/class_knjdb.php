@@ -4,9 +4,9 @@ class knjdb
 {
     public $conn, $rows;
     public $args = array(
-        "col_id" => "id",
-        "autoconnect" => true,
-        "stats" => false
+        'col_id' => 'id',
+        'autoconnect' => true,
+        'stats' => false
     );
     public $stats = array();
     private $drivers = array();
@@ -17,7 +17,7 @@ class knjdb
      */
     function __construct($args = null)
     {
-        require_once "class_knjdb_result.php";
+        require_once 'class_knjdb_result.php';
         $this->rows = array();
 
         if ($args) {
@@ -30,7 +30,7 @@ class knjdb
      */
     function getType()
     {
-        return $this->args["type"];
+        return $this->args['type'];
     }
 
     /**
@@ -43,7 +43,7 @@ class knjdb
         }
 
         foreach ($this->tables()->getTables() as $table) {
-            if ($table->get("name") == $name) {
+            if ($table->get('name') == $name) {
                 return $table;
             }
         }
@@ -56,8 +56,8 @@ class knjdb
      */
     function connect()
     {
-        require_once "drivers/" .$this->args["type"] ."/class_knjdb_" .$this->args["type"] .".php";
-        $obname = "knjdb_" .$this->args["type"];
+        require_once 'drivers/' .$this->args['type'] .'/class_knjdb_' .$this->args['type'] .'.php';
+        $obname = 'knjdb_' .$this->args['type'];
         $this->conn = new $obname($this, $this->args);
         $this->conn->connect();
     }
@@ -72,21 +72,21 @@ class knjdb
 
     function module($module)
     {
-        if ($module == "indexes") {
-            $short = "index";
+        if ($module == 'indexes') {
+            $short = 'index';
         } else {
             $short = substr($module, 0, -1);
         }
 
         if (!array_key_exists($module, $this->drivers)) {
-            require_once "interfaces/class_knjdb_driver_" . $module . ".php";
-            require_once "class_knjdb_" . $short . ".php";
+            require_once 'interfaces/class_knjdb_driver_' . $module . '.php';
+            require_once 'class_knjdb_' . $short . '.php';
 
             if (method_exists($this->conn, $module)) {
                 $this->drivers[$module] = $this->conn->$module();
             } else {
-                $obname = "knjdb_" . $this->args["type"] . "_" . $module;
-                require_once "drivers/" . $this->args["type"] . "/class_" . $obname . ".php";
+                $obname = 'knjdb_' . $this->args['type'] . '_' . $module;
+                require_once 'drivers/' . $this->args['type'] . '/class_' . $obname . '.php';
                 $this->drivers[$module] = new $obname($this);
             }
         }
@@ -96,12 +96,12 @@ class knjdb
 
     function rows()
     {
-        return $this->module("rows");
+        return $this->module('rows');
     }
 
     function dbs()
     {
-        return $this->module("dbs");
+        return $this->module('dbs');
     }
 
     /**
@@ -109,7 +109,7 @@ class knjdb
      */
     function tables()
     {
-        return $this->module("tables");
+        return $this->module('tables');
     }
 
     /**
@@ -117,7 +117,7 @@ class knjdb
      */
     function columns()
     {
-        return $this->module("columns");
+        return $this->module('columns');
     }
 
     /**
@@ -125,12 +125,12 @@ class knjdb
      */
     function indexes()
     {
-        return $this->module("indexes");
+        return $this->module('indexes');
     }
 
     function procedures()
     {
-        return $this->module("procedures");
+        return $this->module('procedures');
     }
 
     /**
@@ -138,15 +138,15 @@ class knjdb
      */
     function getRow($id, $table, $data = null)
     {
-        require_once "class_knjdb_row.php";
+        require_once 'class_knjdb_row.php';
 
         if (is_array($id)) {
             $data = $id;
-            $id = $id[$this->args["col_id"]];
+            $id = $id[$this->args['col_id']];
         }
 
         if (!is_numeric($id) || $id < 0) {
-            throw new Exception("ID was not valid \"" . $id . "\".");
+            throw new Exception('ID was not valid "' . $id . '".');
         }
 
         if (!array_key_exists($table, $this->rows)) {
@@ -154,7 +154,7 @@ class knjdb
         }
 
         if (!array_key_exists($id, $this->rows[$table])) {
-            $this->rows[$table][$id] = new knjdb_row($this, $table, $id, $data, array("col_id" => $this->args["col_id"]));
+            $this->rows[$table][$id] = new knjdb_row($this, $table, $id, $data, array('col_id' => $this->args['col_id']));
         }
 
         return $this->rows[$table][$id];
@@ -186,7 +186,7 @@ class knjdb
             $this->args[$key] = $value;
         }
 
-        if ($this->args["autoconnect"] and !$this->conn) {
+        if ($this->args['autoconnect'] and !$this->conn) {
             $this->connect();
         }
     }
@@ -201,16 +201,16 @@ class knjdb
      */
     function query($sql)
     {
-        if ($this->args["stats"]) {
-            $this->stats["query_called"]++;
+        if ($this->args['stats']) {
+            $this->stats['query_called']++;
 
-            if ($this->args["debug"]) {
+            if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo("Query " . $this->stats["query_called"] . "\n");
-                echo("File: " . $bt[0]["file"] . ":" . $bt[0]["line"] . "\n");
-                echo("File: " . $bt[1]["file"] . ":" . $bt[1]["line"] . "\n");
-                echo("SQL: " . $sql . "\n\n");
+                echo('Query ' . $this->stats['query_called'] . "\n");
+                echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
+                echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
+                echo('SQL: ' . $sql . "\n\n");
             }
         }
 
@@ -219,16 +219,16 @@ class knjdb
 
     function query_ubuf($sql)
     {
-        if ($this->args["stats"]) {
-            $this->stats["query_called"]++;
+        if ($this->args['stats']) {
+            $this->stats['query_called']++;
 
-            if ($this->args["debug"]) {
+            if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo("Query " . $this->stats["query_called"] . "\n");
-                echo("File: " . $bt[0]["file"] . ":" . $bt[0]["line"] . "\n");
-                echo("File: " . $bt[1]["file"] . ":" . $bt[1]["line"] . "\n");
-                echo("SQL: " . $sql . "\n\n");
+                echo('Query ' . $this->stats['query_called'] . "\n");
+                echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
+                echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
+                echo('SQL: ' . $sql . "\n\n");
             }
         }
 
@@ -240,7 +240,7 @@ class knjdb
      */
     function fetch($ident)
     {
-        if (is_object($ident) && get_class($ident) == "knjdb_result") {
+        if (is_object($ident) && get_class($ident) == 'knjdb_result') {
             $ident = $ident->result;
         }
 
@@ -263,11 +263,11 @@ class knjdb
     function escape_column($string)
     {
         if ($this->conn->sep_col and strpos($string, $this->conn->sep_col) !== false) {
-            throw new exception("Possible trying to hack the database!");
+            throw new exception('Possible trying to hack the database!');
         }
 
         if (is_object($string)) {
-            throw new exception("Does not support objects.");
+            throw new exception('Does not support objects.');
         }
 
         return strval($string);
@@ -290,7 +290,7 @@ class knjdb
             unset($this->insert_autocommit);
             unset($this->insert_countcommit);
         } else {
-            throw new Exception("Invalid argument (" . $value . ".");
+            throw new Exception('Invalid argument (' . $value . '.');
         }
     }
 
@@ -302,7 +302,7 @@ class knjdb
         $result = $this->select($table, $where, $args);
         $results = array();
         while ($data = $result->fetch($result)) {
-            if (array_key_exists("return", $args) and $args["return"] == "array") {
+            if (array_key_exists('return', $args) and $args['return'] == 'array') {
                 $results[] = $data;
             } else {
                 $results[] = $this->getRow($data, $table);
@@ -317,7 +317,7 @@ class knjdb
      */
     function selectsingle($table, $where, $args = array())
     {
-        $args["limit"] = "1";
+        $args['limit'] = '1';
         return $this->select($table, $where, $args)->fetch();
     }
 
@@ -389,7 +389,7 @@ class knjdb
 
     function insert_multi($table, $rows)
     {
-        if (method_exists($this->conn, "insert_multi")) {
+        if (method_exists($this->conn, 'insert_multi')) {
             $this->conn->insert_multi($table, $rows);
         } else {
             foreach ($rows as $row) {
@@ -412,7 +412,7 @@ class knjdb
     function delete($table, $where = null)
     {
         if (!is_null($where) && !is_array($where)) {
-            throw new exception("The where-parameter was not an array or null.");
+            throw new exception('The where-parameter was not an array or null.');
         }
 
         $this->conn->delete($table, $where);
@@ -438,14 +438,14 @@ class knjdb
 
     function trans_begin()
     {
-        if (method_exists($this->conn, "trans_begin")) {
+        if (method_exists($this->conn, 'trans_begin')) {
             $this->conn->trans_begin();
         }
     }
 
     function trans_commit()
     {
-        if (method_exists($this->conn, "trans_commit")) {
+        if (method_exists($this->conn, 'trans_commit')) {
             $this->conn->trans_commit();
         }
     }

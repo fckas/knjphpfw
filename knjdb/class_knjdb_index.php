@@ -18,7 +18,7 @@ class knjdb_index
     function get($key)
     {
         if (!array_key_exists($key, $this->data)) {
-            throw new Exception("The key does not exist: \"" . $key . "\".");
+            throw new Exception('The key does not exist: "' . $key . '".');
         }
 
         return $this->data[$key];
@@ -26,18 +26,18 @@ class knjdb_index
 
     function getColumns()
     {
-        return $this->data["columns"];
+        return $this->data['columns'];
     }
 
     function getColText()
     {
-        $text = "";
+        $text = '';
         foreach ($this->getColumns() as $column) {
             if (strlen($text) > 0) {
-                $text .= ", ";
+                $text .= ', ';
             }
 
-            $text .= $column->get("name");
+            $text .= $column->get('name');
         }
 
         return $text;

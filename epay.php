@@ -56,8 +56,8 @@ class EPay
     /**
      * Search for transation
      *
-     * @param string $datestart Start date "yyyy-MM-dd HH:mm:ss"
-     * @param string $dateend   End date "yyyy-MM-dd HH:mm:ss"
+     * @param string $datestart Start date 'yyyy-MM-dd HH:mm:ss'
+     * @param string $dateend   End date 'yyyy-MM-dd HH:mm:ss'
      * @param string $orderid   Search for transation with defined order number
      * @param string $group     Search for transation in a defined group.
      * @param int    $status    0 = PAYMENT_UNDEFINED
