@@ -52,12 +52,8 @@ class knj_ftp
         }
     }
 
-    function mkdir($args)
+    function mkdir(array $args)
     {
-        if (!is_array($args)) {
-            throw new exception('Argument was not an array.');
-        }
-
         if (strlen(trim($args['path'])) <= 0) {
             throw new exception('No path was given.');
         }

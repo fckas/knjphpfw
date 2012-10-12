@@ -3,13 +3,9 @@
 /**
  * Sets the options.
  */
-function opt_set($arr)
+function opt_set(array $arr)
 {
     global $knj_options;
-
-    if (!is_array($arr)) {
-        throw new Exception('Invalid parameter - only accepts array.');
-    }
 
     foreach ($arr as $key => $value) {
         if ($key == 'dbconn' || $key == 'keycol' || $key == 'valcol' || $key == 'table') {

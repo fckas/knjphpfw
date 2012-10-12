@@ -8,12 +8,7 @@ class knjobjects
     function __construct($args)
     {
         $this->config = $args;
-        $this->args = &$this->config;
         $this->objects = array();
-
-        if (!array_key_exists('class_sep', $this->config)) {
-            $this->config['class_sep'] = '_';
-        }
 
         if (!array_key_exists('col_id', $this->config)) {
             $this->config['col_id'] = 'id';
@@ -21,10 +16,6 @@ class knjobjects
 
         if (!array_key_exists('check_id', $this->config)) {
             $this->config['check_id'] = true;
-        }
-
-        if (!array_key_exists('require', $this->config)) {
-            $this->config['require'] = true;
         }
     }
 
@@ -47,7 +38,7 @@ class knjobjects
             $rdata = &$id;
         }
 
-        if ($this->config['check_id'] && !is_numeric($id) && $this->args['version'] != 2) {
+        if ($this->config['check_id'] && !is_numeric($id) && $this->config['version'] != 2) {
             if (is_object($id)) {
                 throw new exception('Invalid ID: "' . get_class($id) . '", "' . gettype($id) . '".');
             } else {
@@ -86,13 +77,13 @@ class knjobjects
             }
         }
 
-        if ($this->args['get_array']) {
+        if ($this->config['get_array']) {
             $obj = new $ob(array(
                 'data' => $rdata,
-                'db' => $this->args['db'],
+                'db' => $this->config['db'],
                 'ob' => $this
             ));
-        } elseif ($this->args['version'] == 2) {
+        } elseif ($this->config['version'] == 2) {
             $obj = new $ob(array(
                 'ob' => $this,
                 'data' => $rdata
@@ -114,7 +105,7 @@ class knjobjects
         return $obj;
     }
 
-    function getBy($obj, $args)
+    function getBy($obj, array $args)
     {
         $args['limit'] = 1;
 
@@ -193,7 +184,7 @@ class knjobjects
         return $ret;
     }
 
-    function sqlHelper(&$list_args, $args)
+    function sqlHelper(array &$list_args, $args)
     {
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
@@ -208,9 +199,6 @@ class knjobjects
         }
 
         $colsep = $db->conn->sep_col;
-        if (!is_array($list_args)) {
-            throw new exception('The arguments given was not an array.');
-        }
 
         $sql_where = '';
         $sql_limit = '';
@@ -222,10 +210,6 @@ class knjobjects
 
         foreach ($list_args as $list_key => $list_val) {
             $found = false;
-
-            if ($args && array_key_exists('utf8_decode', $args) && $args['utf8_decode']) {
-                $list_val = utf8_decode($list_val);
-            }
 
             if (($str_exists && in_array($list_key, $args['cols_str']) || ($num_exists && in_array($list_key, $args['cols_num'])))) {
                 if (is_array($list_val)) {
