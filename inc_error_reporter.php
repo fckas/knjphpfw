@@ -134,7 +134,7 @@ function knj_error_reporter_getData()
     return $mail_body;
 }
 
-function knj_error_reporter_exception_handler($exc)
+function knj_error_reporter_exception_handler($exc, $print = true)
 {
     $mail_body = 'An exception occurred on the website at ' .date('d/m Y - H:i') . ".\n\n";
 
@@ -152,7 +152,9 @@ function knj_error_reporter_exception_handler($exc)
         'error_msg' => $exc->getMessage()
     ));
 
-    echo "Uncaught exception '" . get_class($exc) . "' with message '" . $exc->getMessage() . "'\n\n" . $exc->getTraceAsString() . "\n\n";
+    if ($print) {
+        echo "Uncaught exception '" . get_class($exc) . "' with message '" . $exc->getMessage() . "'\n\n" . $exc->getTraceAsString() . "\n\n";
+    }
 }
 
 function knj_error_reporter_email($msg, $args = array())
