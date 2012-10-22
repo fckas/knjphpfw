@@ -39,6 +39,8 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
             $language = 'de_DE';
         } elseif ($language == 'en') {
             $language = 'en_GB';
+        } elseif ($language == 'se') {
+            $language = 'se_SE';
         }
     }
 
@@ -75,6 +77,10 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
             case 'us':
             case 'en_US':
                 $language = 'english-us';
+                break;
+            case 'se':
+            case 'se_SE':
+                $language = 'swedish';
                 break;
         }
     }
@@ -170,7 +176,7 @@ function knjlocales_localeconv($lang = null)
     $os = knj_os::getOS();
 
     if ($os == 'windows') {
-        if (in_array($lang, array('da_DK', 'de_DE'))) {
+        if (in_array($lang, array('da_DK', 'de_DE', 'se_SE'))) {
             return array(
                 'mon_decimal_point' => ',',
                 'mon_thousands_sep' => '.'
