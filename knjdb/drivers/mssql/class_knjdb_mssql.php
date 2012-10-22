@@ -103,10 +103,16 @@ class knjdb_mssql
         $sql = "SELECT";
 
         if ($args['limit']) {
-            $sql .= " TOP " . $args['limit'];
+            $sql .= " TOP" . $args['limit'];
         }
 
-        $sql .= " * FROM [" . $table . "]";
+        if ($args['count']) {
+            $sql .= " COUNT(*) as count";
+        } else {
+            $sql .= " *";
+        }
+
+        $sql .= " FROM [" . $table . "]";
 
         if ($where) {
             $sql .= " WHERE " . $this->makeWhere($where);

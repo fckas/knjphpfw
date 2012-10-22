@@ -420,7 +420,13 @@ class knjdb_mysqli
     {
         $sql = "SELECT";
 
-        $sql .= " * FROM " .$this->sep_table .$table .$this->sep_table;
+        if ($args['count']) {
+            $sql .= " COUNT(*) as count";
+        } else {
+            $sql .= " *";
+        }
+
+        $sql .= " FROM " .$this->sep_table .$table .$this->sep_table;
 
         if ($where) {
             $sql .= " WHERE " .$this->makeWhere($where);
@@ -431,7 +437,13 @@ class knjdb_mysqli
         }
 
         if ($args['limit']) {
-            $sql .= " LIMIT " .$args['limit'];
+            $sql .= " LIMIT";
+
+            if ($args['limit_from']) {
+                $sql .= " " .$args['limit_from'] .",";
+            }
+
+            $sql .= " " .$args['limit'];
         }
 
         return $this->query($sql);
