@@ -3,20 +3,12 @@
 class knjobjects
 {
     public $objects;
-    public $config;
+    public $db;
 
     function __construct($args)
     {
-        $this->config = $args;
+        $this->db = $args;
         $this->objects = array();
-
-        if (!array_key_exists('col_id', $this->config)) {
-            $this->config['col_id'] = 'id';
-        }
-
-        if (!array_key_exists('check_id', $this->config)) {
-            $this->config['check_id'] = true;
-        }
     }
 
     function add($ob, $arr)
@@ -31,19 +23,11 @@ class knjobjects
         if (is_array($id)) {
             $data = $id;
             $rdata = &$data;
-            $id = $data[$this->config['col_id']];
+            $id = $data['id'];
         } elseif (is_array($data) && $data) {
             $rdata = &$data;
         } else {
             $rdata = &$id;
-        }
-
-        if ($this->config['check_id'] && !is_numeric($id) && $this->config['version'] != 2) {
-            if (is_object($id)) {
-                throw new exception('Invalid ID: "' . get_class($id) . '", "' . gettype($id) . '".');
-            } else {
-                throw new exception('Invalid ID: "' . $id . '", "' . gettype($id) . '".');
-            }
         }
 
         if (!is_string($ob)) {
@@ -77,20 +61,12 @@ class knjobjects
             }
         }
 
-        if ($this->config['get_array']) {
-            $obj = new $ob(array(
-                'data' => $rdata,
-                'db' => $this->config['db'],
-                'ob' => $this
-            ));
-        } elseif ($this->config['version'] == 2) {
-            $obj = new $ob(array(
+        $obj = new $ob(
+            array(
                 'ob' => $this,
                 'data' => $rdata
-            ));
-        } else {
-            $obj = new $ob($id, $data);
-        }
+            )
+        );
 
         if ($this->weakref) {
             $this->objects[$ob][$id] = new weakref($obj);
@@ -171,7 +147,7 @@ class knjobjects
     function getListBySql($ob, $sql, $args = array())
     {
         $ret = array();
-        $q_obs = $this->config['db']->query($sql);
+        $q_obs = $this->db->query($sql);
         while ($d_obs = $q_obs->fetch()) {
             if ($args['col_id']) {
                 $ret[] = $this->get($ob, $d_obs[$args['col_id']], $d_obs);
@@ -189,7 +165,7 @@ class knjobjects
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
         } else {
-            $db = $this->config['db'];
+            $db = $this->db;
         }
 
         if ($args && array_key_exists('table', $args) && $args['table']) {
