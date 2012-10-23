@@ -2,12 +2,12 @@
 
 class knjobjects
 {
-    public $objects;
-    public $db;
+    private $objects;
+    private $db;
 
-    function __construct($args)
+    function __construct(knjdb $db)
     {
-        $this->db = $args;
+        $this->db = $db;
         $this->objects = array();
     }
 

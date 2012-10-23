@@ -5,7 +5,7 @@
  */
 class knjdb_row
 {
-    public $dbconn;
+    private $db;
     private $table;
     private $id;
     public $data;
@@ -15,32 +15,14 @@ class knjdb_row
      */
     function __construct($dbconn, $table = null, $id = null, $data = null, $args = array())
     {
-        if (is_array($dbconn) and $dbconn['ob']->config['version'] == 2) {
-            $this->ob = $dbconn['ob'];
-            $this->db = $dbconn['ob']->config['db'];
+        if (is_array($dbconn)) {
+            $this->db = $dbconn['ob']->db;
 
             if (is_array($dbconn['data'])) {
                 $data = $dbconn['data'];
                 $this->id = $dbconn['data']['id'];
             } else {
                 $this->id = $dbconn['data'];
-                $data = null;
-            }
-        } elseif (is_array($dbconn)) {
-            $this->row_args = $dbconn;
-            $args = &$this->row_args;
-            $this->db = $this->row_args['db'];
-            $this->table = $this->row_args['table'];
-
-            if ($this->row_args['ob'] and !$dbconn) {
-                $dbconn = $this->row_args['ob']->config['db'];
-            }
-
-            if (is_array($this->row_args['data'])) {
-                $data = $this->row_args['data'];
-                $this->id = $data['id'];
-            } else {
-                $this->id = $this->row_args['data'];
                 $data = null;
             }
         } else {
