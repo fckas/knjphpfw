@@ -2,23 +2,26 @@
 
 class knjobjects
 {
-    private $objects;
+    private $_objects;
+    private $_weakmap;
+    private $_weakmap_refs;
+    private $_weakref;
     public $db;
 
     function __construct(knjdb $db)
     {
         $this->db = $db;
-        $this->objects = array();
+        $this->_objects = array();
     }
 
-    function add($ob, $arr)
+    public function add($ob, $arr)
     {
         $call_args = array($arr);
 
         return call_user_func_array(array($ob, 'addNew'), $call_args);
     }
 
-    function get($ob, $id, $data = null)
+    public function get($ob, $id, array $data = null)
     {
         if (is_array($id)) {
             $data = $id;
@@ -37,27 +40,27 @@ class knjobjects
         }
 
         $id_exists = false;
-        if (isset($this->objects[$ob])) {
-            $id_exists = array_key_exists($id, $this->objects[$ob]);
+        if (isset($this->_objects[$ob])) {
+            $id_exists = array_key_exists($id, $this->_objects[$ob]);
         }
 
         if ($id_exists) {
-            if ($this->weakmap) {
-                $ref = $this->objects[$ob][$id];
+            if ($this->_weakmap) {
+                $ref = $this->_objects[$ob][$id];
 
-                if ($this->weakmap_refs[$ref]) {
+                if ($this->_weakmap_refs[$ref]) {
                     print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    return $this->weakmap_refs[$ref];
+                    return $this->_weakmap_refs[$ref];
                 }
-            } elseif ($this->weakref) {
-                if ($this->objects[$ob][$id]->acquire()) {
+            } elseif ($this->_weakref) {
+                if ($this->_objects[$ob][$id]->acquire()) {
                     print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    $obj = $this->objects[$ob][$id]->get();
-                    $this->objects[$ob][$id]->release();
+                    $obj = $this->_objects[$ob][$id]->get();
+                    $this->_objects[$ob][$id]->release();
                     return $obj;
                 }
             } else {
-                return $this->objects[$ob][$id];
+                return $this->_objects[$ob][$id];
             }
         }
 
@@ -68,20 +71,20 @@ class knjobjects
             )
         );
 
-        if ($this->weakref) {
-            $this->objects[$ob][$id] = new weakref($obj);
-        } elseif ($this->weakmap) {
+        if ($this->_weakref) {
+            $this->_objects[$ob][$id] = new weakref($obj);
+        } elseif ($this->_weakmap) {
             $ref = new stdclass;
-            $this->weakmap_refs[$ref] = $obj;
-            $this->objects[$ob][$id] = $ref;
+            $this->_weakmap_refs[$ref] = $obj;
+            $this->_objects[$ob][$id] = $ref;
         } else {
-            $this->objects[$ob][$id] = $obj;
+            $this->_objects[$ob][$id] = $obj;
         }
 
         return $obj;
     }
 
-    function getBy($obj, array $args)
+    public function getBy($obj, array $args)
     {
         $args['limit'] = 1;
 
@@ -94,12 +97,12 @@ class knjobjects
         return $data[1];
     }
 
-    function getList($ob, $args = array(), $list_args = array())
+    public function getList($ob, $args = array(), $list_args = array())
     {
         return call_user_func_array(array($ob, 'getList'), array($args));
     }
 
-    function listOpts($ob, $getkey, $args = null)
+    public function listOpts($ob, $getkey, $args = null)
     {
         $opts = array();
 
@@ -144,7 +147,7 @@ class knjobjects
         return $opts;
     }
 
-    function getListBySql($ob, $sql, $args = array())
+    public function getListBySql($ob, $sql, $args = array())
     {
         $ret = array();
         $q_obs = $this->db->query($sql);
@@ -160,7 +163,7 @@ class knjobjects
         return $ret;
     }
 
-    function sqlHelper(array &$list_args, $args)
+    public function sqlHelper(array &$list_args, $args)
     {
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
@@ -392,9 +395,9 @@ class knjobjects
         );
     }
 
-    function unsetOb($ob, $id = null)
+    public function unsetOb($ob, $id = null)
     {
-        if ($this->weakref || $this->weakmap) {
+        if ($this->_weakref || $this->_weakmap) {
             return false;
         }
 
@@ -411,27 +414,27 @@ class knjobjects
         }
     }
 
-    function unsetClass($classname)
+    public function unsetClass($classname)
     {
-        if ($this->weakref || $this->weakmap) {
+        if ($this->_weakref || $this->_weakmap) {
             return false;
         }
 
-        unset($this->objects[$classname]);
+        unset($this->_objects[$classname]);
     }
 
-    function unsetAll()
+    public function unsetAll()
     {
-        if ($this->weakref || $this->weakmap) {
+        if ($this->_weakref || $this->_weakmap) {
             return false;
         }
 
-        $this->objects = array();
+        $this->_objects = array();
     }
 
-    function cleanMemory()
+    public function cleanMemory()
     {
-        if ($this->weakref || $this->weakmap) {
+        if ($this->_weakref || $this->_weakmap) {
             return false;
         }
 
