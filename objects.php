@@ -8,17 +8,10 @@ class knjobjects
     private $_weakref;
     public $db;
 
-    function __construct(knjdb $db)
+    public function __construct(knjdb $db)
     {
         $this->db = $db;
         $this->_objects = array();
-    }
-
-    public function add($ob, $arr)
-    {
-        $call_args = array($arr);
-
-        return call_user_func_array(array($ob, 'addNew'), $call_args);
     }
 
     public function get($ob, $id, array $data = null)
