@@ -3,7 +3,7 @@
 class knjobjects
 {
     private $objects;
-    private $db;
+    public $db;
 
     function __construct(knjdb $db)
     {

@@ -5,7 +5,7 @@
  */
 class knjdb_row
 {
-    private $db;
+    public $db;
     private $table;
     private $id;
     public $data;
