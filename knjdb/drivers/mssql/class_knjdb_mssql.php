@@ -103,7 +103,7 @@ class knjdb_mssql
         $sql = "SELECT";
 
         if ($args['limit']) {
-            $sql .= " TOP" . $args['limit'];
+            $sql .= " TOP " . $args['limit'];
         }
 
         if ($args['count']) {
