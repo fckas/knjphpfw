@@ -177,7 +177,7 @@ class knjdb_mssql
                 $sql .= ", ";
             }
 
-            if ($value != null) {
+            if ($value !== null) {
                 $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
             } else {
                 $sql .= "NULL";
@@ -211,7 +211,7 @@ class knjdb_mssql
 
             $sql .= "[" . $key . "] = ";
 
-            if ($value != null) {
+            if ($value !== null) {
                 $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
             } else {
                 $sql .= "NULL";
