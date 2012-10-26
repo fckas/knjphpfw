@@ -1,5 +1,25 @@
 <?php
+/**
+ * TODO
+ *
+ * PHP version 5
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 
+/**
+ * TODO
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 class knjdb_mssql
 {
     private $args;
@@ -90,11 +110,6 @@ class knjdb_mssql
         return $string;
     }
 
-    function getLastID()
-    {
-        throw new Exception('Not supported.');
-    }
-
     /**
      * A quick way to do a simple select.
      */
@@ -103,7 +118,7 @@ class knjdb_mssql
         $sql = "SELECT";
 
         if ($args['limit']) {
-            $sql .= " TOP" . $args['limit'];
+            $sql .= " TOP " . $args['limit'];
         }
 
         if ($args['count']) {
@@ -126,14 +141,24 @@ class knjdb_mssql
     }
 
     /**
-     * A quick way to insert a new row into the database.
+     * Insert a single row in to a table
+     *
+     * @param string $table  Table to insert into
+     * @param array  $values Values to insert in the row
+     * @param string $mode   How to handle duplicates:
+     *                       insert:  Fail with exception (default)
+     *                       replace: Unimplemnted
+     *                       update:  Unimplemnted
+     *                       ignore:  Unimplemnted
+     *
+     * @return string Unimplemnted
      */
-    function insert($table, $arr)
+    function insert($table, array $values, $mode = 'insert')
     {
         $sql = "INSERT INTO [" . $table . "] (";
 
         $first = true;
-        foreach ($arr as $key => $value) {
+        foreach ($values as $key => $value) {
             if ($first == true) {
                 $first = false;
             } else {
@@ -145,30 +170,24 @@ class knjdb_mssql
 
         $sql .= ") VALUES (";
         $first = true;
-        foreach ($arr as $key => $value) {
+        foreach ($values as $key => $value) {
             if ($first == true) {
                 $first = false;
             } else {
                 $sql .= ", ";
             }
 
-            $sql .= $this->sep_val . $this->sql($value) . $this->sep_val;
+            if ($this->sql($value) != null) {
+                $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+            } else {
+                $sql .= "NULL";
+            }
         }
         $sql .= ")";
 
         $this->query($sql);
 
-        if ($this->knjdb->insert_autocommit){ //check wherever autocommit is on.
-            $this->knjdb->insert_countcommit++;
-
-            if ($this->knjdb->insert_countcommit >= $this->knjdb->insert_autocommit) {
-                $this->knjdb->trans_commit();
-                $this->knjdb->trans_begin();
-                $this->knjdb->insert_countcommit = 0;
-            }
-        }
-
-        return true;
+        return '';
     }
 
     /**
@@ -190,7 +209,13 @@ class knjdb_mssql
                 $sql .= ", ";
             }
 
-            $sql .= "[" . $key . "] = " . $this->sep_val . $this->sql($value) . $this->sep_val;
+            $sql .= "[" . $key . "] = ";
+
+            if ($this->sql($value) != null) {
+                $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+            } else {
+                $sql .= "NULL";
+            }
         }
 
         if ($where) {
@@ -227,7 +252,12 @@ class knjdb_mssql
                 $sql .= " AND ";
             }
 
-            $sql .= "[" . $key . "] = " . $this->sep_val . $this->sql($value) . $this->sep_val;
+            $sql .= "[" . $key . "] = ";
+            if ($value !== null) {
+                $sql .= $this->sep_val . $this->sql($value) . $this->sep_val;
+            } else {
+                $sql .= 'IS NULL';
+            }
         }
 
         return $sql;
