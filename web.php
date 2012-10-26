@@ -70,8 +70,6 @@ class web
             $value = call_user_func($args['value']);
         } elseif (is_array($args['value']) && ($args['value']['type'] == 'arr_rows' || $args['value']['type'] == 'arr_values')) {
             //do nothing.
-        } elseif (is_array($args['value']) && is_object($args['value'][0])) {
-            $value = $args['value'][0]->$args['value'][1]($args['value'][2]);
         } else {
             if ($args['value'] === null && array_key_exists('default', $args)) {
                 $value = $args['default'];
