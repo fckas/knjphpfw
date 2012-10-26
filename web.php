@@ -66,24 +66,11 @@ class web
      */
     function drawInput($args)
     {
-        if (is_array($args['value']) && is_callable($args['value'])) {
+        $value = null;
+        if (is_callable($args['value'])) {
             $value = call_user_func($args['value']);
-        } elseif (is_array($args['value']) && ($args['value']['type'] == 'arr_rows' || $args['value']['type'] == 'arr_values')) {
-            //do nothing.
-        } else {
-            if ($args['value'] === null && array_key_exists('default', $args)) {
-                $value = $args['default'];
-            } else {
-                $value = $args['value'];
-            }
-        }
-
-        if (is_array($value)) {
-            $value = null;
-        }
-
-        if (is_null($value) && array_key_exists('default', $args)) {
-            $value = $args['default'];
+        } elseif ($args['value'] !== null && !is_array($args['value'])) {
+            $value = $args['value'];
         }
 
         if ($value && $args['value_callback']) {
