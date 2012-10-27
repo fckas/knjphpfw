@@ -185,6 +185,7 @@ class knjobjects
             $found = false;
 
             if ($list_val === null) {
+                $found = true;
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
             } elseif ($str_exists
                 && (
