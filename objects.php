@@ -90,9 +90,10 @@ class knjobjects
         return $data[1];
     }
 
-    public function getList($ob, $args = array(), $list_args = array())
+    public function getList($ob, array $args = array())
     {
-        return call_user_func_array(array($ob, 'getList'), array($args));
+        //TODO cache results
+        return $ob::getList($args);
     }
 
     public function listOpts($ob, $getkey, $args = null)
@@ -183,7 +184,14 @@ class knjobjects
         foreach ($list_args as $list_key => $list_val) {
             $found = false;
 
-            if (($str_exists && in_array($list_key, $args['cols_str']) || ($num_exists && in_array($list_key, $args['cols_num'])))) {
+            if ($list_val === null) {
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
+            } elseif ($str_exists
+                && (
+                    in_array($list_key, $args['cols_str'])
+                    || ($num_exists && in_array($list_key, $args['cols_num']))
+                )
+            ) {
                 if (is_array($list_val)) {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'self_callback' => array($db, 'sql'))) . ")";
                 } else {
@@ -191,7 +199,13 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif (($str_exists || $num_exists) && preg_match('/^(.+)_(has|not)$/', $list_key, $match) && (($str_exists && in_array($match[1], $args['cols_str'])) || ($num_exists && in_array($match[1], $args['cols_num'])))) {
+            } elseif (($str_exists || $num_exists)
+                && preg_match('/^(.+)_(has|not)$/', $list_key, $match)
+                && (
+                    ($str_exists && in_array($match[1], $args['cols_str']))
+                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                )
+            ) {
                 if ($match[2] == 'has') {
                     if ($list_val) {
                         $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != ''";
@@ -203,7 +217,9 @@ class knjobjects
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != '" . $db->sql($list_val) . "'";
                     $found = true;
                 }
-            } elseif ($dbrows_exist && in_array($list_key . '_id', $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key . '_id', $args['cols_dbrows'])
+            ) {
                 if (!is_object($list_val) && !is_bool($list_val) && !is_array($list_val)) {
                     throw new exception('Unknown type: ' . gettype($list_val) . ' for argument ' . $list_key);
                 } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
@@ -225,7 +241,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif ($dbrows_exist && in_array($list_key . 'Id', $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key . 'Id', $args['cols_dbrows'])
+            ) {
                 if (!is_object($list_val) && !is_bool($list_val)) {
                     throw new exception('Unknown type: ' . gettype($list_val));
                 } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
@@ -241,7 +259,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif ($dbrows_exist && in_array($list_key, $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key, $args['cols_dbrows'])
+            ) {
                 if (is_array($list_val)) {
                     if (empty($list_val)) {
                         throw new exception('No elements was given in array.');
@@ -253,7 +273,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif (array_key_exists('cols_bool', $args) && in_array($list_key, $args['cols_bool'])) {
+            } elseif (array_key_exists('cols_bool', $args)
+                && in_array($list_key, $args['cols_bool'])
+            ) {
                 if ($list_val) {
                     $list_val = '1';
                 } else {
@@ -261,13 +283,26 @@ class knjobjects
                 }
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
                 $found = true;
-            } elseif (substr($list_key, -7, 7) == '_search' && preg_match('/^(.+)_search$/', $list_key, $match) && (($str_exists && in_array($match[1], $args['cols_str'])) || ($dbrows_exist && in_array($match[1], $args['cols_dbrows'])) || ($num_exists && in_array($match[1], $args['cols_num'])))) {
+            } elseif (substr($list_key, -7, 7) == '_search'
+                && preg_match('/^(.+)_search$/', $list_key, $match)
+                && (
+                    ($str_exists && in_array($match[1], $args['cols_str']))
+                    || ($dbrows_exist && in_array($match[1], $args['cols_dbrows']))
+                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                )
+            ) {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " LIKE '%" . $db->sql($list_val) . "%'";
                 $found = true;
-            } elseif (substr($list_key, -6, 6) == '_lower' && preg_match('/^(.+)_lower$/', $list_key, $match) && in_array($match[1], $args['cols_str'])) {
+            } elseif (substr($list_key, -6, 6) == '_lower'
+                && preg_match('/^(.+)_lower$/', $list_key, $match)
+                && in_array($match[1], $args['cols_str'])
+            ) {
                 $sql_where .= " AND LOWER(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ") = LOWER('" . $db->sql($list_val) . "')";
                 $found = true;
-            } elseif (array_key_exists('cols_num', $args) && preg_match('/^(.+)_(from|to)/', $list_key, $match) && in_array($match[1], $args['cols_num'])) {
+            } elseif (array_key_exists('cols_num', $args)
+                && preg_match('/^(.+)_(from|to)/', $list_key, $match)
+                && in_array($match[1], $args['cols_num'])
+            ) {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
                 $found = true;
 
@@ -281,13 +316,16 @@ class knjobjects
                 default:
                     throw new exception('Invalid mode: ' . $match[2]);
                 }
-            } elseif (array_key_exists('cols_dates', $args) && preg_match('/^(.+)_(date|time|from|to)/', $list_key, $match) && in_array($match[1], $args['cols_dates'])) {
+            } elseif (array_key_exists('cols_dates', $args)
+                && preg_match('/^(.+)_(date|time|from|to)/', $list_key, $match)
+                && in_array($match[1], $args['cols_dates'])
+            ) {
                 $found = true;
 
                 switch ($match[2]) {
                 case 'date':
                     if (is_array($list_val)) {
-                        if (empty($list_val)) {
+                        if (!$list_val) {
                             throw new exception('Array was empty!');
                         }
 
