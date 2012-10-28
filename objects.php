@@ -142,7 +142,7 @@ class knjobjects
         return $objects;
     }
 
-    public function sqlHelper(array $list_args, array $args)
+    public function sqlHelper(array &$list_args, array $args)
     {
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
