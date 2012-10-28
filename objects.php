@@ -74,8 +74,10 @@ class knjobjects
     {
         $objects = $class::getList($args);
 
-        foreach ($objects as $object) {
-            $this->_objects[$class][$object->id()] = $object;
+        if (is_array($objects)) {
+            foreach ($objects as $object) {
+                $this->_objects[$class][$object->id()] = $object;
+            }
         }
 
         return $objects;
