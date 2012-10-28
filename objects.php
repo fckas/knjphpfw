@@ -1,10 +1,35 @@
 <?php
+/**
+ * TODO
+ *
+ * PHP version 5
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 
+/**
+ * TODO
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 class knjobjects
 {
     private $_objects;
     public $db;
 
+    /**
+     * Set database connection and reference array
+     *
+     * @param knjdb $db The database connection to use
+     */
     public function __construct(knjdb $db)
     {
         $this->db = $db;
