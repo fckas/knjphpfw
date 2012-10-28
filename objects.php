@@ -3,100 +3,95 @@
 class knjobjects
 {
     private $_objects;
-    private $_weakmap;
-    private $_weakmap_refs;
-    private $_weakref;
+    private $_weakrefs;
     public $db;
 
     public function __construct(knjdb $db)
     {
         $this->db = $db;
         $this->_objects = array();
+        $this->_weakrefs = array();
     }
 
-    public function get($ob, $id, array $data = null)
+    /**
+     * Create an object and keep it in memory for future use
+     *
+     * @param string $class The class type of the object
+     * @param mixed  $id    The database id of the object
+     * @param array  $data  Avoides fetching it from the database
+     *
+     * @return object
+     */
+    public function get($class, $id, array $data = array())
     {
         if (is_array($id)) {
             $data = $id;
-            $rdata = &$data;
             $id = $data['id'];
-        } elseif (is_array($data) && $data) {
-            $rdata = &$data;
-        } else {
-            $rdata = &$id;
+        } elseif (!$data) {
+            $data = $id;
         }
 
-        if (!is_string($ob)) {
-            throw new exception('Invalid object: ' . gettype($ob));
-        } elseif (is_object($id)) {
-            throw new exception('Invalid object: ' . get_class($id));
-        }
-
-        $id_exists = false;
-        if (isset($this->_objects[$ob])) {
-            $id_exists = array_key_exists($id, $this->_objects[$ob]);
-        }
-
-        if ($id_exists) {
-            if ($this->_weakmap) {
-                $ref = $this->_objects[$ob][$id];
-
-                if ($this->_weakmap_refs[$ref]) {
-                    print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    return $this->_weakmap_refs[$ref];
-                }
-            } elseif ($this->_weakref) {
-                if ($this->_objects[$ob][$id]->acquire()) {
-                    print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    $obj = $this->_objects[$ob][$id]->get();
-                    $this->_objects[$ob][$id]->release();
-                    return $obj;
-                }
+        if (isset($this->_weakrefs[$class])
+            && isset($this->_weakrefs[$class][$id])
+        ) {
+            if ($this->_weakrefs[$class][$id]->valid()) {
+                return $this->_weakrefs[$class][$id]->get();
             } else {
-                return $this->_objects[$ob][$id];
+                unset($this->_weakrefs[$class][$id]);
             }
         }
 
-        $obj = new $ob(
-            array(
-                'ob' => $this,
-                'data' => $rdata
-            )
-        );
+        $object = new $class(array('ob' => $this, 'data' => $data));
 
-        if ($this->_weakref) {
-            $this->_objects[$ob][$id] = new weakref($obj);
-        } elseif ($this->_weakmap) {
-            $ref = new stdclass;
-            $this->_weakmap_refs[$ref] = $obj;
-            $this->_objects[$ob][$id] = $ref;
-        } else {
-            $this->_objects[$ob][$id] = $obj;
-        }
+        $this->_objects[$class][$id] = $object;
+        $this->_weakrefs[$class][$id] = new WeakRef($object);
 
-        return $obj;
+        return $object;
     }
 
-    public function getBy($obj, array $args)
+    /**
+     * Get a single object using getList
+     *
+     * @param string $class The class type of the object
+     * @param array  $args  Search parameters
+     *
+     * @return object
+     */
+    public function getBy($class, array $args = array())
     {
         $args['limit'] = 1;
 
-        $objs = $this->getList($obj, $args);
-        if (!$objs) {
+        $object = $this->getList($class, $args);
+        if (!$object) {
             return false;
         }
 
-        $data = each($objs);
-        return $data[1];
+        return array_shift($object);
     }
 
-    public function getList($ob, array $args = array())
+    /**
+     * Get multiple objects
+     *
+     * @param string $class The class type of the objects
+     * @param array  $args  Search parameters
+     *
+     * @return array
+     */
+    public function getList($class, array $args = array())
     {
-        //TODO cache results
-        return $ob::getList($args);
+        $objects = $class::getList($args);
+
+        foreach ($objects as $object) {
+            $id = $object->id();
+            //TODO this might eat to much memory, test before enabeling
+            //$this->_objects[$class][$id] = $object;
+            $this->_weakrefs[$class][$id] = new WeakRef($object);
+        }
+
+        return $objects;
     }
 
-    public function listOpts($ob, $getkey, $args = null)
+    public function listOpts($class, $getkey, array $args = array())
     {
         $opts = array();
 
@@ -128,7 +123,7 @@ class knjobjects
             $args['list_args'] = array();
         }
 
-        foreach ($this->getList($ob, $args['list_args']) as $object) {
+        foreach ($this->getList($class, $args['list_args']) as $object) {
             if (is_array($getkey) && $getkey['funccall']) {
                 $value = call_user_func(array($object, $getkey['funccall']));
             } else {
@@ -141,23 +136,23 @@ class knjobjects
         return $opts;
     }
 
-    public function getListBySql($ob, $sql, $args = array())
+    public function getListBySql($class, $sql, array $args = array())
     {
-        $ret = array();
-        $q_obs = $this->db->query($sql);
-        while ($d_obs = $q_obs->fetch()) {
+        $objects = array();
+        $results = $this->db->query($sql);
+        while ($data = $results->fetch()) {
             if ($args['col_id']) {
-                $ret[] = $this->get($ob, $d_obs[$args['col_id']], $d_obs);
+                $objects[] = $this->get($class, $data[$args['col_id']], $data);
             } else {
-                $ret[] = $this->get($ob, $d_obs);
+                $objects[] = $this->get($class, $data);
             }
         }
-        $q_obs->free();
+        $results->free();
 
-        return $ret;
+        return $objects;
     }
 
-    public function sqlHelper(array &$list_args, $args)
+    public function sqlHelper(array $list_args, array $args)
     {
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
@@ -427,49 +422,62 @@ class knjobjects
         );
     }
 
-    public function unsetOb($ob, $id = null)
+    /**
+     * Unset ferences for a specefic object
+     *
+     * @param string $object The object or class
+     * @param mixed  $id     The id of the object
+     *
+     * @return null
+     */
+    public function unsetOb($object, $id = null)
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
+        if (is_object($object)) {
+            $id = $object->id();
+            $object = get_class($object);
         }
 
-        if (is_object($ob) && is_null($id)) {
-            $id = $ob->id();
-
-            if ($this->objects[get_class($ob)][$id]) {
-                unset($this->objects[get_class($ob)][$id]);
-            }
-        } else {
-            if ($this->objects[$ob][$id]) {
-                unset($this->objects[$ob][$id]);
-            }
-        }
+        unset($this->objects[$object][$id]);
+        unset($this->_weakrefs[$object][$id]);
     }
 
-    public function unsetClass($classname)
+    /**
+     * Unset all hardreferences for a certen class type
+     *
+     * @param string $class The class to clear
+     *
+     * @return null
+     */
+    public function unsetClass($class)
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
-        unset($this->_objects[$classname]);
+        unset($this->_objects[$class]);
     }
 
+    /**
+     * Unset all hardreferences and dead weak references
+     *
+     * @return null
+     */
     public function unsetAll()
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
         $this->_objects = array();
+
+        foreach ($this->_weakrefs as $class => &$references) {
+            foreach ($references as $id => &$reference) {
+                if (!$reference->valid()) {
+                    unset($this->_weakrefs[$class][$id]);
+                }
+            }
+        }
     }
 
+    /**
+     * Run unsetAll if 52MB or more memory is being used
+     *
+     * @return null
+     */
     public function cleanMemory()
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
         $usage = memory_get_usage() / 1024 / 1024;
         if ($usage >= 52) {
             $this->unsetAll();
