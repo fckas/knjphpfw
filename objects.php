@@ -3,14 +3,12 @@
 class knjobjects
 {
     private $_objects;
-    private $_weakrefs;
     public $db;
 
     public function __construct(knjdb $db)
     {
         $this->db = $db;
         $this->_objects = array();
-        $this->_weakrefs = array();
     }
 
     /**
@@ -31,20 +29,15 @@ class knjobjects
             $data = $id;
         }
 
-        if (isset($this->_weakrefs[$class])
-            && isset($this->_weakrefs[$class][$id])
+        if (isset($this->_objects[$class])
+            && isset($this->_objects[$class][$id])
         ) {
-            if ($this->_weakrefs[$class][$id]->valid()) {
-                return $this->_weakrefs[$class][$id]->get();
-            } else {
-                unset($this->_weakrefs[$class][$id]);
-            }
+            return $this->_objects[$class][$id];
         }
 
         $object = new $class(array('ob' => $this, 'data' => $data));
 
         $this->_objects[$class][$id] = $object;
-        $this->_weakrefs[$class][$id] = new WeakRef($object);
 
         return $object;
     }
@@ -82,10 +75,7 @@ class knjobjects
         $objects = $class::getList($args);
 
         foreach ($objects as $object) {
-            $id = $object->id();
-            //TODO this might eat to much memory, test before enabeling
-            //$this->_objects[$class][$id] = $object;
-            $this->_weakrefs[$class][$id] = new WeakRef($object);
+            $this->_objects[$class][$object->id()] = $object;
         }
 
         return $objects;
@@ -438,11 +428,10 @@ class knjobjects
         }
 
         unset($this->objects[$object][$id]);
-        unset($this->_weakrefs[$object][$id]);
     }
 
     /**
-     * Unset all hardreferences for a certen class type
+     * Unset all references for a certen class type
      *
      * @param string $class The class to clear
      *
@@ -454,21 +443,13 @@ class knjobjects
     }
 
     /**
-     * Unset all hardreferences and dead weak references
+     * Unset all references
      *
      * @return null
      */
     public function unsetAll()
     {
         $this->_objects = array();
-
-        foreach ($this->_weakrefs as $class => &$references) {
-            foreach ($references as $id => &$reference) {
-                if (!$reference->valid()) {
-                    unset($this->_weakrefs[$class][$id]);
-                }
-            }
-        }
     }
 
     /**
