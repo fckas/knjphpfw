@@ -15,7 +15,7 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     if (!file_exists($dir)) {
         throw new Exception('Dir does not exist: ' . $dir);
     }
-    
+
     global $functions_knjlocales;
 
     $functions_knjlocales['dir'] = $dir;
