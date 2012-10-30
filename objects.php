@@ -1,101 +1,114 @@
 <?php
+/**
+ * TODO
+ *
+ * PHP version 5
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 
+/**
+ * TODO
+ *
+ * @category Framework
+ * @package  Knjphpfw
+ * @author   Kasper Johansen <kaspernj@gmail.com>
+ * @license  Public domain http://en.wikipedia.org/wiki/Public_domain
+ * @link     https://github.com/kaspernj/knjphpfw
+ */
 class knjobjects
 {
     private $_objects;
-    private $_weakmap;
-    private $_weakmap_refs;
-    private $_weakref;
     public $db;
 
+    /**
+     * Set database connection and reference array
+     *
+     * @param knjdb $db The database connection to use
+     */
     public function __construct(knjdb $db)
     {
         $this->db = $db;
         $this->_objects = array();
     }
 
-    public function get($ob, $id, array $data = null)
+    /**
+     * Create an object and keep it in memory for future use
+     *
+     * @param string $class The class type of the object
+     * @param mixed  $id    The database id of the object
+     * @param array  $data  Avoides fetching it from the database
+     *
+     * @return object
+     */
+    public function get($class, $id, array $data = array())
     {
         if (is_array($id)) {
             $data = $id;
-            $rdata = &$data;
             $id = $data['id'];
-        } elseif (is_array($data) && $data) {
-            $rdata = &$data;
-        } else {
-            $rdata = &$id;
+        } elseif (!$data) {
+            $data = $id;
         }
 
-        if (!is_string($ob)) {
-            throw new exception('Invalid object: ' . gettype($ob));
-        } elseif (is_object($id)) {
-            throw new exception('Invalid object: ' . get_class($id));
+        if (isset($this->_objects[$class])
+            && isset($this->_objects[$class][$id])
+        ) {
+            return $this->_objects[$class][$id];
         }
 
-        $id_exists = false;
-        if (isset($this->_objects[$ob])) {
-            $id_exists = array_key_exists($id, $this->_objects[$ob]);
-        }
+        $object = new $class(array('ob' => $this, 'data' => $data));
 
-        if ($id_exists) {
-            if ($this->_weakmap) {
-                $ref = $this->_objects[$ob][$id];
+        $this->_objects[$class][$id] = $object;
 
-                if ($this->_weakmap_refs[$ref]) {
-                    print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    return $this->_weakmap_refs[$ref];
-                }
-            } elseif ($this->_weakref) {
-                if ($this->_objects[$ob][$id]->acquire()) {
-                    print 'Reusing! ' . $ob . '-' . $id . "\n";
-                    $obj = $this->_objects[$ob][$id]->get();
-                    $this->_objects[$ob][$id]->release();
-                    return $obj;
-                }
-            } else {
-                return $this->_objects[$ob][$id];
-            }
-        }
-
-        $obj = new $ob(
-            array(
-                'ob' => $this,
-                'data' => $rdata
-            )
-        );
-
-        if ($this->_weakref) {
-            $this->_objects[$ob][$id] = new weakref($obj);
-        } elseif ($this->_weakmap) {
-            $ref = new stdclass;
-            $this->_weakmap_refs[$ref] = $obj;
-            $this->_objects[$ob][$id] = $ref;
-        } else {
-            $this->_objects[$ob][$id] = $obj;
-        }
-
-        return $obj;
+        return $object;
     }
 
-    public function getBy($obj, array $args)
+    /**
+     * Get a single object using getList
+     *
+     * @param string $class The class type of the object
+     * @param array  $args  Search parameters
+     *
+     * @return object
+     */
+    public function getBy($class, array $args = array())
     {
         $args['limit'] = 1;
 
-        $objs = $this->getList($obj, $args);
-        if (!$objs) {
+        $object = $this->getList($class, $args);
+        if (!$object) {
             return false;
         }
 
-        $data = each($objs);
-        return $data[1];
+        return array_shift($object);
     }
 
-    public function getList($ob, $args = array(), $list_args = array())
+    /**
+     * Get multiple objects
+     *
+     * @param string $class The class type of the objects
+     * @param array  $args  Search parameters
+     *
+     * @return array
+     */
+    public function getList($class, array $args = array())
     {
-        return call_user_func_array(array($ob, 'getList'), array($args));
+        $objects = $class::getList($args);
+
+        if (is_array($objects)) {
+            foreach ($objects as $object) {
+                $this->_objects[$class][$object->id()] = $object;
+            }
+        }
+
+        return $objects;
     }
 
-    public function listOpts($ob, $getkey, $args = null)
+    public function listOpts($class, $getkey, array $args = array())
     {
         $opts = array();
 
@@ -127,7 +140,7 @@ class knjobjects
             $args['list_args'] = array();
         }
 
-        foreach ($this->getList($ob, $args['list_args']) as $object) {
+        foreach ($this->getList($class, $args['list_args']) as $object) {
             if (is_array($getkey) && $getkey['funccall']) {
                 $value = call_user_func(array($object, $getkey['funccall']));
             } else {
@@ -140,23 +153,23 @@ class knjobjects
         return $opts;
     }
 
-    public function getListBySql($ob, $sql, $args = array())
+    public function getListBySql($class, $sql, array $args = array())
     {
-        $ret = array();
-        $q_obs = $this->db->query($sql);
-        while ($d_obs = $q_obs->fetch()) {
+        $objects = array();
+        $results = $this->db->query($sql);
+        while ($data = $results->fetch()) {
             if ($args['col_id']) {
-                $ret[] = $this->get($ob, $d_obs[$args['col_id']], $d_obs);
+                $objects[] = $this->get($class, $data[$args['col_id']], $data);
             } else {
-                $ret[] = $this->get($ob, $d_obs);
+                $objects[] = $this->get($class, $data);
             }
         }
-        $q_obs->free();
+        $results->free();
 
-        return $ret;
+        return $objects;
     }
 
-    public function sqlHelper(array &$list_args, $args)
+    public function sqlHelper(array &$list_args, array $args)
     {
         if ($args && array_key_exists('db', $args) && $args['db']) {
             $db = $args['db'];
@@ -183,7 +196,15 @@ class knjobjects
         foreach ($list_args as $list_key => $list_val) {
             $found = false;
 
-            if (($str_exists && in_array($list_key, $args['cols_str']) || ($num_exists && in_array($list_key, $args['cols_num'])))) {
+            if ($list_val === null) {
+                $found = true;
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
+            } elseif ($str_exists
+                && (
+                    in_array($list_key, $args['cols_str'])
+                    || ($num_exists && in_array($list_key, $args['cols_num']))
+                )
+            ) {
                 if (is_array($list_val)) {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'self_callback' => array($db, 'sql'))) . ")";
                 } else {
@@ -191,7 +212,13 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif (($str_exists || $num_exists) && preg_match('/^(.+)_(has|not)$/', $list_key, $match) && (($str_exists && in_array($match[1], $args['cols_str'])) || ($num_exists && in_array($match[1], $args['cols_num'])))) {
+            } elseif (($str_exists || $num_exists)
+                && preg_match('/^(.+)_(has|not)$/', $list_key, $match)
+                && (
+                    ($str_exists && in_array($match[1], $args['cols_str']))
+                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                )
+            ) {
                 if ($match[2] == 'has') {
                     if ($list_val) {
                         $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != ''";
@@ -203,7 +230,9 @@ class knjobjects
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != '" . $db->sql($list_val) . "'";
                     $found = true;
                 }
-            } elseif ($dbrows_exist && in_array($list_key . '_id', $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key . '_id', $args['cols_dbrows'])
+            ) {
                 if (!is_object($list_val) && !is_bool($list_val) && !is_array($list_val)) {
                     throw new exception('Unknown type: ' . gettype($list_val) . ' for argument ' . $list_key);
                 } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
@@ -225,7 +254,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif ($dbrows_exist && in_array($list_key . 'Id', $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key . 'Id', $args['cols_dbrows'])
+            ) {
                 if (!is_object($list_val) && !is_bool($list_val)) {
                     throw new exception('Unknown type: ' . gettype($list_val));
                 } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
@@ -241,7 +272,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif ($dbrows_exist && in_array($list_key, $args['cols_dbrows'])) {
+            } elseif ($dbrows_exist
+                && in_array($list_key, $args['cols_dbrows'])
+            ) {
                 if (is_array($list_val)) {
                     if (empty($list_val)) {
                         throw new exception('No elements was given in array.');
@@ -253,7 +286,9 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif (array_key_exists('cols_bool', $args) && in_array($list_key, $args['cols_bool'])) {
+            } elseif (array_key_exists('cols_bool', $args)
+                && in_array($list_key, $args['cols_bool'])
+            ) {
                 if ($list_val) {
                     $list_val = '1';
                 } else {
@@ -261,13 +296,26 @@ class knjobjects
                 }
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
                 $found = true;
-            } elseif (substr($list_key, -7, 7) == '_search' && preg_match('/^(.+)_search$/', $list_key, $match) && (($str_exists && in_array($match[1], $args['cols_str'])) || ($dbrows_exist && in_array($match[1], $args['cols_dbrows'])) || ($num_exists && in_array($match[1], $args['cols_num'])))) {
+            } elseif (substr($list_key, -7, 7) == '_search'
+                && preg_match('/^(.+)_search$/', $list_key, $match)
+                && (
+                    ($str_exists && in_array($match[1], $args['cols_str']))
+                    || ($dbrows_exist && in_array($match[1], $args['cols_dbrows']))
+                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                )
+            ) {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " LIKE '%" . $db->sql($list_val) . "%'";
                 $found = true;
-            } elseif (substr($list_key, -6, 6) == '_lower' && preg_match('/^(.+)_lower$/', $list_key, $match) && in_array($match[1], $args['cols_str'])) {
+            } elseif (substr($list_key, -6, 6) == '_lower'
+                && preg_match('/^(.+)_lower$/', $list_key, $match)
+                && in_array($match[1], $args['cols_str'])
+            ) {
                 $sql_where .= " AND LOWER(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ") = LOWER('" . $db->sql($list_val) . "')";
                 $found = true;
-            } elseif (array_key_exists('cols_num', $args) && preg_match('/^(.+)_(from|to)/', $list_key, $match) && in_array($match[1], $args['cols_num'])) {
+            } elseif (array_key_exists('cols_num', $args)
+                && preg_match('/^(.+)_(from|to)/', $list_key, $match)
+                && in_array($match[1], $args['cols_num'])
+            ) {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
                 $found = true;
 
@@ -281,13 +329,16 @@ class knjobjects
                 default:
                     throw new exception('Invalid mode: ' . $match[2]);
                 }
-            } elseif (array_key_exists('cols_dates', $args) && preg_match('/^(.+)_(date|time|from|to)/', $list_key, $match) && in_array($match[1], $args['cols_dates'])) {
+            } elseif (array_key_exists('cols_dates', $args)
+                && preg_match('/^(.+)_(date|time|from|to)/', $list_key, $match)
+                && in_array($match[1], $args['cols_dates'])
+            ) {
                 $found = true;
 
                 switch ($match[2]) {
                 case 'date':
                     if (is_array($list_val)) {
-                        if (empty($list_val)) {
+                        if (!$list_val) {
                             throw new exception('Array was empty!');
                         }
 
@@ -388,49 +439,53 @@ class knjobjects
         );
     }
 
-    public function unsetOb($ob, $id = null)
+    /**
+     * Unset ferences for a specefic object
+     *
+     * @param string $object The object or class
+     * @param mixed  $id     The id of the object
+     *
+     * @return null
+     */
+    public function unsetOb($object, $id = null)
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
+        if (is_object($object)) {
+            $id = $object->id();
+            $object = get_class($object);
         }
 
-        if (is_object($ob) && is_null($id)) {
-            $id = $ob->id();
-
-            if ($this->objects[get_class($ob)][$id]) {
-                unset($this->objects[get_class($ob)][$id]);
-            }
-        } else {
-            if ($this->objects[$ob][$id]) {
-                unset($this->objects[$ob][$id]);
-            }
-        }
+        unset($this->objects[$object][$id]);
     }
 
-    public function unsetClass($classname)
+    /**
+     * Unset all references for a certen class type
+     *
+     * @param string $class The class to clear
+     *
+     * @return null
+     */
+    public function unsetClass($class)
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
-        unset($this->_objects[$classname]);
+        unset($this->_objects[$class]);
     }
 
+    /**
+     * Unset all references
+     *
+     * @return null
+     */
     public function unsetAll()
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
         $this->_objects = array();
     }
 
+    /**
+     * Run unsetAll if 52MB or more memory is being used
+     *
+     * @return null
+     */
     public function cleanMemory()
     {
-        if ($this->_weakref || $this->_weakmap) {
-            return false;
-        }
-
         $usage = memory_get_usage() / 1024 / 1024;
         if ($usage >= 52) {
             $this->unsetAll();

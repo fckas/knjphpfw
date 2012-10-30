@@ -262,7 +262,7 @@ class knjdb_mysqli
                 $sql .= ", ";
             }
 
-            if ($this->sql($value) !== null) {
+            if ($value !== null) {
                 $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
             } else {
                 $sql .= "NULL";
@@ -374,7 +374,7 @@ class knjdb_mysqli
 
             $sql .= $this->sep_col .$key .$this->sep_col ." = ";
 
-            if ($this->sql($value) !== null) {
+            if ($value !== null) {
                 $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
             } else {
                 $sql .= "NULL";

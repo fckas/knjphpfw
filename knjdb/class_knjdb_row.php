@@ -97,11 +97,6 @@ class knjdb_row
         return $this->data[$key];
     }
 
-    function g($key)
-    {
-        return $this->get($key);
-    }
-
     /**
      * Returns the row as an array.
      */
