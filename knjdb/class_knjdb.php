@@ -170,14 +170,6 @@ class knjdb
     }
 
     /**
-     * Returns the last inserted ID.
-     */
-    function getLastID()
-    {
-        return $this->conn->getLastID();
-    }
-
-    /**
      * Sets the options of the object.
      */
     function setOpts($args)
@@ -330,53 +322,24 @@ class knjdb
     }
 
     /**
-     * A quick way to insert a new row into the database.
-     */
-    function insert($table, $arr)
-    {
-        $this->conn->insert($table, $arr);
-
-        if ($this->insert_autocommit){ //check wherever autocommit is on.
-            $this->insert_countcommit++;
-
-            if ($this->insert_countcommit >= $this->insert_autocommit) {
-                $this->trans_commit();
-                $this->trans_begin();
-                $this->insert_countcommit = 0;
-            }
-        }
-    }
-
-    /**
-     * A quick way to insert a new row into the database.
+     * Insert a single row in to a table
      *
-     * Owerwrite existing duplicates
-     */
-    function replace($table, $arr)
-    {
-        $this->conn->replace($table, $arr);
-
-        if ($this->insert_autocommit){ //check wherever autocommit is on.
-            $this->insert_countcommit++;
-
-            if ($this->insert_countcommit >= $this->insert_autocommit) {
-                $this->trans_commit();
-                $this->trans_begin();
-                $this->insert_countcommit = 0;
-            }
-        }
-    }
-
-    /**
-     * A quick way to insert a new row into the database.
+     * @param string $table  Table to insert into
+     * @param array  $values Values to insert in the row
+     * @param string $mode   How to handle duplicates:
+     *                       insert:  Fail with exception (default)
+     *                       replace: Delete existing row
+     *                       update:  Update existing row
+     *                       ignore:  Do nothing
      *
-     * Update existing duplicates
+     * @return string The id of the newly created row
      */
-    function insert_update($table, $arr)
+    function insert($table, array $values, $mode = 'insert')
     {
-        $this->conn->insert_update($table, $arr);
+        $id = $this->conn->insert($table, $values, $mode);
 
-        if ($this->insert_autocommit){ //check wherever autocommit is on.
+        //check wherever autocommit is on.
+        if ($this->insert_autocommit) {
             $this->insert_countcommit++;
 
             if ($this->insert_countcommit >= $this->insert_autocommit) {
@@ -385,17 +348,8 @@ class knjdb
                 $this->insert_countcommit = 0;
             }
         }
-    }
 
-    function insert_multi($table, $rows)
-    {
-        if (method_exists($this->conn, 'insert_multi')) {
-            $this->conn->insert_multi($table, $rows);
-        } else {
-            foreach ($rows as $row) {
-                $this->conn->insert($table, $row);
-            }
-        }
+        return $id;
     }
 
     /**

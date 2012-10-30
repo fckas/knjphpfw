@@ -172,16 +172,6 @@ class knjdb_mysqli
     /**
      * TODO
      *
-     * @return int TODO
-     */
-    function getLastID()
-    {
-        return $this->conn->insert_id;
-    }
-
-    /**
-     * TODO
-     *
      * @param string $string TODO
      *
      * @return null
@@ -229,19 +219,31 @@ class knjdb_mysqli
     }
 
     /**
-     * TODO
+     * Insert a single row in to a table
      *
-     * @param string $table TODO
-     * @param array  $arr   TODO
+     * @param string $table  Table to insert into
+     * @param array  $values Values to insert in the row
+     * @param string $mode   How to handle duplicates:
+     *                       insert:  Fail with exception (default)
+     *                       replace: Delete existing row
+     *                       update:  Update existing row
+     *                       ignore:  Do nothing
      *
-     * @return object TODO
+     * @return string The id of the newly created row
      */
-    function insert($table, $arr)
+    function insert($table, array $values, $mode = 'insert')
     {
-        $sql = "INSERT INTO " .$this->sep_table .$table .$this->sep_table ." (";
+        if ($mode == 'replace') {
+            $sql = "REPLACE";
+        } elseif ($mode == 'ignore') {
+            $sql = "INSERT IGNORE";
+        } else {
+            $sql = "INSERT";
+        }
 
+        $sql .= " INTO "  .$this->sep_table .$table .$this->sep_table ." (";
         $first = true;
-        foreach ($arr as $key => $value) {
+        foreach ($values as $key => $value) {
             if ($first == true) {
                 $first = false;
             } else {
@@ -253,158 +255,39 @@ class knjdb_mysqli
 
         $sql .= ") VALUES (";
         $first = true;
-        foreach ($arr as $key => $value) {
+        foreach ($values as $key => $value) {
             if ($first == true) {
                 $first = false;
             } else {
                 $sql .= ", ";
             }
 
-            $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+            if ($value !== null) {
+                $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+            } else {
+                $sql .= "NULL";
+            }
         }
         $sql .= ")";
 
-        $this->query($sql);
-    }
+        if ($mode == 'update') {
+            $sql .= " ON DUPLICATE KEY UPDATE";
 
-    /**
-     * Insert row, owerwrite if duplicate exists
-     *
-     * @param string $table TODO
-     * @param array  $arr   TODO
-     *
-     * @return object TODO
-     */
-    function replace($table, $arr)
-    {
-        $sql = "REPLACE INTO " .$this->sep_table .$table .$this->sep_table ." (";
-
-        $first = true;
-        foreach ($arr as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_col .$key .$this->sep_col;
-        }
-
-        $sql .= ") VALUES (";
-        $first = true;
-        foreach ($arr as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
-        }
-        $sql .= ")";
-
-        $this->query($sql);
-    }
-
-    /**
-     * Insert value, update if duplicate exists
-     *
-     * @param string $table Table to insert into
-     * @param array  $arr   TODO
-     *
-     * @return object TODO
-     */
-    function insert_update($table, $arr)
-    {
-        $sql = "INSERT INTO " .$this->sep_table .$table .$this->sep_table ." (";
-
-        $first = true;
-        foreach ($arr as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_col .$key .$this->sep_col;
-        }
-
-        $sql .= ") VALUES (";
-        $first = true;
-        foreach ($arr as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
-        }
-        $sql .= ")
-        ON DUPLICATE KEY UPDATE";
-
-        $first = true;
-        foreach ($arr as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_col .$key .$this->sep_col . " = VALUES(" .  $this->sep_col .$key .$this->sep_col . ")";
-        }
-
-        $this->query($sql);
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $table TODO
-     * @param array  $rows  TODO
-     *
-     * @return object TODO
-     */
-    function insert_multi($table, $rows)
-    {
-        $sql = "INSERT INTO " .$this->sep_table .$table .$this->sep_table ." (";
-
-        $first = true;
-        foreach ($rows[0] as $key => $value) {
-            if ($first == true) {
-                $first = false;
-            } else {
-                $sql .= ", ";
-            }
-
-            $sql .= $this->sep_col .$key .$this->sep_col;
-        }
-
-        $sql .= ") VALUES";
-
-        $first_row = true;
-        foreach ($rows as $arr) {
-            if ($first_row) {
-                $first_row = false;
-            } else {
-                $sql .= ",";
-            }
-
-            $sql .= " (";
             $first = true;
-            foreach ($arr as $key => $value) {
+            foreach ($values as $key => $value) {
                 if ($first == true) {
                     $first = false;
                 } else {
                     $sql .= ", ";
                 }
 
-                $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+                $sql .= $this->sep_col .$key .$this->sep_col . " = VALUES(" .  $this->sep_col .$key .$this->sep_col . ")";
             }
-            $sql .= ")";
         }
 
         $this->query($sql);
+
+        return $this->conn->insert_id;
     }
 
     /**
@@ -489,8 +372,13 @@ class knjdb_mysqli
                 $sql .= ", ";
             }
 
-            $sql .= $this->sep_col .$key .$this->sep_col ." = " .$this->sep_val
-            .$this->sql($value) .$this->sep_val;
+            $sql .= $this->sep_col .$key .$this->sep_col ." = ";
+
+            if ($value !== null) {
+                $sql .= $this->sep_val .$this->sql($value) .$this->sep_val;
+            } else {
+                $sql .= "NULL";
+            }
         }
 
         if ($where) {
@@ -551,8 +439,12 @@ class knjdb_mysqli
                 $sql .= $this->sep_col .$key .$this->sep_col ." IN ("
                 .knjarray::implode($data) .")";
             } else {
-                $sql .= $this->sep_col .$key .$this->sep_col ." = " .$this->sep_val
-                .$this->sql($value) .$this->sep_val;
+                $sql .= $this->sep_col .$key .$this->sep_col;
+                if ($value !== null) {
+                    $sql .= " = " .$this->sep_val .$this->sql($value) .$this->sep_val;
+                } else {
+                    $sql .= 'IS NULL';
+                }
             }
         }
 
