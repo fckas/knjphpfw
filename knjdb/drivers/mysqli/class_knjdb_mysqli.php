@@ -303,7 +303,7 @@ class knjdb_mysqli
     {
         $sql = "SELECT";
 
-        if ($args['count']) {
+        if (isset($args['count'])) {
             $sql .= " COUNT(*) as count";
         } else {
             $sql .= " *";
@@ -315,14 +315,14 @@ class knjdb_mysqli
             $sql .= " WHERE " .$this->makeWhere($where);
         }
 
-        if ($args['orderby']) {
+        if (isset($args['orderby'])) {
             $sql .= " ORDER BY " .$args['orderby'];
         }
 
-        if ($args['limit']) {
+        if (isset($args['limit'])) {
             $sql .= " LIMIT";
 
-            if ($args['limit_from']) {
+            if (isset($args['limit_from'])) {
                 $sql .= " " .$args['limit_from'] .",";
             }
 
@@ -421,6 +421,8 @@ class knjdb_mysqli
      */
     function makeWhere($where)
     {
+        $sql = "";
+
         $first = true;
         foreach ($where as $key => $value) {
             if ($first == true) {
