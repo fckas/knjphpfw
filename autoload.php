@@ -38,7 +38,6 @@ class knj_autoload
             'knjdb_async' => 'knjdb/class_knjdb_async',
             'knjobjects' => 'objects',
             'knj_strings' => 'strings',
-            'notfoundexc' => 'exceptions',
             'epay' => 'epay'
         );
     }
