@@ -36,7 +36,11 @@ function opt_get($title)
     global $knj_options;
     $dbconn = $knj_options['dbconn'];
 
-    $f_gv = $dbconn->select($knj_options['table'], array($knj_options['keycol'] => $title), array('limit' => 1));
+    $f_gv = $dbconn->select(
+        $knj_options['table'],
+        array($knj_options['keycol'] => $title),
+        array('limit' => 1)
+    );
     $d_gv = $f_gv->fetch();
 
     return $d_gv[$knj_options['valcol']];
