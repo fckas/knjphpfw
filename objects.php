@@ -158,7 +158,7 @@ class knjobjects
         $objects = array();
         $results = $this->db->query($sql);
         while ($data = $results->fetch()) {
-            if ($args['col_id']) {
+            if (isset($args['col_id'])) {
                 $objects[] = $this->get($class, $data[$args['col_id']], $data);
             } else {
                 $objects[] = $this->get($class, $data);

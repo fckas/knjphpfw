@@ -362,7 +362,7 @@ class knjdb_mysqli
      */
     function update($table, array $data, $where = null)
     {
-        $sql .= "UPDATE " .$this->sep_table .$table .$this->sep_table ." SET ";
+        $sql = "UPDATE " .$this->sep_table .$table .$this->sep_table ." SET ";
 
         $first = true;
         foreach ($data as $key => $value) {

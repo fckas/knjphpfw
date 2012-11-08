@@ -8,6 +8,7 @@ class knjdb_row
     public $db;
     private $table;
     private $id;
+    private $col_id = 'id';
     public $data;
 
     /**
@@ -37,16 +38,12 @@ class knjdb_row
 
         foreach ($args as $key => $value) {
             if ($key == 'col_id') {
-                $this->$key = $value;
+                $this->col_id = $value;
             } elseif ($key == 'db' || $key == 'data' || $key == 'table') {
                 //do nothing.
             } else {
                 throw new Exception('Invalid argument: "' . $key . '".');
             }
-        }
-
-        if (!$this->col_id) {
-            $this->col_id = 'id';
         }
 
         $this->updateData($data);

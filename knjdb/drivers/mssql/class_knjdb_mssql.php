@@ -195,7 +195,7 @@ class knjdb_mssql
      */
     function update($table, array $data, $where = null)
     {
-        $sql .= "UPDATE [" . $table . "] SET ";
+        $sql = "UPDATE [" . $table . "] SET ";
 
         $first = true;
         foreach ($data as $key => $value) {
