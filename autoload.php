@@ -1,6 +1,6 @@
 <?php
 /**
- * TODO
+ * Implement knj_autoload
  *
  * PHP version 5
  *
@@ -12,7 +12,9 @@
  */
 
 /**
- * TODO
+ * Function for automtically loading the needed file for a given class
+ *
+ * Use it from with in your spl_autoload_register() function
  *
  * @category Framework
  * @package  Knjphpfw
@@ -22,38 +24,32 @@
  */
 class knj_autoload
 {
-    /**
-     * TODO
-     */
-    function __construct()
-    {
-        $this->knj = array(
-            'web' => 'web',
-            'knj_browser' => 'web',
-            'knj_ftp' => 'ftp',
-            'knj_os' => 'os',
-            'objects' => 'objects',
-            'knjarray' => 'array',
-            'knjdb' => 'db',
-            'knjdb_async' => 'knjdb/class_knjdb_async',
-            'knjobjects' => 'objects',
-            'knj_strings' => 'strings',
-            'epay' => 'epay'
-        );
-    }
+    static $knj = array(
+        'web' => 'web',
+        'knj_browser' => 'web',
+        'knj_ftp' => 'ftp',
+        'knj_os' => 'os',
+        'objects' => 'objects',
+        'knjarray' => 'array',
+        'knjdb' => 'db',
+        'knjdb_async' => 'knjdb/class_knjdb_async',
+        'knjobjects' => 'objects',
+        'knj_strings' => 'strings',
+        'epay' => 'epay'
+    );
 
     /**
-     * TODO
+     * Load the file based on the class name
      *
      * @param string $classname TODO
      *
      * @return null
      */
-    function load($classname)
+    static function load($classname)
     {
         $class = mb_strtolower($classname);
-        if (array_key_exists($class, $this->knj)) {
-            include_once $this->knj[$class] .'.php';
+        if (isset(self::$knj[$class])) {
+            include_once self::$knj[$class] . '.php';
         }
     }
 }
