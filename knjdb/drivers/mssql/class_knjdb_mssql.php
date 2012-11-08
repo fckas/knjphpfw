@@ -193,12 +193,8 @@ class knjdb_mssql
     /**
      * A quick way to do a simple update.
      */
-    function update($table, $data, $where = null)
+    function update($table, array $data, $where = null)
     {
-        if (!is_array($data)) {
-            throw new Exception('Second argument must be an array with data.');
-        }
-
         $sql .= "UPDATE [" . $table . "] SET ";
 
         $first = true;

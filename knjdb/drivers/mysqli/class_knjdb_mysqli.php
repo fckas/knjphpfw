@@ -360,7 +360,7 @@ class knjdb_mysqli
      *
      * @return object TODO
      */
-    function update($table, $data, $where = null)
+    function update($table, array $data, $where = null)
     {
         $sql .= "UPDATE " .$this->sep_table .$table .$this->sep_table ." SET ";
 
