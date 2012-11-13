@@ -6,9 +6,10 @@ class knjdb
     public $args = array(
         'col_id' => 'id',
         'autoconnect' => true,
-        'stats' => false
+        'stats' => false,
+        'debug' => false,
     );
-    public $stats = array();
+    public $quires_called = 0;
     private $drivers = array();
     public $insert_autocommit, $insert_countcommit; //variables used by the transaction-autocommit-feature.
 
@@ -174,9 +175,7 @@ class knjdb
      */
     function setOpts($args)
     {
-        foreach ($args as $key => $value) {
-            $this->args[$key] = $value;
-        }
+        $this->args = array_merge($this->args, $args);
 
         if ($this->args['autoconnect'] && !$this->conn) {
             $this->connect();
@@ -193,13 +192,13 @@ class knjdb
      */
     function query($sql)
     {
-        if ($this->args['stats']) {
-            $this->stats['query_called']++;
+        if ($this->args['stats'] || $this->args['debug']) {
+            $this->quires_called++;
 
             if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo('Query ' . $this->stats['query_called'] . "\n");
+                echo('Query ' . $this->quires_called . "\n");
                 echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
                 echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
                 echo('SQL: ' . $sql . "\n\n");
@@ -211,13 +210,13 @@ class knjdb
 
     function query_ubuf($sql)
     {
-        if ($this->args['stats']) {
-            $this->stats['query_called']++;
+        if ($this->args['stats'] || $this->args['debug']) {
+            $this->quires_called++;
 
             if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo('Query ' . $this->stats['query_called'] . "\n");
+                echo('Query ' . $this->quires_called . "\n");
                 echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
                 echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
                 echo('SQL: ' . $sql . "\n\n");
