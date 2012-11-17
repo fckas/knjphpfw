@@ -55,11 +55,11 @@ class webpack2
     {
         $authentication = array(
             'customerNo' => $this->_customerNo,
-            'password' => $this->_password
+            'password' => $this->_password,
         );
         $args = array(
             'authentication' => $authentication,
-            'parcels' => $data
+            'parcels' => $data,
         );
         $status = $this->_soap->generateParcelLabel($args);
 

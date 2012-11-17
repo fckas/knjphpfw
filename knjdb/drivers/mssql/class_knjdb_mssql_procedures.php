@@ -11,11 +11,18 @@ class knjdb_mssql_procedures implements knjdb_driver_procedures
 
     function getProcedures()
     {
-        $f_gp = $this->knjdb->query("SELECT * FROM sysobjects WHERE type = 'P' AND category = 0");
+        $f_gp = $this->knjdb->query(
+            "
+            SELECT *
+            FROM sysobjects
+            WHERE type = 'P'
+              AND category = 0
+            "
+        );
         while ($d_gp = $f_gp->fetch()) {
-            $this->procedures = new knjdb_procedure($this->knjdb, array(
-                    'name' => $d_gp['name']
-                )
+            $this->procedures = new knjdb_procedure(
+                $this->knjdb,
+                array('name' => $d_gp['name'])
             );
         }
 

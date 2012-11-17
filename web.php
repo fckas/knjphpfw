@@ -627,7 +627,7 @@ class knj_browser
             'browsershots',
             'perl',
             'wget',
-            'w3c_validator'
+            'w3c_validator',
         );
 
         if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
@@ -684,9 +684,7 @@ class knj_browser
             throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
         }
 
-        return array(
-            'version' => $version
-        );
+        return array('version' => $version);
     }
 
     /**

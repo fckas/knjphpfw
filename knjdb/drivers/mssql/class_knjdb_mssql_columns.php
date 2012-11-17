@@ -93,14 +93,16 @@ class knjdb_mssql_columns implements knjdb_driver_columns
                     $autoincr = 'no';
                     $type = $d_gc['DATA_TYPE'];
 
-                    $table->columns[$d_gc['COLUMN_NAME']] = new knjdb_column($table, array(
+                    $table->columns[$d_gc['COLUMN_NAME']] = new knjdb_column(
+                        $table,
+                        array(
                             'name' => $d_gc['COLUMN_NAME'],
                             'type' => $type,
                             'maxlength' => $d_gc['CHARACTER_MAXIMUM_LENGTH'],
                             'notnull' => $notnull,
                             'default' => $default,
                             'primarykey' => $primarykey,
-                            'autoincr' => 	$autoincr
+                            'autoincr' => 	$autoincr,
                         )
                     );
                 }
