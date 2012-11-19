@@ -48,9 +48,7 @@ class knjdb_mysqli_dbs implements knjdb_driver_dbs
                 && $d_gdbs['Database'] != 'information_schema'
             ) {
                 $return[] = new knjdb_db(
-                    array(
-                        'name' => $d_gdbs['Database']
-                    )
+                    array('name' => $d_gdbs['Database'])
                 );
             }
         }

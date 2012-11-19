@@ -4,7 +4,7 @@ global $functions_knjlocales;
 $functions_knjlocales = array(
     'date_out_format' => 'd/m/Y',
     'date_out_short_format' => 'd/m/y',
-    'date_out_format_time' => 'H:i'
+    'date_out_format_time' => 'H:i',
 );
 
 /**
@@ -44,9 +44,7 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
         }
     }
 
-    $language = strtr($language, array(
-        '-' => '_'
-    ));
+    $language = strtr($language, array('-' => '_'));
     if (preg_match('/^([A-z]{2})_([A-z]{2})$/u', $language, $match)) {
         $language = strtolower($match[1]) . '_' . strtoupper($match[2]);
     }
@@ -179,12 +177,12 @@ function knjlocales_localeconv($lang = null)
         if (in_array($lang, array('da_DK', 'de_DE', 'se_SE'))) {
             return array(
                 'mon_decimal_point' => ',',
-                'mon_thousands_sep' => '.'
+                'mon_thousands_sep' => '.',
             );
         } else {
             return array(
                 'mon_decimal_point' => '.',
-                'mon_thousands_sep' => ','
+                'mon_thousands_sep' => ',',
             );
         }
     }

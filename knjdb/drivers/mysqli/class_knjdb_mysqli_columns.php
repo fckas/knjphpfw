@@ -183,7 +183,7 @@ class knjdb_mysqli_columns implements knjdb_driver_columns
                         'value' => $value,
                         'input_type' => 'mysql',
                         'autoincr' => $autoincr,
-                        'comment' => $d_gc['Comment']
+                        'comment' => $d_gc['Comment'],
                     );
                     $table->columns[$d_gc['Field']]
                         = new knjdb_column($table, $data);

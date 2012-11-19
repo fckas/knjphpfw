@@ -96,9 +96,7 @@ class knjdb_mssql
 
     function sql($sql)
     {
-        return strtr($sql, array(
-            "'" => "''"
-        ));
+        return strtr($sql, array("'" => "''"));
     }
 
     function escape_table($string)

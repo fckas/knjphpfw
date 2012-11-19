@@ -85,9 +85,10 @@ function knj_error_reporter_error_handeler($errno, $errmsg, $filename, $linenum,
 
     $mail_body .= knj_error_reporter_getData();
 
-    knj_error_reporter_email($mail_body, array(
-        'error_msg' => utf8_encode($errmsg)
-    ));
+    knj_error_reporter_email(
+        $mail_body,
+        array('error_msg' => utf8_encode($errmsg))
+    );
 }
 
 function knj_error_reporter_getData()
@@ -148,9 +149,10 @@ function knj_error_reporter_exception_handler($exc, $print = true)
 
     $mail_body .= knj_error_reporter_getData();
 
-    knj_error_reporter_email($mail_body, array(
-        'error_msg' => $exc->getMessage()
-    ));
+    knj_error_reporter_email(
+        $mail_body,
+        array('error_msg' => $exc->getMessage())
+    );
 
     if ($print) {
         echo "Uncaught exception '" . get_class($exc) . "' with message '" . $exc->getMessage() . "'\n\n" . $exc->getTraceAsString() . "\n\n";

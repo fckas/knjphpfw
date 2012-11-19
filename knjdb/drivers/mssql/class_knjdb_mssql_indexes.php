@@ -55,13 +55,18 @@ class knjdb_mssql_indexes implements knjdb_driver_indexes
                         syscolumns.name
                 ");
                 while ($d_gik = $f_gik->fetch()) {
-                    $columns[$d_gik['name']] = $table->getColumn($d_gik['name']);
+                    $columns[$d_gik['name']] = $table->getColumn(
+                        $d_gik['name']
+                    );
                 }
 
-                if (count($columns) > 0){ //to avoid the actual system indexes with no columns which confuses...
-                    $table->indexes[$d_gi['name']] = new knjdb_index($table, array(
+                //to avoid the actual system indexes with no columns which confuses...
+                if (count($columns) > 0) {
+                    $table->indexes[$d_gi['name']] = new knjdb_index(
+                        $table,
+                        array(
                             'name' => $d_gi['name'],
-                            'columns' => $columns
+                            'columns' => $columns,
                         )
                     );
                 }

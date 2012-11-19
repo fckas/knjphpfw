@@ -73,14 +73,6 @@ class web
             $value = $args['value'];
         }
 
-        if ($value && $args['value_callback']) {
-            if (array_key_exists(1, $args['value_callback'])) {
-                $value = call_user_func($args['value_callback'][0], $value, $args['value_callback'][1]);
-            } else {
-                $value = call_user_func($args['value_callback'][0], $value);
-            }
-        }
-
         if (!$args['type']) {
             $f3 = substr($args['name'], 0, 3);
             if ($f3 == 'che') {
@@ -421,24 +413,6 @@ class web
     }
 
     /**
-     * Preform bool operation based on checkbox on/off values
-     *
-     * @param string $val  'on'/'off' value
-     * @param mixed  $opt1 Return value if $val is on, default is 1
-     * @param mixed  $opt2 Return value if $val is off, default is 0
-     *
-     * @return mixed Return $opt1 if on is given, or $opt2 if off i given
-     */
-    function checkVal($val, $opt1 = 1, $opt2 = 0)
-    {
-        if ($val == 'on') {
-            return $opt1;
-        } else {
-            return $opt2;
-        }
-    }
-
-    /**
      * Function to show a message through the JS-alert-function.
      *
      * @param string $msg Message to display.
@@ -653,7 +627,7 @@ class knj_browser
             'browsershots',
             'perl',
             'wget',
-            'w3c_validator'
+            'w3c_validator',
         );
 
         if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
@@ -710,9 +684,7 @@ class knj_browser
             throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
         }
 
-        return array(
-            'version' => $version
-        );
+        return array('version' => $version);
     }
 
     /**
