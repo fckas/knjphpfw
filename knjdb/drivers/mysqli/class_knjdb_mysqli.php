@@ -51,20 +51,20 @@ class knjdb_mysqli
         return array(
             'host' => array(
                 'type' => 'text',
-                'title' => 'Hostname'
+                'title' => 'Hostname',
             ),
             'user' => array(
                 'type' => 'text',
-                'title' => 'Username'
+                'title' => 'Username',
             ),
             'pass' => array(
                 'type' => 'passwd',
-                'title' => 'Password'
+                'title' => 'Password',
             ),
             'db' => array(
                 'type' => 'text',
-                'title' => 'Database'
-            )
+                'title' => 'Database',
+            ),
         );
     }
 
@@ -405,7 +405,7 @@ class knjdb_mysqli
             'array' => $tables,
             'surr' => '`',
             'impl' => ',',
-            'self_callback' => array($this, 'escape_table')
+            'self_callback' => array($this, 'escape_table'),
         );
         $sql = "OPTIMIZE TABLE " .knjarray::implode($data);
 
@@ -436,7 +436,7 @@ class knjdb_mysqli
                     'array' => $value,
                     'impl' => ',',
                     'surr' => "'",
-                    'self_callback' => array($this, 'sql')
+                    'self_callback' => array($this, 'sql'),
                 );
                 $sql .= $this->sep_col .$key .$this->sep_col ." IN ("
                 .knjarray::implode($data) .")";

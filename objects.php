@@ -427,7 +427,7 @@ class knjobjects
         return array(
             'sql_where' => $sql_where,
             'sql_limit' => $sql_limit,
-            'sql_order' => $sql_order
+            'sql_order' => $sql_order,
         );
     }
 

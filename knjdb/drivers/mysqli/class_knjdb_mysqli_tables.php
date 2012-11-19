@@ -51,7 +51,7 @@ class knjdb_mysqli_tables implements knjdb_driver_tables
                         'name'      => $d_gt['Name'],
                         'engine'    => $d_gt['Engine'],
                         'collation' => $d_gt['Collation'],
-                        'rows'      => $d_gt['Rows']
+                        'rows'      => $d_gt['Rows'],
                     );
                     $this->tables[$d_gt['Name']] = new knjdb_table(
                         $this->knjdb,

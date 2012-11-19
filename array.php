@@ -9,7 +9,7 @@ class knjarray
             if ($arr1[$key] != $value) {
                 $arr_res[$key] = array(
                     '1' => $arr1[$key],
-                    '2' => $arr2[$key]
+                    '2' => $arr2[$key],
                 );
             }
         }
@@ -24,7 +24,7 @@ class knjarray
             if ($pos !== false) {
                 return array(
                     'matched' => $value,
-                    'pos' => $pos
+                    'pos' => $pos,
                 );
             }
         }
