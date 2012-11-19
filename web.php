@@ -52,27 +52,7 @@ class web
     {
         ob_start();
 
-        $value = null;
-        if (is_callable($args['value'])) {
-            $value = call_user_func($args['value']);
-        } elseif ($args['value'] !== null && !is_array($args['value'])) {
-            $value = $args['value'];
-        }
-
-        if (!$args['type']) {
-            $f3 = substr($args['name'], 0, 3);
-            if ($f3 == 'che') {
-                $args['type'] = 'checkbox';
-            } elseif ($f3 == 'tex') {
-                $args['type'] = 'text';
-            } elseif ($f3 == 'sel' || array_key_exists('opts', $args)) {
-                $args['type'] = 'select';
-            } elseif ($f3 == 'fil') {
-                $args['type'] = 'file';
-            } elseif ($f3 == 'rad') {
-                $args['type'] = 'radio';
-            }
-        }
+        $value = isset($args['value']) ? $args['value'] : '';
 
         if (!$args['id']) {
             $id = $args['name'];
@@ -206,9 +186,6 @@ class web
                 $etags .= ' height="' . htmlspecialchars($args['height']) . '"';
             }
 
-            if (is_null($value) && is_array($args['value'])) {
-                $value = $args['value'];
-            }
             echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<select' .$etags;
             if ($args['size']) {
                 echo ' size="' .htmlspecialchars($args['size']) .'"';
@@ -292,7 +269,10 @@ class web
         } elseif ($args['type'] == 'radio') {
             $id = $id .'_' .$value;
             echo '<td' .$rowspan .' class="tdt" colspan="2">
-            <input type="radio" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args['name']) .'" value="' .htmlspecialchars($args['value']) .'"  class="' .htmlspecialchars($args['class']) .'"';
+            <input type="radio" id="' .htmlspecialchars($id)
+                .'" name="' .htmlspecialchars($args['name'])
+                .'" value="' .htmlspecialchars($value)
+                .'"  class="' .htmlspecialchars($args['class']) .'"';
             if ($args['checked']) {
                 echo ' checked="checked"';
             }
