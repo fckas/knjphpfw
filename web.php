@@ -51,21 +51,7 @@ class web
     function input($args)
     {
         ob_start();
-        self::drawInput($args);
-        $html = ob_get_contents();
-        ob_end_clean();
-        return $html;
-    }
 
-    /**
-     * TODO
-     *
-     * @param mixed $args TODO
-     *
-     * @return TODO
-     */
-    function drawInput($args)
-    {
         $value = null;
         if (is_callable($args['value'])) {
             $value = call_user_func($args['value']);
@@ -351,6 +337,9 @@ class web
             }
             echo '>' .$descr .'</td></tr>';
         }
+        $html = ob_get_contents();
+        ob_end_clean();
+        return $html;
     }
 
     /**
