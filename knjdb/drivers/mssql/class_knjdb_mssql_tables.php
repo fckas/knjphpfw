@@ -13,11 +13,18 @@ class knjdb_mssql_tables implements knjdb_driver_tables
     function getTables()
     {
         if ($this->tables_changed) {
-            $f_gt = $this->knjdb->query("SELECT * FROM INFORMATION_SCHEMA.Tables WHERE TABLE_TYPE = 'BASE TABLE' ORDER BY TABLE_NAME");
+            $f_gt = $this->knjdb->query(
+                "
+                SELECT *
+                FROM INFORMATION_SCHEMA.Tables
+                WHERE TABLE_TYPE = 'BASE TABLE'
+                ORDER BY TABLE_NAME
+                "
+            );
             while ($d_gt = $f_gt->fetch()) {
-                $this->tables[$d_gt['TABLE_NAME']] = new knjdb_table($this->knjdb, array(
-                        'name' => $d_gt['TABLE_NAME']
-                    )
+                $this->tables[$d_gt['TABLE_NAME']] = new knjdb_table(
+                    $this->knjdb,
+                    array('name' => $d_gt['TABLE_NAME'])
                 );
             }
 

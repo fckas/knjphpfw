@@ -107,7 +107,7 @@ class knj_strings
         $replace = array(
             "\r\n" => ' ',
             "\n" => ' ',
-            "\r" => ' '
+            "\r" => ' ',
         );
         return strtr($string, $replace);
     }
@@ -126,7 +126,7 @@ class knj_strings
             "'" => "\\'",
             "\r\n" => "\\n",
             "\n" => "\\n",
-            "\r" => "\\n"
+            "\r" => "\\n",
         );
         $string = strtr($string, $replace);
 
