@@ -63,7 +63,9 @@ class web
 
         if ($type == 'password' && !isset($args['class'])) {
             $args['class'] = 'input_text';
-        } elseif (!isset($args['class'])) {
+        } elseif (isset($args['class'])) {
+            $args['class'] = 'input_' . $type . ' ' . $args['class'];
+        } else {
             $args['class'] = 'input_' . $type;
         }
 
@@ -165,7 +167,7 @@ class web
             $id = $id .'_' .$value;
             echo '<td' .$rowspan .' class="tdt" colspan="2">
             <input type="radio" id="' .htmlspecialchars($id)
-                .'" name="' .htmlspecialchars($id)
+                .'" name="' .htmlspecialchars($args['name'])
                 .'" value="' .htmlspecialchars($value)
                 .'"  class="' .htmlspecialchars($args['class']) .'"';
             if ($args['checked']) {
