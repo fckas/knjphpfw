@@ -65,7 +65,7 @@ class web
             $title = htmlspecialchars($title);
         }
 
-        if (isset($args['class'])) {
+        if (!isset($args['class'])) {
             $args['class'] = '';
         } else {
             $args['class'] .= ' ';
