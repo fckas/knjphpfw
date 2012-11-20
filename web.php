@@ -31,11 +31,11 @@ class web
      *
      * @return TODO
      */
-    function inputs($args)
+    static function inputs($args)
     {
         $html = '';
         foreach ($args as $arg) {
-            $html .= web::input($arg);
+            $html .= self::input($arg);
         }
 
         return $html;
@@ -48,7 +48,7 @@ class web
      *
      * @return string TODO
      */
-    function input($args)
+    static function input($args)
     {
         ob_start();
 
@@ -239,7 +239,7 @@ class web
      *
      * @return TODO
      */
-    function drawOpts($opts, $selected = null)
+    static function drawOpts($opts, $selected = null)
     {
         if (is_object($selected)) {
             $selected = $selected->id();
@@ -297,7 +297,7 @@ class web
      *
      * @return null
      */
-    function alert($msg)
+    static function alert($msg)
     {
         $msg = knj_strings::jsparse($msg);
 
@@ -317,7 +317,7 @@ class web
      *
      * @return null
      */
-    function redirect($url, $status = 303, $exit = true)
+    static function redirect($url, $status = 303, $exit = true)
     {
         if (!headers_sent() && !self::$alert_sent) {
             $url = parse_url($url);
@@ -355,7 +355,7 @@ class web
      *
      * @return string TODO
      */
-    function back()
+    static function back()
     {
         echo '<script type="text/javascript"><!--
             history.back(-1);
