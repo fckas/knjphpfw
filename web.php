@@ -61,10 +61,14 @@ class web
             $title = htmlspecialchars($title);
         }
 
-        if ($type == 'password' && !isset($args['class'])) {
-            $args['class'] = 'input_text';
+        if (isset($args['class'])) {
+            $args['class'] = '';
+        }
+
+        if ($type == 'password' && !$args['class']) {
+            $args['class'] .= ' input_text';
         } elseif (!isset($args['class'])) {
-            $args['class'] = 'input_' . $type;
+            $args['class'] .= ' input_' . $type;
         }
 
         echo '<tr>';
