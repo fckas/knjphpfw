@@ -1,10 +1,13 @@
 #About this fork:
 
 The focus of this fork is to make the code easier to maintain, document it and make it work properly with UTF-8 encoding.
-This will mainly be done by making the code style comply with PEAR. The framework will expect UTF-8 as the internal encoding. Depricated code and non OOP code will be removed and be replaced with OOP code. Functions not used by fcomputer.dk are likely to be droped.
+* This will mainly be done by making the code style comply with PEAR.
+* The framework will expect UTF-8 as the internal encoding.
+* Deprecated and non-OOP code will be removed and replaced with OOP code.
+* Parts NOT used by fcomputer.dk are likely to be dropped.
+
 
 #HOW TO INSTALL
 
-* Make sure you have the PHP5 installed (on Ubuntu install the "php5"-package).
-* Create a symlinks called knj in "/usr/share/php" pointing to the folder contaning the framework
-
+* Make sure you have PHP5 installed (on Ubuntu install the "php5" package).
+* Create a symlink named "knj" in "/usr/share/php" pointing to the folder containing the framework.

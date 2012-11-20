@@ -9,7 +9,7 @@ class knjdb
         'stats' => false,
         'debug' => false,
     );
-    public $quires_called = 0;
+    public $queries_called = 0;
     private $drivers = array();
     public $insert_autocommit, $insert_countcommit; //variables used by the transaction-autocommit-feature.
 
@@ -193,12 +193,12 @@ class knjdb
     function query($sql)
     {
         if ($this->args['stats'] || $this->args['debug']) {
-            $this->quires_called++;
+            $this->queries_called++;
 
             if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo('Query ' . $this->quires_called . "\n");
+                echo('Query ' . $this->queries_called . "\n");
                 echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
                 echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
                 echo('SQL: ' . $sql . "\n\n");
@@ -211,12 +211,12 @@ class knjdb
     function query_ubuf($sql)
     {
         if ($this->args['stats'] || $this->args['debug']) {
-            $this->quires_called++;
+            $this->queries_called++;
 
             if ($this->args['debug']) {
                 $bt = debug_backtrace();
 
-                echo('Query ' . $this->quires_called . "\n");
+                echo('Query ' . $this->queries_called . "\n");
                 echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
                 echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
                 echo('SQL: ' . $sql . "\n\n");
@@ -253,7 +253,7 @@ class knjdb
 
     function escape_column($string)
     {
-        if ($this->conn->sep_col and strpos($string, $this->conn->sep_col) !== false) {
+        if ($this->conn->sep_col && strpos($string, $this->conn->sep_col) !== false) {
             throw new exception('Possible trying to hack the database!');
         }
 
@@ -293,7 +293,7 @@ class knjdb
         $result = $this->select($table, $where, $args);
         $results = array();
         while ($data = $result->fetch($result)) {
-            if (array_key_exists('return', $args) and $args['return'] == 'array') {
+            if (array_key_exists('return', $args) && $args['return'] == 'array') {
                 $results[] = $data;
             } else {
                 $results[] = $this->getRow($data, $table);
@@ -337,7 +337,7 @@ class knjdb
     {
         $id = $this->conn->insert($table, $values, $mode);
 
-        //check wherever autocommit is on.
+        //check whether autocommit is on.
         if ($this->insert_autocommit) {
             $this->insert_countcommit++;
 

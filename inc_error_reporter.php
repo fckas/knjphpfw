@@ -6,7 +6,7 @@ function knj_error_get_specific($file, $line)
 
     if (is_array($knj_error_reporter['last'])) {
         foreach ($knj_error_reporter['last'] as $error) {
-            if ($error['file'] == $file and $error['line'] == $line) {
+            if ($error['file'] == $file && $error['line'] == $line) {
                 return $error;
             }
         }
@@ -74,7 +74,7 @@ function knj_error_reporter_error_handeler($errno, $errmsg, $filename, $linenum,
 
     $mail_body = 'An error occurred on the website at ' .date('d/m Y - H:i') . ".\n\n";
 
-    if ($_SERVER and array_key_exists('HTTP_HOST', $_SERVER) and array_key_exists('REQUEST_URI', $_SERVER)) {
+    if ($_SERVER && array_key_exists('HTTP_HOST', $_SERVER) && array_key_exists('REQUEST_URI', $_SERVER)) {
         $mail_body .= "*URL*:\nhttp://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n\n";
     }
 
@@ -95,12 +95,12 @@ function knj_error_reporter_getData()
 {
     $mail_body = '';
 
-    if ($_SERVER and array_key_exists('REMOTE_ADDR', $_SERVER)) {
+    if ($_SERVER && array_key_exists('REMOTE_ADDR', $_SERVER)) {
         $mail_body .= "*Client IP*:\n";
         $mail_body .= $_SERVER['REMOTE_ADDR'] . "\n\n";
     }
 
-    if ($_SERVER and array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
+    if ($_SERVER && array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
         $mail_body .= "*Client user-agent*:\n";
         $mail_body .= $_SERVER['HTTP_USER_AGENT'] . "\n\n";
     }
@@ -139,7 +139,7 @@ function knj_error_reporter_exception_handler($exc, $print = true)
 {
     $mail_body = 'An exception occurred on the website at ' .date('d/m Y - H:i') . ".\n\n";
 
-    if ($_SERVER and array_key_exists('HTTP_HOST', $_SERVER) and array_key_exists('REQUEST_URI', $_SERVER)) {
+    if ($_SERVER && array_key_exists('HTTP_HOST', $_SERVER) && array_key_exists('REQUEST_URI', $_SERVER)) {
         $mail_body .= "*URL*:\nhttp://" . $_SERVER['HTTP_HOST'] . $_SERVER['REQUEST_URI'] . "\n\n";
     }
 
@@ -215,15 +215,15 @@ function knj_error_reporter_activate($args = array())
     $activate = true;
     if (
         (
-            (array_key_exists('ignore_javabots', $knj_error_reporter) and $knj_error_reporter['ignore_javabots']) or
-            (array_key_exists('ignore_bots', $knj_error_reporter) and $knj_error_reporter['ignore_bots'])
-        ) and (
-            array_key_exists('HTTP_USER_AGENT', $_SERVER) and
+            (array_key_exists('ignore_javabots', $knj_error_reporter) && $knj_error_reporter['ignore_javabots']) or
+            (array_key_exists('ignore_bots', $knj_error_reporter) && $knj_error_reporter['ignore_bots'])
+        ) && (
+            array_key_exists('HTTP_USER_AGENT', $_SERVER) &&
             preg_match('/Java\/[0-9\.]+/i', $_SERVER['HTTP_USER_AGENT'], $match)
         )
     ) {
         $activate = false;
-    } elseif (array_key_exists('ignore_bots', $knj_error_reporter) and $knj_error_reporter['ignore_bots'] && knj_browser::getOS() == 'bot') {
+    } elseif (array_key_exists('ignore_bots', $knj_error_reporter) && $knj_error_reporter['ignore_bots'] && knj_browser::getOS() == 'bot') {
         $activate = false;
     }
 

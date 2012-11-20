@@ -12,12 +12,16 @@ $functions_knjlocales = array(
  */
 function knjlocales_setmodule($domain, $dir, $language = 'auto')
 {
+    if (!file_exists($dir)) {
+        throw new Exception('Dir does not exist: ' . $dir);
+    }
+
     global $functions_knjlocales;
 
     $functions_knjlocales['dir'] = $dir;
 
     if ($language == 'auto') {
-        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) and $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
+        if (array_key_exists('HTTP_ACCEPT_LANGUAGE', $_SERVER) && $_SERVER['HTTP_ACCEPT_LANGUAGE']) {
             $accept = $_SERVER['HTTP_ACCEPT_LANGUAGE'];
             foreach (explode(',', $accept) as $value) {
                 $value = explode(';', $value);
@@ -84,10 +88,6 @@ function knjlocales_setmodule($domain, $dir, $language = 'auto')
     }
 
     $functions_knjlocales['language'] = $language;
-
-    if (!file_exists($dir)) {
-        throw new exception('Dir does not exist: ' . $dir);
-    }
 
     putenv('LANGUAGE=' . $language);
     putenv('LC_ALL=' . $language);
@@ -190,12 +190,7 @@ function knjlocales_localeconv($lang = null)
     putenv('LC_MONETARY=' . $lang);
     setlocale(LC_MONETARY, $lang . '.utf8');
 
-    $return = localeconv();
-
-    putenv('LC_MONETARY=' . $functions_knjlocales['language']);
-    setlocale(LC_MONETARY, $functions_knjlocales['language'] . '.utf8');
-
-    return $return;
+    return localeconv();
 }
 
 function number_out($number, $len = 0, $local = null)
