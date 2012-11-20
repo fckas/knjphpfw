@@ -62,7 +62,7 @@ class knjarray
                 $string .= $args['impl'];
             }
 
-            if ($args['bykey']) {
+            if (!empty($args['bykey'])) {
                 $val = $key;
             } else {
                 $val = $value;
@@ -72,7 +72,7 @@ class knjarray
                 $string .= $args['surr'];
             }
 
-            if ($args['func_callback']) {
+            if (!empty($args['func_callback'])) {
                 if (is_array($args['func_callback'])) {
                     foreach ($args['func_callback'] as $func_callback) {
                         $val = call_user_func(array($val, $func_callback));
@@ -87,7 +87,7 @@ class knjarray
                 }
             }
 
-            if ($args['self_callback']) {
+            if (!empty($args['self_callback'])) {
                 if (!is_callable($args['self_callback'])) {
                     throw new exception(_('Callback was not callable.'));
                 }
@@ -97,7 +97,7 @@ class knjarray
 
             $string .= $val;
 
-            if ($args['surr']) {
+            if (!empty($args['surr'])) {
                 $string .= $args['surr'];
             }
         }
