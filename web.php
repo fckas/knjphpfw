@@ -53,87 +53,35 @@ class web
         ob_start();
 
         $value = isset($args['value']) ? $args['value'] : '';
+        $id = isset($args['name']) ? $args['name'] : '';
+        $type = isset($args['type']) ? $args['type'] : 'text';
+        $title = $args['title'];
 
-        if (!$args['id']) {
-            $id = $args['name'];
-        } else {
-            $id = $args['id'];
+        if (empty($args['html'])) {
+            $title = htmlspecialchars($title);
         }
 
-        if (!$args['type']) {
-            $args['type'] = 'text';
-        }
-
-        if ($args['type'] == 'password' && !$args['class']) {
+        if ($type == 'password' && !isset($args['class'])) {
             $args['class'] = 'input_text';
+        } elseif (!isset($args['class'])) {
+            $args['class'] = 'input_' . $type;
         }
 
-        if (!$args['class']) {
-            $args['class'] = 'input_' . $args['type'];
-        }
-
-        if ($args['colspan']) {
-            $colspan_cont = $args['colspan'] - 1;
-        }
-
-        $classes_tr = array();
-        if ($args['classes_tr']) {
-            $classes_tr = array_merge($classes_tr, $args['classes_tr']);
-        }
-
-        if (!array_key_exists('tr', $args) || $args['tr']) {
-            if (!empty($classes_tr)) {
-                echo '<tr class="' .implode(' ', $classes_tr) ,'">';
-            } else {
-                echo '<tr>';
-            }
-        }
-
-        if ($args['title']) {
-            $title_html = htmlspecialchars($args['title']);
-        } elseif ($args['title_html']) {
-            $title_html = $args['title_html'];
-        }
-
-        if ($args['div']) {
-            $title_html = '<div>' . $title_html . '</div>';
-        }
-
-        $css = array();
+        echo '<tr>';
         $td_html = '<td class="tdc"';
-        if ($args['td_width']) {
-            $css['width'] = $args['td_width'];
-        }
-        if ($args['align']) {
-            $css['text-align'] = $args['align'];
-        }
 
-        if (!empty($css)) {
-            $td_html .= ' style="';
-            foreach ($css as $key => $val) {
-                $td_html .= $key . ': ' . $val . ';';
-            }
-            $td_html .= '"';
-        }
-
-        if ($colspan_cont > 1) {
-            $td_html .= ' colspan="' . $colspan_cont . '"';
+        if (!empty($args['colspan']) && $args['colspan'] > 2) {
+            $td_html .= ' colspan="' . ($args['colspan'] - 1) . '"';
         }
 
         $rowspan = '';
-        if ($args['rowspan'] > 1) {
+        if (!empty($args['rowspan']) && $args['rowspan'] > 1) {
             $rowspan = ' rowspan="' .$args['rowspan'] .'"';
             $td_html .= $rowspan;
         }
 
         $td_html .= '>';
-
-        if ($args['div']) {
-            $td_end_html = '</div></td>';
-            $td_html .= '<div>';
-        } else {
-            $td_end_html = '</td>';
-        }
+        $td_end_html = '</td>';
 
         $js_tags = '';
         $js_tags_arr = array('onkeyup', 'onkeydown', 'onchange', 'onclick');
@@ -147,7 +95,7 @@ class web
             $js_tags .= ' autocomplete="off"';
         }
 
-        if ($args['type'] == 'numeric') {
+        if ($type == 'numeric') {
             $value = number_out($value, $args['decis']);
         }
 
@@ -160,19 +108,17 @@ class web
         $classes[] = $args['class'];
         $args['class'] = implode(' ', $classes);
 
-        if ($args['type'] == 'spacer') {
-            echo '<td' .$rowspan .' colspan="2">&nbsp;</td>';
-        } elseif ($args['type'] == 'checkbox') {
+        if ($type == 'checkbox') {
             echo '<td' .$rowspan .' colspan="2" class="tdcheck"><input';
             if ($args['disabled']) {
                 echo ' disabled="disabled"';
             }
-            echo ' type="' .$args['type'] .'" class="'. $args['class'] .'" name="' .$args['name'] .'" id="' .$id .'"';
+            echo ' type="' .$type .'" class="'. $args['class'] .'" name="' .$id .'" id="' .$id .'"';
             if ($value) {
                 echo ' checked="checked"';
             }
-            echo $js_tags .' /><label for="' .$id .'">' .$title_html .'</label></td>';
-        } elseif ($args['type'] == 'select') {
+            echo $js_tags .' /><label for="' .$id .'">' .$title .'</label></td>';
+        } elseif ($type == 'select') {
             $etags = '';
             if ($args['disabled']) {
                 $etags .= ' disabled="disabled"';
@@ -190,8 +136,8 @@ class web
             if ($args['size']) {
                 echo ' size="' .htmlspecialchars($args['size']) .'"';
             }
-            echo ' name="' .htmlspecialchars($args['name']);
-            if ($args['multiple'] && mb_substr($args['name'], -2) != '[]') {
+            echo ' name="' .htmlspecialchars($id);
+            if ($args['multiple'] && mb_substr($id, -2) != '[]') {
                 echo '[]';
             }
             echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"' .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
@@ -200,48 +146,10 @@ class web
                 echo '<div style="padding-top: 3px;"><input type="button" value="' ._('Up') .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._('Down') .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
             }
             echo $td_end_html;
-        } elseif ($args['type'] == 'imageupload') {
-            if ($args['filetype']) {
-                $ftype = $args['filetype'];
-            } else {
-                $ftype = 'jpg';
-            }
-
-            if (!$value) {
-                $fn = null;
-            } else {
-                $fn = $args['path'] .'/' .$value .'.' .$ftype;
-            }
-
-            if (!$fn || !file_exists($fn)) {
-                $found = false;
-                $fn_nopic = 'images/nopicture.jpg';
-                $fn = null;
-
-                if (file_exists($fn_nopic)) {
-                    $fn = $fn_nopic;
-                }
-            } else {
-                $found = true;
-            }
-
-            if ($args['dellink']) {
-                $args['dellink'] = str_replace('%value%', $value, $args['dellink']);
-            }
-
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<table class="designtable"><tr><td style="width: 100%;"><input type="file" name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'" /></td><td>';
-            if ($fn) {
-                echo '<img src="/' . $fn . '" alt="Preview" height="80" />';
-            }
-            if ($found && $args['dellink']) {
-                echo '<div style="text-align: center;">(<a onclick="return confirm(\'' ._('Do you want to delete the picture?') .'\')" href="' .htmlspecialchars($args['dellink']) .'">' ._('delete') .'</a>)';
-            }
-            echo '</div>';
-            echo '</td></tr></table>' .$td_end_html;
-        } elseif ($args['type'] == 'file') {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="file" class="input_' .$args['type'] .'" name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
-        } elseif ($args['type'] == 'textarea') {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($args['name']) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'"';
+        } elseif ($type == 'file') {
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="file" class="input_' .$type .'" name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
+        } elseif ($type == 'textarea') {
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'"';
             if ($args['height']) {
                 echo ' style="height: ' .$args['height'] .';"';
             }
@@ -252,10 +160,10 @@ class web
                 echo ' disabled="disabled"';
             }
             echo $js_tags .'>' .htmlspecialchars($value, null, 'UTF-8') .'</textarea>' .$td_end_html;
-        } elseif ($args['type'] == 'fckeditor') {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html;
+        } elseif ($type == 'fckeditor') {
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html;
 
-            $fck = new fckeditor($args['name']);
+            $fck = new fckeditor($id);
 
             if ($args['height']) {
                 $fck->Height = $args['height'];
@@ -266,11 +174,11 @@ class web
             $fck->Value = $value;
             $fck->Create();
             echo $td_end_html;
-        } elseif ($args['type'] == 'radio') {
+        } elseif ($type == 'radio') {
             $id = $id .'_' .$value;
             echo '<td' .$rowspan .' class="tdt" colspan="2">
             <input type="radio" id="' .htmlspecialchars($id)
-                .'" name="' .htmlspecialchars($args['name'])
+                .'" name="' .htmlspecialchars($id)
                 .'" value="' .htmlspecialchars($value)
                 .'"  class="' .htmlspecialchars($args['class']) .'"';
             if ($args['checked']) {
@@ -279,15 +187,13 @@ class web
             if ($args['disabled']) {
                 echo ' disabled="disabled"';
             }
-            echo $js_tags. ' /><label for="' .htmlspecialchars($id) .'">' .$title_html .'</label></td>';
-        } elseif ($args['type'] == 'info') {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html. '</td>' .$td_html .$value .$td_end_html;
-        } elseif ($args['type'] == 'plain') {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .htmlspecialchars($value) .$td_end_html;
-        } elseif ($args['type'] == 'headline') {
-            echo '<td' .$rowspan .' class="tdheadline" colspan="2">' .$title_html .'</td>';
+            echo $js_tags. ' /><label for="' .htmlspecialchars($id) .'">' .$title .'</label></td>';
+        } elseif ($type == 'info') {
+            echo '<td' .$rowspan .' class="tdt">' .$title. '</td>' .$td_html .$value .$td_end_html;
+        } elseif ($type == 'headline') {
+            echo '<td' .$rowspan .' class="tdheadline" colspan="2">' .$title .'</td>';
         } else {
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<input type="' .htmlspecialchars($args['type']) .'"';
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="' .htmlspecialchars($type) .'"';
             if ($args['readonly']) {
                 echo ' readonly="readonly"';
             }
@@ -297,7 +203,7 @@ class web
             if ($args['maxlength']) {
                 echo ' maxlength="' .$args['maxlength'] .'"';
             }
-            echo ' class="' .$args['class'] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($args['name']) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
+            echo ' class="' .$args['class'] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($id) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
         }
 
         if (!array_key_exists('tr', $args) || $args['tr']) {
