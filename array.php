@@ -2,7 +2,7 @@
 
 class knjarray
 {
-    function keydiffs($arr1, $arr2)
+    static function keydiffs($arr1, $arr2)
     {
         $arr_res = array();
         foreach ($arr2 as $key => $value) {
@@ -17,7 +17,7 @@ class knjarray
         return $arr_res;
     }
 
-    function stringsearch($string, $arr)
+    static function stringsearch($string, $arr)
     {
         foreach ($arr as $value) {
             $pos = strpos($string, $value);
@@ -32,7 +32,7 @@ class knjarray
         return false;
     }
 
-    function implode_func($arr, $impl, $func, $func_para = null)
+    static function implode_func($arr, $impl, $func, $func_para = null)
     {
         $string = '';
 
@@ -50,7 +50,7 @@ class knjarray
         return $string;
     }
 
-    function implode($args)
+    static function implode($args)
     {
         $string = '';
 
@@ -105,7 +105,7 @@ class knjarray
         return $string;
     }
 
-    function remove_value($arr, $value)
+    static function remove_value($arr, $value)
     {
         foreach ($arr as $key => $value) {
             if ($value == $value) {
