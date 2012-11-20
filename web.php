@@ -205,7 +205,7 @@ class web
         }
 
 
-        if (!isset($args['tr']) || !$args['tr']) {
+        if (!isset($args['tr']) || $args['tr']) {
             echo '</tr>';
         }
 
