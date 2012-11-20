@@ -77,7 +77,9 @@ class web
             $args['class'] .= 'input_' . $type;
         }
 
-        echo '<tr>';
+        if (!isset($args['class']) || !$args['class']) {
+            echo '<tr>';
+        }
         $td_html = '<td class="tdc"';
 
         if (!empty($args['colspan']) && $args['colspan'] > 2) {
@@ -202,7 +204,8 @@ class web
             echo ' class="' .$args['class'] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($id) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
         }
 
-        if (!array_key_exists('tr', $args) || $args['tr']) {
+
+        if (!isset($args['class']) || !$args['class']) {
             echo '</tr>';
         }
 
