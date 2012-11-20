@@ -77,7 +77,7 @@ class web
             $args['class'] .= 'input_' . $type;
         }
 
-        if (!isset($args['class']) || !$args['class']) {
+        if (!isset($args['tr']) || $args['tr']) {
             echo '<tr>';
         }
         $td_html = '<td class="tdc"';
@@ -205,7 +205,7 @@ class web
         }
 
 
-        if (!isset($args['class']) || !$args['class']) {
+        if (!isset($args['tr']) || !$args['tr']) {
             echo '</tr>';
         }
 
