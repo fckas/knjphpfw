@@ -123,15 +123,15 @@ class web
             echo $js_tags .' /><label for="' .$id .'">' .$title .'</label></td>';
         } elseif ($type == 'select') {
             $etags = '';
-            if ($args['disabled']) {
+            if (!empty($args['disabled'])) {
                 $etags .= ' disabled="disabled"';
             }
 
-            if ($args['multiple']) {
+            if (!empty($args['multiple'])) {
                 $etags .= ' multiple="multiple"';
             }
 
-            if ($args['height']) {
+            if (!empty($args['height'])) {
                 $etags .= ' height="' . htmlspecialchars($args['height']) . '"';
             }
 
@@ -145,7 +145,7 @@ class web
             }
             echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"' .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
 
-            if ($args['moveable']) {
+            if (!empty($args['moveable'])) {
                 echo '<div style="padding-top: 3px;"><input type="button" value="' ._('Up') .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._('Down') .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
             }
             echo $td_end_html;
@@ -213,7 +213,7 @@ class web
             echo '</tr>';
         }
 
-        if ($args['descr']) {
+        if (!empty($args['descr'])) {
             $descr = $args['descr'];
 
             if ($args['div']) {
