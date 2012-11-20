@@ -168,10 +168,9 @@ class web
             $fck->Create();
             echo $td_end_html;
         } elseif ($type == 'radio') {
-            $id = $id .'_' .$value;
             echo '<td' .$rowspan .' class="tdt" colspan="2">
-            <input type="radio" id="' .htmlspecialchars($id)
-                .'" name="' .htmlspecialchars($args['name'])
+            <input type="radio" id="' .htmlspecialchars($id .'_' .$value)
+                .'" name="' .htmlspecialchars($id)
                 .'" value="' .htmlspecialchars($value)
                 .'"  class="' .htmlspecialchars($args['class']) .'"';
             if ($args['checked']) {
@@ -180,7 +179,7 @@ class web
             if ($args['disabled']) {
                 echo ' disabled="disabled"';
             }
-            echo $js_tags. ' /><label for="' .htmlspecialchars($id) .'">' .$title .'</label></td>';
+            echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$value) .'">' .$title .'</label></td>';
         } elseif ($type == 'info') {
             echo '<td' .$rowspan .' class="tdt">' .$title. '</td>' .$td_html .$value .$td_end_html;
         } elseif ($type == 'headline') {
