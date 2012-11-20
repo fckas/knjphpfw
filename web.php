@@ -57,6 +57,10 @@ class web
         $type = isset($args['type']) ? $args['type'] : 'text';
         $title = $args['title'];
 
+        if (!empty($args['opts'])) {
+            $type = 'select';
+        }
+
         if (empty($args['html'])) {
             $title = htmlspecialchars($title);
         }
