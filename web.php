@@ -102,7 +102,7 @@ class web
         $js_tags = '';
         $js_tags_arr = array('onkeyup', 'onkeydown', 'onchange', 'onclick');
         foreach ($js_tags_arr as $js_tag) {
-            if ($args[$js_tag]) {
+            if (!empty($args[$js_tag])) {
                 $js_tags .= ' ' . $js_tag . '="' . $args[$js_tag] . '"';
             }
         }
