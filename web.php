@@ -82,6 +82,10 @@ class web
         }
         $td_html = '<td class="tdc"';
 
+        if (!empty($args['width'])) {
+            $td_html .= ' style="width:' . $args['width'] . ';"';
+        }
+
         if (!empty($args['colspan']) && $args['colspan'] > 2) {
             $td_html .= ' colspan="' . ($args['colspan'] - 1) . '"';
         }
