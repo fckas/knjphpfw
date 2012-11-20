@@ -95,19 +95,6 @@ class web
             $js_tags .= ' autocomplete="off"';
         }
 
-        if ($type == 'numeric') {
-            $value = number_out($value, $args['decis']);
-        }
-
-        if ($args['classes']) {
-            $classes = $args['classes'];
-        } else {
-            $classes = array();
-        }
-
-        $classes[] = $args['class'];
-        $args['class'] = implode(' ', $classes);
-
         if ($type == 'checkbox') {
             echo '<td' .$rowspan .' colspan="2" class="tdcheck"><input';
             if ($args['disabled']) {
@@ -132,7 +119,7 @@ class web
                 $etags .= ' height="' . htmlspecialchars($args['height']) . '"';
             }
 
-            echo '<td' .$rowspan .' class="tdt">' .$title_html .'</td>' .$td_html .'<select' .$etags;
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<select' .$etags;
             if ($args['size']) {
                 echo ' size="' .htmlspecialchars($args['size']) .'"';
             }
