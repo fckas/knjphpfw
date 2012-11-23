@@ -468,101 +468,284 @@ class knj_browser
     }
 
     /**
-     * Returns the registered operating-system.
+     * Check user agent string to see if visitor is a bot
      *
-     * @return string windows|linux|mac|bot|unknown|playstation|wii|sun
+     * @return bool
      */
-    static function getOS()
+    static function isBot()
     {
+        if (empty($_SERVER['HTTP_USER_AGENT'])) {
+            return true;
+        }
+
         $bots = array(
-            'yahoo! slurp',
-            'msnbot',
-            'googlebot',
+            'robot.htm',
+            'spider',
+            'crawler',
+            'Validator',
+            'Yammybot',
+            'Openbot',
             'adsbot',
-            'ask jeeves',
-            'conpilot crawler',
-            'yandex',
-            'exabot',
+            'Ask Jeeves',
             'hostharvest',
-            'dotbot',
-            'ia_archiver',
             'httpclient',
-            'spider.html',
-            'comodo-certificates-spider',
-            'sbider',
-            'speedy spider',
             'spbot',
             'aihitbot',
-            'scoutjet',
             'com_bot',
             'aihitbot',
-            'robot.html',
-            'robot.htm',
-            'catchbot',
-            'baiduspider',
-            'setoozbot',
             'sslbot',
             'browsershots',
-            'perl',
-            'wget',
-            'w3c_validator',
+            'nuhk',
+
+            //Lists taken from www.useragentstring.com 2012-11-23
+
+            //Crawlers
+            //'008',
+            'ABACHOBot',
+            'Accoona-AI-Agent',
+            //'AddSugarSpiderBot',
+            'AnyApexBot',
+            'Arachmo',
+            'B-l-i-t-z-B-O-T',
+            //'Baiduspider',
+            'BecomeBot',
+            'BeslistBot',
+            'BillyBobBot',
+            'Bimbot',
+            'Bingbot',
+            'BlitzBOT',
+            'boitho.com-dc',
+            'boitho.com-robot',
+            'btbot',
+            'CatchBot',
+            'Cerberian Drtrs',
+            'Charlotte',
+            //'ConveraCrawler',
+            'cosmos',
+            'Covario IDS',
+            'DataparkSearch',
+            'DiamondBot',
+            'Discobot',
+            'Dotbot',
+            'EARTHCOM.info',
+            'EmeraldShield.com WebBot',
+            //'envolk[ITS]spider',
+            'EsperanzaBot',
+            'Exabot',
+            //'FAST Enterprise Crawler',
+            //'FAST-WebCrawler',
+            'FDSE robot',
+            'FindLinks',
+            'FurlBot',
+            //'FyberSpider',
+            //'g2crawler',
+            'Gaisbot',
+            'GalaxyBot',
+            'genieBot',
+            'Gigabot',
+            'Girafabot',
+            'Googlebot',
+            //'Googlebot-Image',
+            'GurujiBot',
+            'HappyFunBot',
+            //'hl_ftien_spider',
+            'Holmes',
+            'htdig',
+            //'iaskspider',
+            'ia_archiver',
+            //'iCCrawler',
+            'ichiro',
+            'igdeSpyder',
+            'IRLbot',
+            //'IssueCrawler',
+            'Jaxified Bot',
+            'Jyxobot',
+            'KoepaBot',
+            'L.webis',
+            'LapozzBot',
+            'Larbin',
+            //'LDSpider',
+            'LexxeBot',
+            'Linguee Bot',
+            'LinkWalker',
+            //'lmspider',
+            'lwp-trivial',
+            'mabontland',
+            //'magpie-crawler',
+            'Mediapartners-Google',
+            'MJ12bot',
+            'MLBot',
+            'Mnogosearch',
+            'mogimogi',
+            'MojeekBot',
+            'Moreoverbot',
+            'Morning Paper',
+            'msnbot',
+            'MSRBot',
+            'MVAClient',
+            'mxbot',
+            'NetResearchServer',
+            //'NetSeer Crawler',
+            'NewsGator',
+            'NG-Search',
+            'nicebot',
+            'noxtrumbot',
+            //'Nusearch Spider',
+            'NutchCVS',
+            'Nymesis',
+            'obot',
+            'oegp',
+            'omgilibot',
+            'OmniExplorer_Bot',
+            'OOZBOT',
+            'Orbiter',
+            'PageBitesHyperBot',
+            'Peew',
+            'polybot',
+            'Pompos',
+            'PostPost',
+            'Psbot',
+            'PycURL',
+            'Qseero',
+            'Radian6',
+            'RAMPyBot',
+            'RufusBot',
+            //'SandCrawler',
+            'SBIder',
+            'ScoutJet',
+            'Scrubby',
+            'SearchSight',
+            'Seekbot',
+            'semanticdiscovery',
+            //'Sensis Web Crawler',
+            'SEOChat::Bot',
+            'SeznamBot',
+            //'Shim-Crawler',
+            'ShopWiki',
+            'Shoula robot',
+            'silk',
+            'Sitebot',
+            'Snappy',
+            //'sogou spider',
+            //'Sosospider',
+            //'Speedy Spider',
+            'Sqworm',
+            'StackRambler',
+            'suggybot',
+            'SurveyBot',
+            'SynooBot',
+            'Teoma',
+            'TerrawizBot',
+            'TheSuBot',
+            'Thumbnail.CZ robot',
+            'TinEye',
+            'truwoGPS',
+            'TurnitinBot',
+            'TweetedTimes Bot',
+            'TwengaBot',
+            'updated',
+            'Urlfilebot',
+            'Vagabondo',
+            'VoilaBot',
+            'Vortex',
+            'voyager',
+            'VYU2',
+            'webcollage',
+            'Websquash.com',
+            'wf84',
+            'WoFindeIch Robot',
+            'WomlpeFactory',
+            //'Xaldon_WebSpider',
+            'yacy',
+            'Yahoo! Slurp',
+            'Yahoo! Slurp China',
+            'YahooSeeker',
+            'YahooSeeker-Testing',
+            'YandexBot',
+            'YandexImages',
+            'YandexMetrika',
+            'Yasaklibot',
+            'Yeti',
+            'YodaoBot',
+            'yoogliFetchAgent',
+            'YoudaoBot',
+            'Zao',
+            'Zealbot',
+            //'zspider',
+            'ZyBorg',
+
+            //Link checkers
+            'AbiLogicBot',
+            'Link Valet',
+            'Link Validity Check',
+            'LinkExaminer',
+            'LinksManager.com_bot',
+            'Mojoo Robot',
+            'Notifixious',
+            'online link validator',
+            'Ploetz + Zeller',
+            'Reciprocal Link System PRO',
+            'REL Link Checker Lite',
+            'SiteBar',
+            'Vivante Link Checker',
+            'W3C-checklink',
+            'Xenu Link Sleuth',
+
+            //E-mail collectors
+            'EmailSiphon',
+
+            //Validators
+            //'CSE HTML Validator',
+            'CSSCheck',
+            'Cynthia',
+            'HTMLParser',
+            //'P3P Validator',
+            //'W3C_CSS_Validator_JFouffa',
+            //'W3C_Validator',
+            //'WDG_Validator',
+
+            //Feed readers
+            'Awasu',
+            'Bloglines',
+            'everyfeed-spider',
+            'FeedFetcher-Google',
+            'GreatNews',
+            'Gregarius',
+            'MagpieRSS',
+            'NFReader',
+            'UniversalFeedParser',
+
+            //Liberies
+            'BinGet',
+            'cURL',
+            'Java',
+            'libwww-perl',
+            'Microsoft URL Control',
+            'Peach',
+            'PHP',
+            'pxyscand',
+            'PycURL',
+            'Python-urllib',
+
+            //Cloud platforms
+            'AppEngine-Google',
+
+            //Offline browsers
+            'Offline Explorer',
+            'SuperBot',
+            'Web Downloader',
+            'WebCopier',
+            'WebZIP',
+            'Wget',
         );
 
-        if (array_key_exists('HTTP_USER_AGENT', $_SERVER)) {
-            $ua = strtolower($_SERVER['HTTP_USER_AGENT']);
-        } else {
-            return 'unknown';
-        }
-
-        if (strpos($ua, 'windows') !== false) {
-            return 'windows';
-        } elseif (strpos($ua, 'linux') !== false) {
-            return 'linux';
-        } elseif (strpos($ua, 'mac') !== false) {
-            return 'mac';
-        } elseif (strpos($ua, 'playstation') !== false) {
-            return 'playstation';
-        } elseif (strpos($ua, 'nintendo wii') !== false) {
-            return 'wii';
-        } elseif (knjarray::stringsearch($ua, $bots)) {
-            return 'bot';
-        } elseif (strpos($ua, 'sunos') !== false) {
-            return 'sun';
-        } else {
-            return 'unknown';
-        }
-    }
-
-    /**
-     * Returns the version of the users operating-system.
-     *
-     * @return array TODO
-     */
-    static function getOSVersion()
-    {
-        $version = 'unknown';
-
-        if (knj_browser::getOS() == 'windows') {
-            if (preg_match('/Windows\s+NT\s+([\d\.]+)/', $_SERVER['HTTP_USER_AGENT'], $match)) {
-                if ($match[1] == 6.0) {
-                    $version = 'vista';
-                } elseif ($match[1] == 5.1) {
-                    $version = 'xp';
-                }
-            } else {
-                throw new exception('Could not match version.');
+        foreach ($bots as $bot) {
+            if (mb_stripos($_SERVER['HTTP_USER_AGENT'], $bot) !== false) {
+                return true;
             }
-        } elseif (knj_browser::getOS() == 'linux') {
-            if (preg_match('/Ubuntu\/([\d+\.]+)/', $_SERVER['HTTP_USER_AGENT'], $match)) {
-                $version = 'ubuntu_' . str_replace('.', '_', $match[1]);
-            } else {
-                throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
-            }
-        } else {
-            throw new exception('Unknown user-agent for OS "' . knj_browser::getOS() . '": ' . $_SERVER['HTTP_USER_AGENT']);
         }
 
-        return array('version' => $version);
+        return false;
     }
 
     /**
