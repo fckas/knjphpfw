@@ -203,36 +203,17 @@ function knj_error_reporter_activate($args = array())
             }
         } elseif ($key == 'email') {
             $knj_error_reporter['emails'][] = $value;
-        } elseif ($key == 'email_title' || $key == 'email_from' || $key == 'ignore_javabots' || $key == 'ignore_bots') {
+        } elseif ($key == 'email_title' || $key == 'email_from' || $key == 'ignore_bots') {
             $knj_error_reporter[$key] = $value;
         } else {
             throw new Exception('Invalid key: "' . $key . '".');
         }
     }
 
-    require_once 'web.php';
-
-    $activate = true;
-    if (
-        (
-            (array_key_exists('ignore_javabots', $knj_error_reporter) && $knj_error_reporter['ignore_javabots'])
-            || (array_key_exists('ignore_bots', $knj_error_reporter) && $knj_error_reporter['ignore_bots'])
-        ) && (
-            array_key_exists('HTTP_USER_AGENT', $_SERVER)
-            && preg_match('/Java\/[0-9\.]+/i', $_SERVER['HTTP_USER_AGENT'], $match)
-        )
-    ) {
-        $activate = false;
-    } elseif (array_key_exists('ignore_bots', $knj_error_reporter) && $knj_error_reporter['ignore_bots'] && knj_browser::getOS() == 'bot') {
-        $activate = false;
-    }
-
-    if ($activate) {
-        set_exception_handler('knj_error_reporter_exception_handler');
-        set_error_handler('knj_error_reporter_error_handeler');
-        error_reporting(E_ALL ^ E_NOTICE);
-        register_shutdown_function('knj_error_shutdown');
-    }
+    set_exception_handler('knj_error_reporter_exception_handler');
+    set_error_handler('knj_error_reporter_error_handeler');
+    error_reporting(E_ALL ^ E_NOTICE);
+    register_shutdown_function('knj_error_shutdown');
 }
 
 function knj_error_shutdown()
