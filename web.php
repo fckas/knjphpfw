@@ -163,20 +163,6 @@ class web
                 echo ' disabled="disabled"';
             }
             echo $js_tags .'>' .htmlspecialchars($value, null, 'UTF-8') .'</textarea>' .$td_end_html;
-        } elseif ($type == 'fckeditor') {
-            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html;
-
-            $fck = new fckeditor($id);
-
-            if ($args['height']) {
-                $fck->Height = $args['height'];
-            } else {
-                $fck->Height = 300;
-            }
-
-            $fck->Value = $value;
-            $fck->Create();
-            echo $td_end_html;
         } elseif ($type == 'radio') {
             echo '<td' .$rowspan .' class="tdt" colspan="2">
             <input type="radio" id="' .htmlspecialchars($id .'_' .$value)
