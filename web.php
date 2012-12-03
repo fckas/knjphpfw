@@ -143,10 +143,9 @@ class web
             if ($args['multiple'] && mb_substr($id, -2) != '[]') {
                 echo '[]';
             }
-            echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"' .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
+            echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"'
+                .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
 
-            if (!empty($args['moveable'])) {
-                echo '<div style="padding-top: 3px;"><input type="button" value="' ._('Up') .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._('Down') .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
             echo $td_end_html;
         } elseif ($type == 'treeselect') {
             $etags = '';
@@ -190,7 +189,7 @@ class web
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="file" class="input_' .$type .'" name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
         } elseif ($type == 'textarea') {
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'"';
-            if ($args['height']) {
+            if (!empty($args['height'])) {
                 echo ' style="height: ' .$args['height'] .';"';
             }
             if ($args['readonly']) {
@@ -258,18 +257,12 @@ class web
      * TODO
      *
      * @param mixed $opts     TODO
-     * @param mixed $selected TODO
+     * @param array $selected TODO
      *
-     * @return TODO
+     * @return null
      */
     static function drawOpts($opts, $selected = null)
     {
-        if (is_object($selected)) {
-            $selected = $selected->id();
-        } elseif (is_array($selected) && is_object($selected[0])) {
-            $selected = call_user_func(array($selected[0], $selected[1]), $selected[2]);
-        }
-
         $html = '';
         foreach ($opts as $key => $value) {
             $html .= '<option';
@@ -277,26 +270,6 @@ class web
             $is_selected = false;
             if (is_array($selected) && in_array($key, $selected)) {
                 $is_selected = true;
-            } elseif (is_array($selected) && ($selected['type'] == 'arr_rows' || $selected['type'] == 'arr_values')) {
-                if (is_array($selected['values'])) {
-                    foreach ($selected['values'] as $sel_key => $sel_val) {
-                        if (is_a($sel_val, 'knjdb_row')) {
-                            if ($key == $sel_val->id()) {
-                                $is_selected = true;
-                            }
-                        } else {
-                            if ($selected['type'] == 'arr_values') {
-                                if ($key == $sel_val) {
-                                    $is_selected = true;
-                                }
-                            } else {
-                                if ($key == $sel_key) {
-                                    $is_selected = true;
-                                }
-                            }
-                        }
-                    }
-                }
             } elseif ($key == $selected) {
                 if (!is_numeric($key) || intval($key) != 0) {
                     $is_selected = true;
@@ -478,6 +451,8 @@ class web
  */
 class knj_browser
 {
+    static function getOS() { return ''; } //Kill me!
+
     /** Returns the browser.
      *
      * @return string ie|chrome|safari|konqueror|opera|mozilla|firefox
