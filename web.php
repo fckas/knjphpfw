@@ -119,7 +119,7 @@ class web
                 echo ' disabled="disabled"';
             }
             echo ' type="' .$type .'" class="'. $args['class'] .'" name="' .$id .'" id="' .$id .'"';
-            if ($value) {
+            if ($value || !empty($args['checked'])) {
                 echo ' checked="checked"';
             }
             echo $js_tags .' /><label for="' .$id .'">' .$title .'</label></td>';
