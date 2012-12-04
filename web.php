@@ -160,6 +160,7 @@ class web
             if (!empty($args['multiple'])) {
                 $etags .= ' type="checkbox"';
             } else {
+                //TODO expand
                 $etags .= ' type="radio"';
             }
 
