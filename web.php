@@ -73,6 +73,8 @@ class web
 
         if ($type == 'password') {
             $args['class'] .= 'input_text';
+        } elseif ($type == 'radiogroup') {
+            $args['class'] .= 'input_radio';
         } else {
             $args['class'] .= 'input_' . $type;
         }
@@ -212,6 +214,26 @@ class web
                 echo ' disabled="disabled"';
             }
             echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$value) .'">' .$title .'</label></td>';
+        } elseif ($type == 'radiogroup') {
+            echo '<td' .$rowspan .' class="tdt" style="vertical-align: middle">' .$title .'</td>' .$td_html;
+            $class = $args['class'];
+            foreach ($args['group'] as $item) {
+                if (!empty($item['class'])) {
+                    $class = $item['class'] . ' ' . $class;
+                }
+                echo '<input type="radio" id="' .htmlspecialchars($id .'_' .$item['value'])
+                .'" name="' .htmlspecialchars($id)
+                .'" value="' .htmlspecialchars($item['value'])
+                .'"  class="' .htmlspecialchars($class) .'"';
+                if (!empty($item['checked'])) {
+                    echo ' checked="checked"';
+                }
+                if (!empty($item['disabled'])) {
+                    echo ' disabled="disabled"';
+                }
+                echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$item['value']) .'">' .$item['title'] .'</label>';
+            }
+            echo $td_end_html;
         } elseif ($type == 'info') {
             echo '<td' .$rowspan .' class="tdt">' .$title. '</td>' .$td_html .$value .$td_end_html;
         } elseif ($type == 'headline') {
