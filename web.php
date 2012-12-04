@@ -452,7 +452,7 @@ class web
  */
 class knj_browser
 {
-    static function getOS() { return ''; } //Kill me!
+    static function getOS() { return self::isBot() ? 'bot' : ''; } //Kill me!
 
     /** Returns the browser.
      *
