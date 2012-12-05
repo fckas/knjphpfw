@@ -75,6 +75,7 @@ class web
             $args['class'] .= 'input_text';
         } elseif ($type == 'radiogroup') {
             $args['class'] .= 'input_radio';
+            //TODO Merge radiogroup into radio using value as an array
         } else {
             $args['class'] .= 'input_' . $type;
         }
