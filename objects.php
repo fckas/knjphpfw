@@ -49,6 +49,7 @@ class knjobjects
     {
         if (is_array($id)) {
             $data = $id;
+            //FIXME respect col_id
             $id = $data['id'];
         } elseif (!$data) {
             $data = $id;
@@ -133,6 +134,7 @@ class knjobjects
         }
 
         if (!$args['col_id']) {
+            //FIXME respect the general setting
             $args['col_id'] = 'id';
         }
 

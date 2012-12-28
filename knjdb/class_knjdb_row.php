@@ -16,6 +16,7 @@ class knjdb_row
      */
     function __construct($dbconn, $table = null, $id = null, $data = null, $args = array())
     {
+        //TODO drop short hand input
         if (is_array($dbconn)) {
             $this->db = $dbconn['ob']->db;
 
