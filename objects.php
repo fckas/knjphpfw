@@ -446,7 +446,7 @@ class knjobjects
             $object = get_class($object);
         }
 
-        unset($this->objects[$object][$id]);
+        unset($this->_objects[$object][$id]);
     }
 
     /**
