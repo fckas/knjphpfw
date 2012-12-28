@@ -57,7 +57,7 @@ class web
         $type = isset($args['type']) ? $args['type'] : 'text';
         $title = $args['title'];
 
-        if (!empty($args['opts'])) {
+        if ($type == 'text' && !empty($args['opts'])) {
             $type = 'select';
         }
 
@@ -73,6 +73,9 @@ class web
 
         if ($type == 'password') {
             $args['class'] .= 'input_text';
+        } elseif ($type == 'radiogroup') {
+            $args['class'] .= 'input_radio';
+            //TODO Merge radiogroup into radio using value as an array
         } else {
             $args['class'] .= 'input_' . $type;
         }
@@ -117,7 +120,7 @@ class web
                 echo ' disabled="disabled"';
             }
             echo ' type="' .$type .'" class="'. $args['class'] .'" name="' .$id .'" id="' .$id .'"';
-            if ($value) {
+            if ($value || !empty($args['checked'])) {
                 echo ' checked="checked"';
             }
             echo $js_tags .' /><label for="' .$id .'">' .$title .'</label></td>';
@@ -143,17 +146,54 @@ class web
             if ($args['multiple'] && mb_substr($id, -2) != '[]') {
                 echo '[]';
             }
-            echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"' .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
+            echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"'
+                .$js_tags .'>' .self::drawOpts($args['opts'], $value) .'</select>';
 
-            if (!empty($args['moveable'])) {
-                echo '<div style="padding-top: 3px;"><input type="button" value="' ._('Up') .'" onclick="select_moveup($(\'#' .$id .'\'));" /><input type="button" value="' ._('Down') .'" onclick="select_movedown($(\'#' .$id .'\'));" /></div>';
+            echo $td_end_html;
+        } elseif ($type == 'treeselect') {
+            $etags = '';
+            if (!empty($args['disabled'])) {
+                $etags .= ' disabled="disabled"';
             }
+
+            if (mb_substr($id, -2) == '[]') {
+                $id = mb_substr($id, 0, -2);
+            }
+
+            if (!empty($args['multiple'])) {
+                $etags .= ' type="checkbox"';
+            } else {
+                //TODO expand
+                $etags .= ' type="radio"';
+            }
+
+            $etags .= $js_tags;
+
+            $style = 'overflow-y: scroll;';
+            if (!empty($args['height'])) {
+                $style .= 'height: ' .$args['height'] .';';
+            }
+
+            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .
+                '<div style="' . $style . '" class="' .$args['class'] .'">';
+
+            self::drawTreeOpts(
+                array(
+                    'id' => $id,
+                    'html' => $etags,
+                    'multiple' => !empty($args['multiple']),
+                ),
+                $args['opts'],
+                $value
+            );
+            echo '</div>';
+
             echo $td_end_html;
         } elseif ($type == 'file') {
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="file" class="input_' .$type .'" name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
         } elseif ($type == 'textarea') {
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<textarea name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'" class="' .htmlspecialchars($args['class']) .'"';
-            if ($args['height']) {
+            if (!empty($args['height'])) {
                 echo ' style="height: ' .$args['height'] .';"';
             }
             if ($args['readonly']) {
@@ -176,6 +216,26 @@ class web
                 echo ' disabled="disabled"';
             }
             echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$value) .'">' .$title .'</label></td>';
+        } elseif ($type == 'radiogroup') {
+            echo '<td' .$rowspan .' class="tdt" style="vertical-align: middle">' .$title .'</td>' .$td_html;
+            $class = $args['class'];
+            foreach ($args['group'] as $item) {
+                if (!empty($item['class'])) {
+                    $class = $item['class'] . ' ' . $class;
+                }
+                echo '<input type="radio" id="' .htmlspecialchars($id .'_' .$item['value'])
+                .'" name="' .htmlspecialchars($id)
+                .'" value="' .htmlspecialchars($item['value'])
+                .'"  class="' .htmlspecialchars($class) .'"';
+                if (!empty($item['checked'])) {
+                    echo ' checked="checked"';
+                }
+                if (!empty($item['disabled'])) {
+                    echo ' disabled="disabled"';
+                }
+                echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$item['value']) .'">' .$item['title'] .'</label>';
+            }
+            echo $td_end_html;
         } elseif ($type == 'info') {
             echo '<td' .$rowspan .' class="tdt">' .$title. '</td>' .$td_html .$value .$td_end_html;
         } elseif ($type == 'headline') {
@@ -221,18 +281,12 @@ class web
      * TODO
      *
      * @param mixed $opts     TODO
-     * @param mixed $selected TODO
+     * @param array $selected TODO
      *
-     * @return TODO
+     * @return null
      */
     static function drawOpts($opts, $selected = null)
     {
-        if (is_object($selected)) {
-            $selected = $selected->id();
-        } elseif (is_array($selected) && is_object($selected[0])) {
-            $selected = call_user_func(array($selected[0], $selected[1]), $selected[2]);
-        }
-
         $html = '';
         foreach ($opts as $key => $value) {
             $html .= '<option';
@@ -240,26 +294,6 @@ class web
             $is_selected = false;
             if (is_array($selected) && in_array($key, $selected)) {
                 $is_selected = true;
-            } elseif (is_array($selected) && ($selected['type'] == 'arr_rows' || $selected['type'] == 'arr_values')) {
-                if (is_array($selected['values'])) {
-                    foreach ($selected['values'] as $sel_key => $sel_val) {
-                        if (is_a($sel_val, 'knjdb_row')) {
-                            if ($key == $sel_val->id()) {
-                                $is_selected = true;
-                            }
-                        } else {
-                            if ($selected['type'] == 'arr_values') {
-                                if ($key == $sel_val) {
-                                    $is_selected = true;
-                                }
-                            } else {
-                                if ($key == $sel_key) {
-                                    $is_selected = true;
-                                }
-                            }
-                        }
-                    }
-                }
             } elseif ($key == $selected) {
                 if (!is_numeric($key) || intval($key) != 0) {
                     $is_selected = true;
@@ -274,6 +308,65 @@ class web
         }
 
         return $html;
+    }
+
+    /**
+     * TODO
+     *
+     * @param mixed $args     TODO
+     * @param array $opts     key is input value, contaning and array with 'title'
+     *                        and optionally 'subs' with a recursive array
+     * @param array $selected Array of selected values
+     *
+     * @return null
+     */
+    static function drawTreeOpts($args, $opts, $selected = null)
+    {
+        $selected = (array) $selected;
+        foreach ($opts as $key => $value) {
+            $isSelected = false;
+            if (in_array($key, $selected)) {
+                $isSelected = true;
+            }
+
+            echo '<div>';
+
+            $name = $args['id'];
+            if ($args['multiple']) {
+                $name .= '[' . $key . ']';
+            }
+
+            $id = $args['id'] .'_' .$key;
+
+            if (!empty($value['subs'])) {
+                echo '<div class="pointer';
+                if ($isSelected) {
+                    echo ' open';
+                }
+                echo '"></div>';
+            } else {
+                echo '<div class="blank"></div>';
+            }
+
+            echo '<input id="' .htmlspecialchars($id)
+                .'" name="' .htmlspecialchars($name)
+                .'" value="' .htmlspecialchars($key) . '"';
+            if ($isSelected) {
+                echo ' checked="checked"';
+            }
+            echo $args['html'] . ' /><label for="' .htmlspecialchars($id) .'">'
+            .$value['title'] .'</label>';
+            if (!empty($value['subs'])) {
+                echo '<div class="subs"';
+                if (!$isSelected) {
+                    echo ' style="display:none;"';
+                }
+                echo '>';
+                self::drawTreeOpts($args, $value['subs'], $selected);
+                echo '</div>';
+            }
+            echo '</div>';
+        }
     }
 
     /**
@@ -382,6 +475,8 @@ class web
  */
 class knj_browser
 {
+    static function getOS() { return self::isBot() ? 'bot' : ''; } //Kill me!
+
     /** Returns the browser.
      *
      * @return string ie|chrome|safari|konqueror|opera|mozilla|firefox
