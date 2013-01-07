@@ -71,12 +71,8 @@ class knjdb_mssql
         if (is_array($data)) {
             /** NOTE: This prevents the weird empty columns from MS-SQL. */
             foreach ($data as $key => $value) {
-                if (strlen($value) == 1 && ord($value) == 2) {
+                if (mb_strlen($value) == 1 && ord($value) == 2) {
                     $data[$key] = '';
-                }
-
-                if ($this->args['encoding'] == 'utf8') {
-                    $data[$key] = utf8_encode($data[$key]);
                 }
             }
         }
