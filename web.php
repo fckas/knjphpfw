@@ -475,8 +475,6 @@ class web
  */
 class knj_browser
 {
-    static function getOS() { return self::isBot() ? 'bot' : ''; } //Kill me!
-
     /** Returns the browser.
      *
      * @return string ie|chrome|safari|konqueror|opera|mozilla|firefox
