@@ -557,6 +557,26 @@ class knj_browser
             return true;
         }
 
+        //Absolute UA
+        $bots = array(
+            'Mozilla/5.0',
+            'Mozilla/4.0 (compatible;)',
+        );
+        if (in_array($_SERVER['HTTP_USER_AGENT'], $bots)) {
+            return true;
+        }
+
+        //Start of UA
+        $bots = array(
+            'Microsoft Office',
+        );
+        foreach ($bots as $bot) {
+            if (mb_stripos($_SERVER['HTTP_USER_AGENT'], $bot) === 0) {
+                return true;
+            }
+        }
+
+        //Partial UA
         $bots = array(
             'robot.htm',
             'spider',
@@ -575,11 +595,12 @@ class knj_browser
             'sslbot',
             'browsershots',
             'nuhk',
-            'Microsoft Outlook',
             'Ezooms',
             'Synapse',
             'bitlybot',
             'ApptusBot',
+            'Windows-Live-Social-Object-Extractor-Engine',
+            'Allrati',
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
