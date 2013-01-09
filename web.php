@@ -575,6 +575,8 @@ class knj_browser
             'sslbot',
             'browsershots',
             'nuhk',
+            'Microsoft Outlook',
+            'Ezooms'
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
