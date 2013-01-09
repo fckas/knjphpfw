@@ -559,8 +559,9 @@ class knj_browser
 
         //Absolute UA
         $bots = array(
-            'Mozilla/5.0',
+            'Mozilla/4.0',
             'Mozilla/4.0 (compatible;)',
+            'Mozilla/5.0',
         );
         if (in_array($_SERVER['HTTP_USER_AGENT'], $bots)) {
             return true;
@@ -601,6 +602,8 @@ class knj_browser
             'ApptusBot',
             'Windows-Live-Social-Object-Extractor-Engine',
             'Allrati',
+            'KELKOO resizer',
+            'socialayer.com',
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
