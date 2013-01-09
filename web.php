@@ -576,7 +576,7 @@ class knj_browser
             'browsershots',
             'nuhk',
             'Microsoft Outlook',
-            'Ezooms'
+            'Ezooms',
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
