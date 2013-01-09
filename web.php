@@ -577,6 +577,7 @@ class knj_browser
             'nuhk',
             'Microsoft Outlook',
             'Ezooms',
+            'Synapse',
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
