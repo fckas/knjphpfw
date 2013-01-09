@@ -578,6 +578,8 @@ class knj_browser
             'Microsoft Outlook',
             'Ezooms',
             'Synapse',
+            'bitlybot',
+            'ApptusBot',
 
             //Lists taken from www.useragentstring.com 2012-11-23
 
