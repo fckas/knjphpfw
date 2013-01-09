@@ -105,26 +105,25 @@ function knj_error_reporter_getData()
         $mail_body .= $_SERVER['HTTP_USER_AGENT'] . "\n\n";
     }
 
-    if ($_POST) {
-        $mail_body .= "*Post-data*\n";
-        if (count($_POST) <= 0) {
-            $mail_body .= 'No post-data.';
-        } else {
-            $mail_body .= print_r($_POST, true);
-        }
-
+    if (!empty($_GET)) {
+        $mail_body .= "*Get-data*\n";
+        $mail_body .= print_r($_GET, true);
         $mail_body .= "\n\n";
     }
 
-    if ($_GET) {
-        $mail_body .= "*Get-data*\n";
-        if (count($_GET) <= 0) {
-            $mail_body .= 'No get-data.';
-        } else {
-            $mail_body .= print_r($_GET, true);
-        }
-
+    if (!empty($_POST)) {
+        $mail_body .= "*Post-data*\n";
+        $mail_body .= print_r($_POST, true);
         $mail_body .= "\n\n";
+    }
+
+    if (empty($_POST) && empty($_GET)) {
+        $post = file_get_contents('php://input');
+        if (trim($post)) {
+            $mail_body .= "*RAW-input*\n";
+            $mail_body .= $post;
+            $mail_body .= "\n\n";
+        }
     }
 
     if ($_SERVER) {
