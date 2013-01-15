@@ -403,6 +403,7 @@ class knjobjects
                             $sql_order .= ", ";
                         }
 
+                        $ordermode = 'asc';
                         if (is_array($val_ele)) {
                             $ordermode = strtolower($val_ele[1]);
                             $val_ele = $val_ele[0];
