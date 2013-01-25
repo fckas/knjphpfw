@@ -80,12 +80,12 @@ class knjobjects
     {
         $args['limit'] = 1;
 
-        $object = $this->getList($class, $args);
-        if (!$object) {
+        $objects = $this->getList($class, $args);
+        if (!$objects) {
             return false;
         }
 
-        return array_shift($object);
+        return reset($objects);
     }
 
     /**
@@ -482,6 +482,7 @@ class knjobjects
     public function cleanMemory()
     {
         $usage = memory_get_usage() / 1024 / 1024;
+        //TODO Why 52MiB ?
         if ($usage >= 52) {
             $this->unsetAll();
         }
