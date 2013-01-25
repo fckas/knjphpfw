@@ -119,11 +119,11 @@ class web
             if ($args['disabled']) {
                 echo ' disabled="disabled"';
             }
-            echo ' type="' .$type .'" class="'. $args['class'] .'" name="' .$id .'" id="' .$id .'"';
+            echo ' type="' .$type .'" class="'. $args['class'] .'" style="vertical-align: middle" name="' .$id .'" id="' .$id .'"';
             if ($value || !empty($args['checked'])) {
                 echo ' checked="checked"';
             }
-            echo $js_tags .' /><label for="' .$id .'">' .$title .'</label></td>';
+            echo $js_tags .' /><label for="' .$id .'" style="vertical-align: middle">' .$title .'</label></td>';
         } elseif ($type == 'select') {
             $etags = '';
             if (!empty($args['disabled'])) {
@@ -208,14 +208,15 @@ class web
             <input type="radio" id="' .htmlspecialchars($id .'_' .$value)
                 .'" name="' .htmlspecialchars($id)
                 .'" value="' .htmlspecialchars($value)
-                .'"  class="' .htmlspecialchars($args['class']) .'"';
+                .'"  class="' .htmlspecialchars($args['class'])
+                .'" style="vertical-align: middle"';
             if ($args['checked']) {
                 echo ' checked="checked"';
             }
             if ($args['disabled']) {
                 echo ' disabled="disabled"';
             }
-            echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$value) .'">' .$title .'</label></td>';
+            echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$value) .'" style="vertical-align: middle">' .$title .'</label></td>';
         } elseif ($type == 'radiogroup') {
             echo '<td' .$rowspan .' class="tdt" style="vertical-align: middle">' .$title .'</td>' .$td_html;
             $class = $args['class'];
@@ -226,14 +227,18 @@ class web
                 echo '<input type="radio" id="' .htmlspecialchars($id .'_' .$item['value'])
                 .'" name="' .htmlspecialchars($id)
                 .'" value="' .htmlspecialchars($item['value'])
-                .'"  class="' .htmlspecialchars($class) .'"';
+                .'"  class="' .htmlspecialchars($class)
+                .'" style="vertical-align: middle;"';
                 if (!empty($item['checked'])) {
                     echo ' checked="checked"';
                 }
                 if (!empty($item['disabled'])) {
                     echo ' disabled="disabled"';
                 }
-                echo $js_tags. ' /><label for="' .htmlspecialchars($id .'_' .$item['value']) .'">' .$item['title'] .'</label>';
+                echo $js_tags. ' /><label for="'
+                    .htmlspecialchars($id .'_' .$item['value'])
+                    .'" style="vertical-align: middle; margin-right: 6px;">'
+                    .$item['title'] .'</label>';
             }
             echo $td_end_html;
         } elseif ($type == 'info') {
