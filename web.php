@@ -404,7 +404,21 @@ class web
                 $url['scheme'] = $_SERVER['HTTPS'] != 'on' ? 'http' : 'https';
             }
             if (!$url['host']) {
-                $url['host'] = $_SERVER['HTTP_HOST'];
+                //http://stackoverflow.com/questions/2297403/http-host-vs-server-name
+                //http://shiflett.org/blog/2006/mar/server-name-versus-http-host
+                if ($_SERVER['HTTP_HOST']) {
+                    // Browser
+                    $url['host'] = $_SERVER['HTTP_HOST'];
+                } elseif ($_SERVER['SERVER_NAME']) {
+                    // Can both be from Browser and Apache (virtual) server config
+                    $url['host'] = $_SERVER['SERVER_NAME'];
+                } elseif ($_SERVER['SERVER_ADDR']) {
+                    // IP
+                    $url['host'] = $_SERVER['SERVER_ADDR'];
+                } else {
+                    // default to empty
+                    $url['host'] = '';
+                }
             }
             if (!$url['path']) {
                 $url['path'] = $_SERVER['REQUEST_URL'];
