@@ -198,10 +198,7 @@ class knjobjects
         foreach ($list_args as $list_key => $list_val) {
             $found = false;
 
-            if ($list_val === null) {
-                $found = true;
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
-            } elseif ($str_exists
+            if ($str_exists
                 && (
                     in_array($list_key, $args['cols_str'])
                     || ($num_exists && in_array($list_key, $args['cols_num']))
@@ -209,6 +206,8 @@ class knjobjects
             ) {
                 if (is_array($list_val)) {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'self_callback' => array($db, 'sql'))) . ")";
+                } elseif ($list_val === null) {
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
                 } else {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
                 }
@@ -224,12 +223,18 @@ class knjobjects
                 if ($match[2] == 'has') {
                     if ($list_val) {
                         $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != ''";
+                    } elseif ($list_val === null) {
+                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " IS NULL";
                     } else {
                         $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " = ''";
                     }
                     $found = true;
                 } elseif ($match[2] == 'not') {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != '" . $db->sql($list_val) . "'";
+                    if ($list_val === null) {
+                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " IS NOT NULL";
+                    } else {
+                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != '" . $db->sql($list_val) . "'";
+                    }
                     $found = true;
                 }
             } elseif ($dbrows_exist
