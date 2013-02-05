@@ -80,10 +80,7 @@ class knjobjects
     {
         $args['limit'] = 1;
 
-        $objects = $this->getList($class, $args);
-        if (!$objects) {
-            return false;
-        }
+        $objects = (array) $this->getList($class, $args);
 
         return reset($objects);
     }
