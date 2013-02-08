@@ -30,6 +30,10 @@ class knjdb_mssql
 
     function __construct($knjdb, $args)
     {
+        if (!function_exists('mssql_connect')) {
+            throw new Exception('Missing MSSQL extension.');
+        }
+
         $this->args = $args;
         $this->knjdb = $knjdb;
     }
