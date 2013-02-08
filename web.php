@@ -404,7 +404,21 @@ class web
                 $url['scheme'] = $_SERVER['HTTPS'] != 'on' ? 'http' : 'https';
             }
             if (!$url['host']) {
-                $url['host'] = $_SERVER['HTTP_HOST'];
+                //http://stackoverflow.com/questions/2297403/http-host-vs-server-name
+                //http://shiflett.org/blog/2006/mar/server-name-versus-http-host
+                if ($_SERVER['HTTP_HOST']) {
+                    // Browser
+                    $url['host'] = $_SERVER['HTTP_HOST'];
+                } elseif ($_SERVER['SERVER_NAME']) {
+                    // Can both be from Browser and Apache (virtual) server config
+                    $url['host'] = $_SERVER['SERVER_NAME'];
+                } elseif ($_SERVER['SERVER_ADDR']) {
+                    // IP
+                    $url['host'] = $_SERVER['SERVER_ADDR'];
+                } else {
+                    // default to empty
+                    $url['host'] = '';
+                }
             }
             if (!$url['path']) {
                 $url['path'] = $_SERVER['REQUEST_URL'];
@@ -475,8 +489,6 @@ class web
  */
 class knj_browser
 {
-    static function getOS() { return self::isBot() ? 'bot' : ''; } //Kill me!
-
     /** Returns the browser.
      *
      * @return string ie|chrome|safari|konqueror|opera|mozilla|firefox
@@ -546,287 +558,6 @@ class knj_browser
         }
 
         return 0;
-    }
-
-    /**
-     * Check user agent string to see if visitor is a bot
-     *
-     * @return bool
-     */
-    static function isBot()
-    {
-        if (empty($_SERVER['HTTP_USER_AGENT'])) {
-            return true;
-        }
-
-        $bots = array(
-            'robot.htm',
-            'spider',
-            'crawler',
-            'Validator',
-            'Yammybot',
-            'Openbot',
-            'adsbot',
-            'Ask Jeeves',
-            'hostharvest',
-            'httpclient',
-            'spbot',
-            'aihitbot',
-            'com_bot',
-            'aihitbot',
-            'sslbot',
-            'browsershots',
-            'nuhk',
-
-            //Lists taken from www.useragentstring.com 2012-11-23
-
-            //Crawlers
-            //'008',
-            'ABACHOBot',
-            'Accoona-AI-Agent',
-            //'AddSugarSpiderBot',
-            'AnyApexBot',
-            'Arachmo',
-            'B-l-i-t-z-B-O-T',
-            //'Baiduspider',
-            'BecomeBot',
-            'BeslistBot',
-            'BillyBobBot',
-            'Bimbot',
-            'Bingbot',
-            'BlitzBOT',
-            'boitho.com-dc',
-            'boitho.com-robot',
-            'btbot',
-            'CatchBot',
-            'Cerberian Drtrs',
-            'Charlotte',
-            //'ConveraCrawler',
-            'cosmos',
-            'Covario IDS',
-            'DataparkSearch',
-            'DiamondBot',
-            'Discobot',
-            'Dotbot',
-            'EARTHCOM.info',
-            'EmeraldShield.com WebBot',
-            //'envolk[ITS]spider',
-            'EsperanzaBot',
-            'Exabot',
-            //'FAST Enterprise Crawler',
-            //'FAST-WebCrawler',
-            'FDSE robot',
-            'FindLinks',
-            'FurlBot',
-            //'FyberSpider',
-            //'g2crawler',
-            'Gaisbot',
-            'GalaxyBot',
-            'genieBot',
-            'Gigabot',
-            'Girafabot',
-            'Googlebot',
-            //'Googlebot-Image',
-            'GurujiBot',
-            'HappyFunBot',
-            //'hl_ftien_spider',
-            'Holmes',
-            'htdig',
-            //'iaskspider',
-            'ia_archiver',
-            //'iCCrawler',
-            'ichiro',
-            'igdeSpyder',
-            'IRLbot',
-            //'IssueCrawler',
-            'Jaxified Bot',
-            'Jyxobot',
-            'KoepaBot',
-            'L.webis',
-            'LapozzBot',
-            'Larbin',
-            //'LDSpider',
-            'LexxeBot',
-            'Linguee Bot',
-            'LinkWalker',
-            //'lmspider',
-            'lwp-trivial',
-            'mabontland',
-            //'magpie-crawler',
-            'Mediapartners-Google',
-            'MJ12bot',
-            'MLBot',
-            'Mnogosearch',
-            'mogimogi',
-            'MojeekBot',
-            'Moreoverbot',
-            'Morning Paper',
-            'msnbot',
-            'MSRBot',
-            'MVAClient',
-            'mxbot',
-            'NetResearchServer',
-            //'NetSeer Crawler',
-            'NewsGator',
-            'NG-Search',
-            'nicebot',
-            'noxtrumbot',
-            //'Nusearch Spider',
-            'NutchCVS',
-            'Nymesis',
-            'obot',
-            'oegp',
-            'omgilibot',
-            'OmniExplorer_Bot',
-            'OOZBOT',
-            'Orbiter',
-            'PageBitesHyperBot',
-            'Peew',
-            'polybot',
-            'Pompos',
-            'PostPost',
-            'Psbot',
-            'PycURL',
-            'Qseero',
-            'Radian6',
-            'RAMPyBot',
-            'RufusBot',
-            //'SandCrawler',
-            'SBIder',
-            'ScoutJet',
-            'Scrubby',
-            'SearchSight',
-            'Seekbot',
-            'semanticdiscovery',
-            //'Sensis Web Crawler',
-            'SEOChat::Bot',
-            'SeznamBot',
-            //'Shim-Crawler',
-            'ShopWiki',
-            'Shoula robot',
-            'silk',
-            'Sitebot',
-            'Snappy',
-            //'sogou spider',
-            //'Sosospider',
-            //'Speedy Spider',
-            'Sqworm',
-            'StackRambler',
-            'suggybot',
-            'SurveyBot',
-            'SynooBot',
-            'Teoma',
-            'TerrawizBot',
-            'TheSuBot',
-            'Thumbnail.CZ robot',
-            'TinEye',
-            'truwoGPS',
-            'TurnitinBot',
-            'TweetedTimes Bot',
-            'TwengaBot',
-            'updated',
-            'Urlfilebot',
-            'Vagabondo',
-            'VoilaBot',
-            'Vortex',
-            'voyager',
-            'VYU2',
-            'webcollage',
-            'Websquash.com',
-            'wf84',
-            'WoFindeIch Robot',
-            'WomlpeFactory',
-            //'Xaldon_WebSpider',
-            'yacy',
-            'Yahoo! Slurp',
-            'Yahoo! Slurp China',
-            'YahooSeeker',
-            'YahooSeeker-Testing',
-            'YandexBot',
-            'YandexImages',
-            'YandexMetrika',
-            'Yasaklibot',
-            'Yeti',
-            'YodaoBot',
-            'yoogliFetchAgent',
-            'YoudaoBot',
-            'Zao',
-            'Zealbot',
-            //'zspider',
-            'ZyBorg',
-
-            //Link checkers
-            'AbiLogicBot',
-            'Link Valet',
-            'Link Validity Check',
-            'LinkExaminer',
-            'LinksManager.com_bot',
-            'Mojoo Robot',
-            'Notifixious',
-            'online link validator',
-            'Ploetz + Zeller',
-            'Reciprocal Link System PRO',
-            'REL Link Checker Lite',
-            'SiteBar',
-            'Vivante Link Checker',
-            'W3C-checklink',
-            'Xenu Link Sleuth',
-
-            //E-mail collectors
-            'EmailSiphon',
-
-            //Validators
-            //'CSE HTML Validator',
-            'CSSCheck',
-            'Cynthia',
-            'HTMLParser',
-            //'P3P Validator',
-            //'W3C_CSS_Validator_JFouffa',
-            //'W3C_Validator',
-            //'WDG_Validator',
-
-            //Feed readers
-            'Awasu',
-            'Bloglines',
-            'everyfeed-spider',
-            'FeedFetcher-Google',
-            'GreatNews',
-            'Gregarius',
-            'MagpieRSS',
-            'NFReader',
-            'UniversalFeedParser',
-
-            //Liberies
-            'BinGet',
-            'cURL',
-            'Java',
-            'libwww-perl',
-            'Microsoft URL Control',
-            'Peach',
-            'PHP',
-            'pxyscand',
-            'PycURL',
-            'Python-urllib',
-
-            //Cloud platforms
-            'AppEngine-Google',
-
-            //Offline browsers
-            'Offline Explorer',
-            'SuperBot',
-            'Web Downloader',
-            'WebCopier',
-            'WebZIP',
-            'Wget',
-        );
-
-        foreach ($bots as $bot) {
-            if (mb_stripos($_SERVER['HTTP_USER_AGENT'], $bot) !== false) {
-                return true;
-            }
-        }
-
-        return false;
     }
 
     /**

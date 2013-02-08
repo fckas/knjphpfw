@@ -80,12 +80,9 @@ class knjobjects
     {
         $args['limit'] = 1;
 
-        $object = $this->getList($class, $args);
-        if (!$object) {
-            return false;
-        }
+        $objects = (array) $this->getList($class, $args);
 
-        return array_shift($object);
+        return reset($objects);
     }
 
     /**
@@ -403,6 +400,7 @@ class knjobjects
                             $sql_order .= ", ";
                         }
 
+                        $ordermode = 'asc';
                         if (is_array($val_ele)) {
                             $ordermode = strtolower($val_ele[1]);
                             $val_ele = $val_ele[0];
@@ -481,6 +479,7 @@ class knjobjects
     public function cleanMemory()
     {
         $usage = memory_get_usage() / 1024 / 1024;
+        //TODO Why 52MiB ?
         if ($usage >= 52) {
             $this->unsetAll();
         }
