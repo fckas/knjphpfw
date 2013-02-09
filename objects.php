@@ -202,7 +202,9 @@ class knjobjects
                 )
             ) {
                 if (is_array($list_val)) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'self_callback' => array($db, 'sql'))) . ")";
+                    $list_val = array_map(array($db, 'sql'), $list_val);
+                    $list_val = implode("', '", $list_val);
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN ('" . $list_val . "')";
                 } elseif ($list_val === null) {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
                 } else {
@@ -251,7 +253,11 @@ class knjobjects
                     if (empty($list_val)) {
                         $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " = '-1'";
                     } else {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'func_callback' => 'id')) . ")";
+                        foreach ($list_val as $key => $value) {
+                            $list_val[$key] = $value->id();
+                        }
+                        $list_val = implode("', '", $list_val);
+                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " IN ('" . $list_val . "')";
                     }
                 } else {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " = '" . $db->sql($list_val->id()) . "'";
@@ -284,7 +290,9 @@ class knjobjects
                         throw new exception('No elements was given in array.');
                     }
 
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN (" . knjarray::implode(array('array' => $list_val, 'impl' => ",", 'surr' => "'", 'self_callback' => array($db, 'sql'))) . ")";
+                    $list_val = array_map(array($db, 'sql'), $list_val);
+                    $list_val = implode("', '", $list_val);
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN ('" . $list_val . "')";
                 } else {
                     $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
                 }
