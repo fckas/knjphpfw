@@ -401,13 +401,9 @@ class knjdb_mysqli
             $tables = array($tables);
         }
 
-        $data = array(
-            'array' => $tables,
-            'surr' => '`',
-            'impl' => ',',
-            'self_callback' => array($this, 'escape_table'),
-        );
-        $sql = "OPTIMIZE TABLE " .knjarray::implode($data);
+        $tables = array_map(array($this, 'escape_table'), $tables);
+        $tables = implode("`, `", $tables);
+        $sql = "OPTIMIZE TABLE `" .$tables . "`";
 
         return $this->query($sql);
     }
@@ -432,14 +428,13 @@ class knjdb_mysqli
             }
 
             if (is_array($value)) {
-                $data = array(
-                    'array' => $value,
-                    'impl' => ',',
-                    'surr' => "'",
-                    'self_callback' => array($this, 'sql'),
-                );
+                $value = array_map(array($this, 'sql'), $value);
+                $value = implode("', '", $value);
+
+                $sql = "OPTIMIZE TABLE '" .$value . "'";
+
                 $sql .= $this->sep_col .$key .$this->sep_col ." IN ("
-                .knjarray::implode($data) .")";
+                .$value .")";
             } else {
                 $sql .= $this->sep_col .$key .$this->sep_col;
                 if ($value !== null) {

@@ -50,61 +50,6 @@ class knjarray
         return $string;
     }
 
-    static function implode($args)
-    {
-        $string = '';
-
-        $first = true;
-        foreach ($args['array'] as $key => $value) {
-            if ($first) {
-                $first = false;
-            } elseif ($args['impl']) {
-                $string .= $args['impl'];
-            }
-
-            if (!empty($args['bykey'])) {
-                $val = $key;
-            } else {
-                $val = $value;
-            }
-
-            if ($args['surr']) {
-                $string .= $args['surr'];
-            }
-
-            if (!empty($args['func_callback'])) {
-                if (is_array($args['func_callback'])) {
-                    foreach ($args['func_callback'] as $func_callback) {
-                        $val = call_user_func(array($val, $func_callback));
-                    }
-                } else {
-                    if (!is_callable(array($value, $args['func_callback']))) {
-                        print_r($args);
-                        throw new exception(sprintf(_('Callback-array was not callable: %1$s->%2$s().'), gettype($value), $args['func_callback']));
-                    }
-
-                    $val = call_user_func(array($value, $args['func_callback']), $args['func_paras']);
-                }
-            }
-
-            if (!empty($args['self_callback'])) {
-                if (!is_callable($args['self_callback'])) {
-                    throw new exception(_('Callback was not callable.'));
-                }
-
-                $val = call_user_func($args['self_callback'], $val);
-            }
-
-            $string .= $val;
-
-            if (!empty($args['surr'])) {
-                $string .= $args['surr'];
-            }
-        }
-
-        return $string;
-    }
-
     static function remove_value($arr, $value)
     {
         foreach ($arr as $key => $value) {
