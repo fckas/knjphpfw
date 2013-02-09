@@ -431,8 +431,8 @@ class knjdb_mysqli
                 $value = array_map(array($this, 'sql'), $value);
                 $value = implode("', '", $value);
 
-                $sql .= $this->sep_col .$key .$this->sep_col ." IN ("
-                .$value .")";
+                $sql .= $this->sep_col .$key .$this->sep_col ." IN ('"
+                .$value ."')";
             } else {
                 $sql .= $this->sep_col .$key .$this->sep_col;
                 if ($value !== null) {
