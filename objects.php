@@ -212,30 +212,18 @@ class knjobjects
                 }
 
                 $found = true;
-            } elseif (($str_exists || $num_exists)
-                && preg_match('/^(.+)_(has|not)$/', $list_key, $match)
+            } elseif (mb_substr($list_key, -4) == '_not'
                 && (
-                    ($str_exists && in_array($match[1], $args['cols_str']))
-                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                    ($str_exists && in_array(mb_substr($list_key, 0, -4), $args['cols_str']))
+                    || ($num_exists && in_array(mb_substr($list_key, 0, -4), $args['cols_num']))
                 )
             ) {
-                if ($match[2] == 'has') {
-                    if ($list_val) {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != ''";
-                    } elseif ($list_val === null) {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " IS NULL";
-                    } else {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " = ''";
-                    }
-                    $found = true;
-                } elseif ($match[2] == 'not') {
-                    if ($list_val === null) {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " IS NOT NULL";
-                    } else {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " != '" . $db->sql($list_val) . "'";
-                    }
-                    $found = true;
+                if ($list_val === null) {
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -4)) . $colsep . " IS NOT NULL";
+                } else {
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -4)) . $colsep . " != '" . $db->sql($list_val) . "'";
                 }
+                $found = true;
             } elseif ($dbrows_exist
                 && in_array($list_key . '_id', $args['cols_dbrows'])
             ) {
@@ -308,21 +296,14 @@ class knjobjects
                 }
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
                 $found = true;
-            } elseif (substr($list_key, -7, 7) == '_search'
-                && preg_match('/^(.+)_search$/', $list_key, $match)
+            } elseif (mb_substr($list_key, -7) == '_search'
                 && (
-                    ($str_exists && in_array($match[1], $args['cols_str']))
-                    || ($dbrows_exist && in_array($match[1], $args['cols_dbrows']))
-                    || ($num_exists && in_array($match[1], $args['cols_num']))
+                    ($str_exists && in_array(mb_substr($list_key, 0, -7), $args['cols_str']))
+                    || ($dbrows_exist && in_array(mb_substr($list_key, 0, -7), $args['cols_dbrows']))
+                    || ($num_exists && in_array(mb_substr($list_key, 0, -7), $args['cols_num']))
                 )
             ) {
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep . " LIKE '%" . $db->sql($list_val) . "%'";
-                $found = true;
-            } elseif (substr($list_key, -6, 6) == '_lower'
-                && preg_match('/^(.+)_lower$/', $list_key, $match)
-                && in_array($match[1], $args['cols_str'])
-            ) {
-                $sql_where .= " AND LOWER(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ") = LOWER('" . $db->sql($list_val) . "')";
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -7)) . $colsep . " LIKE '%" . $db->sql($list_val) . "%'";
                 $found = true;
             } elseif (array_key_exists('cols_num', $args)
                 && preg_match('/^(.+)_(from|to)/', $list_key, $match)
