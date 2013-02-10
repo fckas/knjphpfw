@@ -253,12 +253,14 @@ class knjdb
 
     function escape_column($string)
     {
-        if ($this->conn->sep_col && strpos($string, $this->conn->sep_col) !== false) {
-            throw new exception('Possible trying to hack the database!');
+        if ($this->conn->sep_col
+            && mb_strpos($string, $this->conn->sep_col) !== false
+        ) {
+            throw new exception(_('Possible trying to hack the database!'));
         }
 
         if (is_object($string)) {
-            throw new exception('Does not support objects.');
+            throw new exception(_('Does not support objects.'));
         }
 
         return strval($string);
