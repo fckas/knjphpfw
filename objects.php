@@ -170,16 +170,15 @@ class knjobjects
 
     public function sqlHelper(array &$list_args, array $args)
     {
-        if ($args && array_key_exists('db', $args) && $args['db']) {
+        if (!empty($args['db'])) {
             $db = $args['db'];
         } else {
             $db = $this->db;
         }
 
-        if ($args && array_key_exists('table', $args) && $args['table']) {
+        $table = '';
+        if (!empty($args['table'])) {
             $table = $db->conn->sep_table . $db->escape_table($args['table']) . $db->conn->sep_table . '.';
-        } else {
-            $table = '';
         }
 
         $colsep = $db->conn->sep_col;
@@ -188,131 +187,147 @@ class knjobjects
         $sql_limit = '';
         $sql_order = '';
 
-        $dbrows_exist = array_key_exists('cols_dbrows', $args);
-        $num_exists = array_key_exists('cols_num', $args);
-        $str_exists = array_key_exists('cols_str', $args);
-
         foreach ($list_args as $list_key => $list_val) {
-            $found = false;
+            if (is_array($list_val) && !$list_val) {
+                continue;
+            } elseif ($list_key == 'limit_from') {
+                $sql_limit .= " LIMIT " . (int) $list_val . ", " . (int) $list_args['limit'];
+                //FIXME this this doesn't iterate 'limit' later
+                unset($list_args[$list_key], $list_args['limit']);
+                continue;
+            } elseif ($list_key == 'limit' && !isset($list_args['limit_from'])) {
+                $sql_limit .= " LIMIT " . (int) $list_val;
+                unset($list_args[$list_key]);
+                continue;
+            } elseif ($list_key == 'orderby') {
+                if (is_string($list_val)) {
+                    $list_val = array($list_val);
+                }
 
-            if ($str_exists
-                && (
-                    in_array($list_key, $args['cols_str'])
-                    || ($num_exists && in_array($list_key, $args['cols_num']))
-                )
-            ) {
-                if (is_array($list_val)) {
+                $sql_order .= " ORDER BY ";
+
+                $first = true;
+                foreach ($list_val as $val_ele) {
+                    if ($first) {
+                        $first = false;
+                    } else {
+                        $sql_order .= ", ";
+                    }
+
+                    $ordermode = 'asc';
+                    if (is_array($val_ele)) {
+                        $ordermode = mb_strtolower($val_ele[1]);
+                        $val_ele = $val_ele[0];
+                    }
+
+                    $sql_order .= $table . $colsep . $db->escape_column($val_ele) . $colsep;
+
+                    if ($ordermode == 'desc') {
+                        $sql_order .= " DESC";
+                    } elseif ($ordermode == 'asc') {
+                        $sql_order .= " ASC";
+                    } elseif ($ordermode) {
+                        throw new exception(_('Invalid order-mode: ') . $ordermode);
+                    }
+                }
+                unset($list_args[$list_key]);
+                continue;
+            }
+
+            $match = array();
+            $modifier = '';
+            preg_match('/^(.+)_(.+?)$/ui', $list_key, $match);
+            if (isset($match[2])) {
+                $modifier = $match[2];
+                unset($match[2]);
+            }
+            $match[] = $list_key;
+
+            $matchKey = '';
+            $matchNumber = false;
+            $matchDate = false;
+            $matchReference = false;
+            foreach ($match as $key => $colname) {
+                if (isset($args['cols_str']) && in_array($colname, $args['cols_str'])) {
+                    $matchKey = $colname;
+                }
+                if (isset($args['cols_num']) && in_array($colname, $args['cols_num'])) {
+                    $matchNumber = true;
+                    $matchKey = $colname;
+                }
+                if (isset($args['cols_dates']) && in_array($colname, $args['cols_dates'])) {
+                    $matchDate = true;
+                    $matchKey = $colname;
+                }
+                if (isset($args['cols_dbrows']) && in_array($colname, $args['cols_dbrows'])) {
+                    $matchReference = true;
+                    $matchKey = $colname;
+                } elseif (isset($args['cols_dbrows']) && in_array($colname . '_id', $args['cols_dbrows'])) {
+                    $matchReference = true;
+                    $matchKey = $colname . '_id';
+                }
+                if ($matchKey) {
+                    unset($list_args[$list_key]);
+                } else {
+                    continue 2;
+                }
+            }
+
+            if (!$modifier || $modifier == 'not' || $modifier == 'search') {
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+                if ($modifier == 'search') {
+                    $sql_where .= " LIKE '%" . $db->sql($list_val) . "%'";
+                } elseif (is_array($list_val)) {
                     $list_val = array_map(array($db, 'sql'), $list_val);
                     $list_val = implode("', '", $list_val);
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN ('" . $list_val . "')";
+                    if ($modifier == 'not') {
+                        $sql_where .=  " NOT";
+                    }
+                    $sql_where .=  " IN ('" . $list_val . "')";
                 } elseif ($list_val === null) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IS NULL";
+                    if ($modifier == 'not') {
+                        $sql_where .=  " IS NOT NULL";
+                    } else {
+                        $sql_where .=  " IS NULL";
+                    }
                 } else {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
+                    if ($modifier == 'not') {
+                        $sql_where .=  " != '";
+                    } else {
+                        $sql_where .=  " = '";
+                    }
+                    $sql_where .=  $db->sql($list_val) . "'";
                 }
-
-                $found = true;
-            } elseif (mb_substr($list_key, -4) == '_not'
-                && (
-                    ($str_exists && in_array(mb_substr($list_key, 0, -4), $args['cols_str']))
-                    || ($num_exists && in_array(mb_substr($list_key, 0, -4), $args['cols_num']))
-                )
-            ) {
-                if ($list_val === null) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -4)) . $colsep . " IS NOT NULL";
-                } else {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -4)) . $colsep . " != '" . $db->sql($list_val) . "'";
-                }
-                $found = true;
-            } elseif ($dbrows_exist
-                && in_array($list_key . '_id', $args['cols_dbrows'])
-            ) {
-                if (!is_object($list_val) && !is_bool($list_val) && !is_array($list_val)) {
-                    throw new exception('Unknown type: ' . gettype($list_val) . ' for argument ' . $list_key);
-                } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
+            } elseif ($matchReference) {
+                if (is_object($list_val) && !method_exists($list_val, 'id')) {
                     throw new exception('Unknown method on object: ' . get_class($list_val) . '->id().');
                 }
 
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+
                 if ($list_val === true) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " != '0'";
+                    $sql_where .= " IS NOT NULL";
                 } elseif ($list_val === false) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " = '0'";
-                } elseif (is_array($list_val)) {
-                    if (empty($list_val)) {
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " = '-1'";
-                    } else {
-                        foreach ($list_val as $key => $value) {
+                    $sql_where .= " IS NULL";
+                } else {
+                    if (!is_array($list_val)) {
+                        $list_val = array($list_val);
+                    }
+                    foreach ($list_val as $key => $value) {
+                        if (is_object($value)) {
                             $list_val[$key] = $value->id();
                         }
-                        $list_val = implode("', '", $list_val);
-                        $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " IN ('" . $list_val . "')";
                     }
-                } else {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . '_id') . $colsep . " = '" . $db->sql($list_val->id()) . "'";
-                }
-
-                $found = true;
-            } elseif ($dbrows_exist
-                && in_array($list_key . 'Id', $args['cols_dbrows'])
-            ) {
-                if (!is_object($list_val) && !is_bool($list_val)) {
-                    throw new exception('Unknown type: ' . gettype($list_val));
-                } elseif (is_object($list_val) && !method_exists($list_val, 'id')) {
-                    throw new exception('Unknown method on object: ' . get_class($list_val) . '->id().');
-                }
-
-                if ($list_val === true) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . 'Id') . $colsep . " != '0'";
-                } elseif ($list_val === false) {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . 'Id') . $colsep . " = '0'";
-                } else {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key . 'Id') . $colsep . " = '" . $db->sql($list_val->id()) . "'";
-                }
-
-                $found = true;
-            } elseif ($dbrows_exist
-                && in_array($list_key, $args['cols_dbrows'])
-            ) {
-                if (is_array($list_val)) {
-                    if (empty($list_val)) {
-                        throw new exception('No elements was given in array.');
-                    }
-
                     $list_val = array_map(array($db, 'sql'), $list_val);
                     $list_val = implode("', '", $list_val);
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " IN ('" . $list_val . "')";
-                } else {
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
+                    $sql_where .= " IN ('" . $list_val . "')";
                 }
+            } elseif ($matchNumber
+                && in_array($modifier, array('from', 'to'))
+            ) {
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
 
-                $found = true;
-            } elseif (array_key_exists('cols_bool', $args)
-                && in_array($list_key, $args['cols_bool'])
-            ) {
-                if ($list_val) {
-                    $list_val = '1';
-                } else {
-                    $list_val = '0';
-                }
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column($list_key) . $colsep . " = '" . $db->sql($list_val) . "'";
-                $found = true;
-            } elseif (mb_substr($list_key, -7) == '_search'
-                && (
-                    ($str_exists && in_array(mb_substr($list_key, 0, -7), $args['cols_str']))
-                    || ($dbrows_exist && in_array(mb_substr($list_key, 0, -7), $args['cols_dbrows']))
-                    || ($num_exists && in_array(mb_substr($list_key, 0, -7), $args['cols_num']))
-                )
-            ) {
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column(mb_substr($list_key, 0, -7)) . $colsep . " LIKE '%" . $db->sql($list_val) . "%'";
-                $found = true;
-            } elseif (array_key_exists('cols_num', $args)
-                && preg_match('/^(.+)_(from|to)/', $list_key, $match)
-                && in_array($match[1], $args['cols_num'])
-            ) {
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                $found = true;
-
-                switch ($match[2]) {
+                switch ($modifier) {
                 case 'from':
                     $sql_where .= " >= '" . $db->sql($list_val) . "'";
                     break;
@@ -320,101 +335,51 @@ class knjobjects
                     $sql_where .= " <= '" . $db->sql($list_val) . "'";
                     break;
                 default:
-                    throw new exception('Invalid mode: ' . $match[2]);
+                    throw new exception('Invalid mode: ' . $modifier);
                 }
-            } elseif (array_key_exists('cols_dates', $args)
-                && preg_match('/^(.+)_(date|time|from|to)/', $list_key, $match)
-                && in_array($match[1], $args['cols_dates'])
+            } elseif ($matchDate
+                && in_array($modifier, array('date', 'time', 'from', 'to'))
             ) {
-                $found = true;
-
-                switch ($match[2]) {
+                switch ($modifier) {
                 case 'date':
-                    if (is_array($list_val)) {
-                        if (!$list_val) {
-                            throw new exception('Array was empty!');
-                        }
-
-                        $sql_where .= " AND (";
-                        $first = true;
-
-                        foreach ($list_val as $time_s) {
-                            if ($first) {
-                                $first = false;
-                            } else {
-                                $sql_where .= " OR ";
-                            }
-
-                            $sql_where .= "DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
-                            $sql_where .= " = '" . $db->sql($db->date_format($time_s, array('time' => false))) . "'";
-                        }
-
-                        $sql_where .= ")";
-                    } else {
-                        $sql_where .= " AND DATE(" . $table . $colsep . $db->escape_column($match[1]) . $colsep . ")";
-                        $sql_where .= " = '" . $db->sql($db->date_format($list_val, array('time' => false))) . "'";
+                    if (!$list_val) {
+                        throw new exception('Array was empty!');
+                    }
+                    if (!is_array($list_val)) {
+                        $list_val = array($list_val);
                     }
 
-                    break;
-                case 'time':
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                    $sql_where .= " = '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
-                case 'from':
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                    $sql_where .= " >= '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
-                    break;
-                case 'to':
-                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($match[1]) . $colsep;
-                    $sql_where .= " <= '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
-                    break;
-                default:
-                    throw new exception('Invalid mode: ' . $match[2]);
-                }
-            } elseif ($list_key == 'limit') {
-                $sql_limit .= " LIMIT " . intval($list_val);
-                $found = true;
-            } elseif ($list_key == 'limit_from' && $list_args['limit_to']) {
-                $sql_limit .= " LIMIT " . intval($list_val) . ", " . intval($list_args['limit_to']);
-                $found = true;
-            } elseif ($list_key == 'limit_to') {
-                $found = true;
-            } elseif ($list_key == 'orderby') {
-                if (is_string($list_val)) {
-                    $sql_order .= " ORDER BY " . $table . $colsep . $db->escape_column($list_val) . $colsep;
-                    $found = true;
-                } elseif (is_array($list_val)) {
-                    $found = true;
-                    $sql_order .= " ORDER BY ";
-
+                    $sql_where .= " AND (";
                     $first = true;
-                    foreach ($list_val as $val_ele) {
+
+                    foreach ($list_val as $time_s) {
                         if ($first) {
                             $first = false;
                         } else {
-                            $sql_order .= ", ";
+                            $sql_where .= " OR ";
                         }
 
-                        $ordermode = 'asc';
-                        if (is_array($val_ele)) {
-                            $ordermode = strtolower($val_ele[1]);
-                            $val_ele = $val_ele[0];
-                        }
-
-                        $sql_order .= $table . $colsep . $db->escape_column($val_ele) . $colsep;
-
-                        if ($ordermode == 'desc') {
-                            $sql_order .= " DESC";
-                        } elseif ($ordermode == 'asc') {
-                            $sql_order .= " ASC";
-                        } elseif ($ordermode) {
-                            throw new exception('Invalid order-mode: ' . $ordermode);
-                        }
+                        $sql_where .= "DATE(" . $table . $colsep . $db->escape_column($matchKey) . $colsep . ")";
+                        $sql_where .= " = '" . $db->sql($db->date_format($time_s, array('time' => false))) . "'";
                     }
-                }
-            }
 
-            if ($found) {
-                unset($list_args[$list_key]);
+                    $sql_where .= ")";
+
+                    break;
+                case 'time':
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+                    $sql_where .= " = '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
+                case 'from':
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+                    $sql_where .= " >= '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
+                    break;
+                case 'to':
+                    $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+                    $sql_where .= " <= '" . $db->sql($db->date_format($list_val, array('time' => true))) . "'";
+                    break;
+                default:
+                    throw new exception('Invalid mode: ' . $modifier);
+                }
             }
         }
 
