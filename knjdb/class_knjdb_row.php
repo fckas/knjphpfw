@@ -84,6 +84,9 @@ class knjdb_row
 
     /**
      * Returns a key from the row.
+     *
+     * //TODO implement __get() instead
+     * http://www.php.net/manual/en/language.oop5.overloading.php#object.get
      */
     function get($key)
     {
@@ -105,6 +108,9 @@ class knjdb_row
 
     /**
      * Updates the row.
+     *
+     * //TODO implement __set() instead, and update on __destroy()
+     * http://www.php.net/manual/en/language.oop5.overloading.php#object.set
      */
     function update(array $arr, $args = null)
     {
