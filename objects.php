@@ -278,38 +278,14 @@ class knjobjects
                 if ($matchKey) {
                     unset($list_args[$list_key]);
                     break;
-                } else {
-                    continue 2;
                 }
+            }
+            if (!$matchKey) {
+                continue;
             }
 
             //Create query
-            if (!$modifier || $modifier == 'not' || $modifier == 'search') {
-                $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
-                if ($modifier == 'search') {
-                    $sql_where .= " LIKE '%" . $db->sql($list_val) . "%'";
-                } elseif (is_array($list_val)) {
-                    $list_val = array_map(array($db, 'sql'), $list_val);
-                    $list_val = implode("', '", $list_val);
-                    if ($modifier == 'not') {
-                        $sql_where .=  " NOT";
-                    }
-                    $sql_where .=  " IN ('" . $list_val . "')";
-                } elseif ($list_val === null) {
-                    if ($modifier == 'not') {
-                        $sql_where .=  " IS NOT NULL";
-                    } else {
-                        $sql_where .=  " IS NULL";
-                    }
-                } else {
-                    if ($modifier == 'not') {
-                        $sql_where .=  " != '";
-                    } else {
-                        $sql_where .=  " = '";
-                    }
-                    $sql_where .=  $db->sql($list_val) . "'";
-                }
-            } elseif ($matchReference) {
+            if ($matchReference) {
                 if (is_object($list_val) && !method_exists($list_val, 'id')) {
                     throw new exception('Unknown method on object: ' . get_class($list_val) . '->id().');
                 }
@@ -390,6 +366,31 @@ class knjobjects
                     break;
                 default:
                     throw new exception('Invalid mode: ' . $modifier);
+                }
+            } else {
+                $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+                if ($modifier == 'search') {
+                    $sql_where .= " LIKE '%" . $db->sql($list_val) . "%'";
+                } elseif (is_array($list_val)) {
+                    $list_val = array_map(array($db, 'sql'), $list_val);
+                    $list_val = implode("', '", $list_val);
+                    if ($modifier == 'not') {
+                        $sql_where .=  " NOT";
+                    }
+                    $sql_where .=  " IN ('" . $list_val . "')";
+                } elseif ($list_val === null) {
+                    if ($modifier == 'not') {
+                        $sql_where .=  " IS NOT NULL";
+                    } else {
+                        $sql_where .=  " IS NULL";
+                    }
+                } else {
+                    if ($modifier == 'not') {
+                        $sql_where .=  " != '";
+                    } else {
+                        $sql_where .=  " = '";
+                    }
+                    $sql_where .=  $db->sql($list_val) . "'";
                 }
             }
         }
