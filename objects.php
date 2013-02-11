@@ -170,29 +170,33 @@ class knjobjects
 
     public function sqlHelper(array &$list_args, array $args)
     {
+        //Get DB connection
         if (!empty($args['db'])) {
             $db = $args['db'];
         } else {
             $db = $this->db;
         }
 
+        //Escape table
         $table = '';
         if (!empty($args['table'])) {
             $table = $db->conn->sep_table . $db->escape_table($args['table']) . $db->conn->sep_table . '.';
         }
 
-        $colsep = $db->conn->sep_col;
-
         $sql_where = '';
         $sql_limit = '';
         $sql_order = '';
 
+        $colsep = $db->conn->sep_col;
+
+        //Process each directive
         foreach ($list_args as $list_key => $list_val) {
+            //Having limit, limit_from and orderby first, makes them reserved names and differes from the original implementation
             if (is_array($list_val) && !$list_val) {
                 continue;
             } elseif ($list_key == 'limit_from') {
                 $sql_limit .= " LIMIT " . (int) $list_val . ", " . (int) $list_args['limit'];
-                //FIXME this this doesn't iterate 'limit' later
+                //FIXME test this doesn't iterate 'limit' later, posibly use where(list()=each()) instead of foreach().
                 unset($list_args[$list_key], $list_args['limit']);
                 continue;
             } elseif ($list_key == 'limit' && !isset($list_args['limit_from'])) {
@@ -234,15 +238,20 @@ class knjobjects
                 continue;
             }
 
-            $match = array();
+            //Extract valid modifier
             $modifier = '';
+            $match = array();
             preg_match('/^(.+)_(.+?)$/ui', $list_key, $match);
-            if (isset($match[2])) {
+            if ($match
+                && in_array($match[2], array('not', 'search', 'date', 'time', 'from', 'to'))
+            ) {
                 $modifier = $match[2];
                 unset($match[2]);
+            } else {
+                $match = array($list_key);
             }
-            $match[] = $list_key;
 
+            //Look for valid colum name
             $matchKey = '';
             $matchNumber = false;
             $matchDate = false;
@@ -268,11 +277,13 @@ class knjobjects
                 }
                 if ($matchKey) {
                     unset($list_args[$list_key]);
+                    break;
                 } else {
                     continue 2;
                 }
             }
 
+            //Create query
             if (!$modifier || $modifier == 'not' || $modifier == 'search') {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
                 if ($modifier == 'search') {
