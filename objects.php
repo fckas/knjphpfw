@@ -271,9 +271,6 @@ class knjobjects
                 if (isset($args['cols_dbrows']) && in_array($colname, $args['cols_dbrows'])) {
                     $matchReference = true;
                     $matchKey = $colname;
-                } elseif (isset($args['cols_dbrows']) && in_array($colname . '_id', $args['cols_dbrows'])) {
-                    $matchReference = true;
-                    $matchKey = $colname . '_id';
                 }
                 if ($matchKey) {
                     unset($list_args[$list_key]);
