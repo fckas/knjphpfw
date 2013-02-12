@@ -190,7 +190,7 @@ class knjobjects
         $colsep = $db->conn->sep_col;
 
         //Process each directive
-        while(list($list_key, $list_val) = each($list_args)) {
+        foreach($list_args as $list_key => $list_val) {
             //Having limit, limit_from and orderby first, makes them reserved names and differes from the original implementation
             if (is_array($list_val) && !$list_val) {
                 continue;
