@@ -190,7 +190,7 @@ class knjobjects
         $colsep = $db->conn->sep_col;
 
         //Process each directive
-        foreach ($list_args as $list_key => $list_val) {
+        while(list($list_key, $list_val) = each($list_args)) {
             //Having limit, limit_from and orderby first, makes them reserved names and differes from the original implementation
             if (is_array($list_val) && !$list_val) {
                 continue;
@@ -285,29 +285,13 @@ class knjobjects
             }
 
             //Create query
-            if ($matchReference) {
-                if (is_object($list_val) && !method_exists($list_val, 'id')) {
-                    throw new exception('Unknown method on object: ' . get_class($list_val) . '->id().');
-                }
-
+            if ($matchReference && is_bool($list_val)) {
                 $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
 
-                if ($list_val === true) {
+                if ($list_val) {
                     $sql_where .= " IS NOT NULL";
-                } elseif ($list_val === false) {
-                    $sql_where .= " IS NULL";
                 } else {
-                    if (!is_array($list_val)) {
-                        $list_val = array($list_val);
-                    }
-                    foreach ($list_val as $key => $value) {
-                        if (is_object($value)) {
-                            $list_val[$key] = $value->id();
-                        }
-                    }
-                    $list_val = array_map(array($db, 'sql'), $list_val);
-                    $list_val = implode("', '", $list_val);
-                    $sql_where .= " IN ('" . $list_val . "')";
+                    $sql_where .= " IS NULL";
                 }
             } elseif ($matchNumber
                 && in_array($modifier, array('from', 'to'))
@@ -372,12 +356,19 @@ class knjobjects
                 if ($modifier == 'search') {
                     $sql_where .= " LIKE '%" . $db->sql($list_val) . "%'";
                 } elseif (is_array($list_val)) {
-                    $list_val = array_map(array($db, 'sql'), $list_val);
-                    $list_val = implode("', '", $list_val);
                     if ($modifier == 'not') {
                         $sql_where .=  " NOT";
                     }
-                    $sql_where .=  " IN ('" . $list_val . "')";
+
+                    foreach ($list_val as $key => $value) {
+                        if (is_object($value)) {
+                            $list_val[$key] = $value->id();
+                        }
+                    }
+
+                    $list_val = array_map(array($db, 'sql'), $list_val);
+                    $list_val = implode("', '", $list_val);
+                    $sql_where .= " IN ('" . $list_val . "')";
                 } elseif ($list_val === null) {
                     if ($modifier == 'not') {
                         $sql_where .=  " IS NOT NULL";
@@ -389,6 +380,9 @@ class knjobjects
                         $sql_where .=  " != '";
                     } else {
                         $sql_where .=  " = '";
+                    }
+                    if (is_object($list_val)) {
+                        $list_val = $list_val->id();
                     }
                     $sql_where .=  $db->sql($list_val) . "'";
                 }
