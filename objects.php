@@ -283,7 +283,7 @@ class knjobjects
                     $matchKey = $colname;
                     unset($list_args[$list_key]);
 
-                    if ($args['cols'][$colname] == 'time') {
+                    if ($args['cols'][$colname] === 'time') {
                         if (!$list_val) {
                             $list_val = "0000-00-00 00:00:00";
                         } else {
