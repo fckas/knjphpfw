@@ -199,7 +199,7 @@ class knjobjects
             //FIXME Have a different input for this
             if ($list_key == 'limit' || $list_key == 'limit_from') {
                 //Use knjdb driver to stay compatible with non-MySQL
-                if ($list_args['limit_from']) {
+                if (isset($list_args['limit_from'])) {
                     $sql_limit = " LIMIT " . (int) $list_args['limit_from'] . ", " . (int) $list_args['limit'];
                     unset($list_args['limit_from']);
                 } else {
