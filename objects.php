@@ -168,6 +168,35 @@ class knjobjects
         return $objects;
     }
 
+    /**
+     * Generate SQL bits for using in a query
+     *
+     * @param array $list_args Key is feild name to match against.
+     *                         Fileds can be sufixed with a modefier
+     *                         to change the type of match.
+     *                         *_not:    Invert match
+     *                         *_search: Contaning string
+     *                         *_to:     Lower or equal
+     *                         *_from:   Equal or higher
+     *                         There are 3 special keys
+     *                         limit: Max rows to return
+     *                         limit_from: Skip number of rows
+     *                         orderby: Array|string of feilds to
+     *                         order by. Keys|string is feild, value can
+     *                         be DESC for decending
+     *                         Recogniced feilds will be unset form the
+     *                         array.
+     * @param array $args      Configuraitions for and table information
+     *                         db: The knjdb object the SQL is ment for
+     *                         table: The table that will be queried
+     *                         cols: List of valid feilds as key,
+     *                         keys limit, limit_from and orderby are
+     *                         reserved. If value is time input will be
+     *                         converted from timestamp into db native
+     *                         format
+     *
+     * @return array With keys sql_where, sql_order, sql_limit
+     */
     public function sqlHelper(array &$list_args, array $args)
     {
         //Get DB connection
@@ -209,30 +238,25 @@ class knjobjects
                 continue;
             } elseif ($list_key == 'orderby') {
                 if (is_string($list_val)) {
-                    $list_val = array($list_val);
+                    $list_val = array($list_val => 'ASC');
                 }
 
                 $sql_order .= " ORDER BY ";
 
                 $first = true;
-                foreach ($list_val as $val_ele) {
+                foreach ($list_val as $feild => $ordermode) {
                     if ($first) {
                         $first = false;
                     } else {
                         $sql_order .= ", ";
                     }
 
-                    $ordermode = '';
-                    if (is_array($val_ele)) {
-                        $ordermode = mb_strtoupper($val_ele[1]);
-                        if ($ordermode == 'DESC') {
-                            $ordermode = " DESC";
-                        }
-                        $val_ele = $val_ele[0];
+                    if (mb_strtoupper($ordermode) == 'DESC') {
+                        $ordermode = " DESC";
                     }
 
                     $sql_order .=  $table
-                        . $colsep . $db->escape_column($val_ele) . $colsep
+                        . $colsep . $db->escape_column($feild) . $colsep
                         . $ordermode;
                 }
                 unset($list_args[$list_key]);
@@ -255,23 +279,18 @@ class knjobjects
             //Look for valid colum name
             $matchKey = '';
             foreach ($match as $key => $colname) {
-                //TODO Merge cols_str, cols_num and cols_dbrows
-                if (isset($args['cols_str']) && in_array($colname, $args['cols_str'])) {
+                if (isset($args['cols'][$colname])) {
                     $matchKey = $colname;
-                } elseif (isset($args['cols_num']) && in_array($colname, $args['cols_num'])) {
-                    $matchKey = $colname;
-                } elseif (isset($args['cols_dbrows']) && in_array($colname, $args['cols_dbrows'])) {
-                    $matchKey = $colname;
-                } elseif (isset($args['cols_dates']) && in_array($colname, $args['cols_dates'])) {
-                    $matchKey = $colname;
-                    if (!$list_val) {
-                        $list_val = "0000-00-00 00:00:00";
-                    } else {
-                        $list_val = $db->date_format($list_val, array('time' => true));
-                    }
-                }
-                if ($matchKey) {
                     unset($list_args[$list_key]);
+
+                    if ($args['cols'][$colname] == 'time') {
+                        if (!$list_val) {
+                            $list_val = "0000-00-00 00:00:00";
+                        } else {
+                            $list_val = $db->date_format($list_val, array('time' => true));
+                        }
+                    }
+
                     break;
                 }
             }
@@ -315,8 +334,8 @@ class knjobjects
 
         return array(
             'sql_where' => $sql_where,
-            'sql_limit' => $sql_limit,
             'sql_order' => $sql_order,
+            'sql_limit' => $sql_limit,
         );
     }
 
