@@ -171,32 +171,29 @@ class knjobjects
     /**
      * Generate SQL bits for using in a query
      *
-     * @param array $list_args Key is feild name to match against.
-     *                         Fileds can be sufixed with a modefier
-     *                         to change the type of match.
-     *                         *_not:    Invert match
-     *                         *_search: Contaning string
-     *                         *_to:     Lower or equal
-     *                         *_from:   Equal or higher
-     *                         There are 3 special keys
-     *                         limit: Max rows to return
-     *                         limit_from: Skip number of rows
-     *                         orderby: Array|string of feilds to
-     *                         order by. Keys|string is feild, value can
-     *                         be DESC for decending
-     *                         Recogniced feilds will be unset form the
-     *                         array.
-     * @param array $args      Configuraitions for and table information
-     *                         db: The knjdb object the SQL is ment for
-     *                         table: The table that will be queried
-     *                         cols: List of valid feilds as key,
-     *                         keys limit, limit_from and orderby are
-     *                         reserved. If value is time input will be
-     *                         converted from timestamp into db native
-     *                         format
+     * @param array &$list_args Key is feild name to match against. Fileds can be
+     *                          sufixed with a modefier to change the type of match.
+     *                          *_not:    Invert match
+     *                          *_search: Contaning string
+     *                          *_to:     Lower or equal
+     *                          *_from:   Equal or higher
+     *                          There are 3 special keys
+     *                          limit:      Max rows to return
+     *                          limit_from: Skip number of rows
+     *                          orderby:    Array|string of feilds to order by.
+     *                          Keys|string is feild, value can be DESC for decending
+     *                          Recogniced feilds will be unset form the array.
+     * @param array $args       Configuraitions for and table information db: The
+     *                          knjdb object the SQL is ment for
+     *                          table: The table that will be queried
+     *                          cols:  List of valid feilds as key, keys limit,
+     *                          limit_from and orderby are reserved. If value is
+     *                          'time' input will be converted from timestamp into db
+     *                          native format.
      *
-     * @return array With keys sql_where, sql_order, sql_limit
-     *               sql_order and sql_limit include the SQL statement
+     * @return array(sql_where => string, sql_order => string, sql_limit => string).
+     *                          The SQL statement is included with sql_order and
+     *                          sql_limit but not sql_where.
      */
     public function sqlHelper(array &$list_args, array $args)
     {
@@ -210,7 +207,8 @@ class knjobjects
         //Escape table
         $table = '';
         if (!empty($args['table'])) {
-            $table = $db->conn->sep_table . $db->escape_table($args['table']) . $db->conn->sep_table . '.';
+            $table = $db->conn->sep_table . $db->escape_table($args['table'])
+                . $db->conn->sep_table . '.';
         }
 
         $sql_where = '';
@@ -220,7 +218,7 @@ class knjobjects
         $colsep = $db->conn->sep_col;
 
         //Process each directive
-        foreach($list_args as $list_key => $list_val) {
+        foreach ($list_args as $list_key => $list_val) {
             //empty input
             if (is_array($list_val) && !$list_val) {
                 unset($list_args[$list_key]);
@@ -230,7 +228,8 @@ class knjobjects
             if ($list_key == 'limit' || $list_key == 'limit_from') {
                 //Use knjdb driver to stay compatible with non-MySQL
                 if (isset($list_args['limit_from'])) {
-                    $sql_limit = " LIMIT " . (int) $list_args['limit_from'] . ", " . (int) $list_args['limit'];
+                    $sql_limit = " LIMIT " . (int) $list_args['limit_from'] . ", "
+                        . (int) $list_args['limit'];
                     unset($list_args['limit_from']);
                 } else {
                     $sql_limit = " LIMIT " . (int) $list_val;
@@ -288,7 +287,10 @@ class knjobjects
                         if (!$list_val) {
                             $list_val = "0000-00-00 00:00:00";
                         } else {
-                            $list_val = $db->date_format($list_val, array('time' => true));
+                            $list_val = $db->date_format(
+                                $list_val,
+                                array('time' => true)
+                            );
                         }
                     }
 
@@ -299,7 +301,8 @@ class knjobjects
                 continue;
             }
 
-            $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey) . $colsep;
+            $sql_where .= " AND " . $table . $colsep . $db->escape_column($matchKey)
+                . $colsep;
 
             //Create query
             if ($modifier == 'search') {
