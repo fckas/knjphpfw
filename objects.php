@@ -179,7 +179,7 @@ class knjobjects
      *                          *_from:   Equal or higher
      *                          There are 3 special keys
      *                          limit:      Max rows to return
-     *                          limit_from: Skip number of rows
+     *                          limit_from: Skip number of rows (requires limit)
      *                          orderby:    Array|string of feilds to order by.
      *                          Keys|string is feild, value can be DESC for decending
      *                          Recogniced feilds will be unset form the array.
@@ -265,9 +265,7 @@ class knjobjects
 
             //Extract valid modifier
             $modifier = '';
-            $match = array();
-            preg_match('/^(.+)_(.+?)$/ui', $list_key, $match);
-            if ($match
+            if (preg_match('/^(.+)_(.+?)$/ui', $list_key, $match)
                 && in_array($match[2], array('not', 'search', 'from', 'to'))
             ) {
                 $modifier = $match[2];
@@ -278,7 +276,7 @@ class knjobjects
 
             //Look for valid colum name
             $matchKey = '';
-            foreach ($match as $key => $colname) {
+            foreach ($match as $colname) {
                 if (isset($args['cols'][$colname])) {
                     $matchKey = $colname;
                     unset($list_args[$list_key]);
