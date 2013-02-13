@@ -196,6 +196,7 @@ class knjobjects
      *                         format
      *
      * @return array With keys sql_where, sql_order, sql_limit
+     *               sql_order and sql_limit include the SQL statement
      */
     public function sqlHelper(array &$list_args, array $args)
     {
