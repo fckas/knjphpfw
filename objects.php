@@ -253,6 +253,8 @@ class knjobjects
 
                     if (mb_strtoupper($ordermode) == 'DESC') {
                         $ordermode = " DESC";
+                    } else {
+                        $ordermode = " ASC";
                     }
 
                     $sql_order .=  $table
