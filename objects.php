@@ -41,7 +41,7 @@ class knjobjects
      *
      * @param string $class The class type of the object
      * @param mixed  $id    The database id of the object
-     * @param array  $data  Avoides fetching it from the database
+     * @param array  $data  Avoids fetching it from the database
      *
      * @return object
      */
@@ -169,31 +169,31 @@ class knjobjects
     }
 
     /**
-     * Generate SQL bits for using in a query
+     * Generate SQL parts ready for use in a query
      *
-     * @param array &$list_args Key is feild name to match against. Fileds can be
-     *                          sufixed with a modefier to change the type of match.
+     * @param array &$list_args Key is field name to match against. Fields can be
+     *                          suffixed with a modifier to change the type of match.
      *                          *_not:    Invert match
-     *                          *_search: Contaning string
+     *                          *_search: Containing string
      *                          *_to:     Lower or equal
      *                          *_from:   Equal or higher
      *                          There are 3 special keys
      *                          limit:      Max rows to return
      *                          limit_from: Skip number of rows
-     *                          orderby:    Array|string of feilds to order by.
-     *                          Keys|string is feild, value can be DESC for decending
-     *                          Recogniced feilds will be unset form the array.
-     * @param array $args       Configuraitions for and table information db: The
-     *                          knjdb object the SQL is ment for
-     *                          table: The table that will be queried
-     *                          cols:  List of valid feilds as key, keys limit,
-     *                          limit_from and orderby are reserved. If value is
-     *                          'time' input will be converted from timestamp into db
-     *                          native format.
+     *                          orderby:    Array|string of fields to order by.
+     *                          Keys|string is field, value can be either ASC/DESC.
+     *                          Recognized fields will be unset from the array.
+     * @param array $args       Configurations and table information.
+     *                          OPTIONAL db: The knjdb object the SQL is meant for.
+     *                          REQUIRED table: The table that will be queried.
+     *                          REQUIRED cols: Array of valid fields as key. If value
+     *                          is 'time' then input will be converted from timestamp
+     *                          into the native format of the db. The keys 'orderby',
+     *                          'limit' and 'limit_from' are reserved.
      *
      * @return array(sql_where => string, sql_order => string, sql_limit => string).
      *                          The SQL statement is included with sql_order and
-     *                          sql_limit but not sql_where.
+     *                          sql_limit, but not sql_where.
      */
     public function sqlHelper(array &$list_args, array $args)
     {
@@ -224,7 +224,8 @@ class knjobjects
                 unset($list_args[$list_key]);
                 continue;
             }
-            //FIXME Have a different input for this
+            //FIXME move 'limit', 'limit_from' and 'order' to a new parameter so they
+            // are separate from WHERE criteria
             if ($list_key == 'limit' || $list_key == 'limit_from') {
                 //Use knjdb driver to stay compatible with non-MySQL
                 if (isset($list_args['limit_from'])) {
@@ -244,7 +245,7 @@ class knjobjects
                 $sql_order .= " ORDER BY ";
 
                 $first = true;
-                foreach ($list_val as $feild => $ordermode) {
+                foreach ($list_val as $field => $ordermode) {
                     if ($first) {
                         $first = false;
                     } else {
@@ -258,7 +259,7 @@ class knjobjects
                     }
 
                     $sql_order .=  $table
-                        . $colsep . $db->escape_column($feild) . $colsep
+                        . $colsep . $db->escape_column($field) . $colsep
                         . $ordermode;
                 }
                 unset($list_args[$list_key]);
@@ -278,7 +279,7 @@ class knjobjects
                 $match = array($list_key);
             }
 
-            //Look for valid colum name
+            //Look for valid column name
             $matchKey = '';
             foreach ($match as $key => $colname) {
                 if (isset($args['cols'][$colname])) {
@@ -346,12 +347,12 @@ class knjobjects
     }
 
     /**
-     * Unset ferences for a specefic object
+     * Unset references for a specific object
      *
      * @param string $object The object or class
      * @param mixed  $id     The id of the object
      *
-     * @return null
+     * @return void
      */
     public function unsetOb($object, $id = null)
     {
@@ -368,7 +369,7 @@ class knjobjects
      *
      * @param string $class The class to clear
      *
-     * @return null
+     * @return void
      */
     public function unsetClass($class)
     {
@@ -378,7 +379,7 @@ class knjobjects
     /**
      * Unset all references
      *
-     * @return null
+     * @return void
      */
     public function unsetAll()
     {
@@ -388,7 +389,7 @@ class knjobjects
     /**
      * Run unsetAll if 52MB or more memory is being used
      *
-     * @return null
+     * @return void
      */
     public function cleanMemory()
     {
