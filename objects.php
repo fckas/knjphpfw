@@ -130,6 +130,11 @@ class knjobjects
             $opts[0] = _('All');
         }
 
+        if ($args['blank']) {
+            unset($args['all']);
+            $opts[''] = '';
+        }
+
         if (!$args['col_id']) {
             //FIXME respect the general setting
             $args['col_id'] = 'id';
