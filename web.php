@@ -329,6 +329,8 @@ class web
                 $isSelected = true;
             }
 
+            //TODO expand parents for non multiple
+
             echo '<div>';
 
             $name = $args['id'];
@@ -340,7 +342,7 @@ class web
 
             if (!empty($value['subs'])) {
                 echo '<div class="pointer';
-                if ($isSelected) {
+                if ($isSelected && $args['multiple']) {
                     echo ' open';
                 }
                 echo '"></div>';
@@ -358,7 +360,7 @@ class web
             .$value['title'] .'</label>';
             if (!empty($value['subs'])) {
                 echo '<div class="subs"';
-                if (!$isSelected) {
+                if (!$isSelected || !$args['multiple']) {
                     echo ' style="display:none;"';
                 }
                 echo '>';
