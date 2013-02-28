@@ -110,6 +110,11 @@ class knjobjects
     {
         $opts = array();
 
+        if ($args['blank']) {
+            unset($args['blank']);
+            $opts[''] = '';
+        }
+
         if ($args['addnew']) {
             unset($args['addnew']);
             $opts[0] = _('Add new');
@@ -128,11 +133,6 @@ class knjobjects
         if ($args['all']) {
             unset($args['all']);
             $opts[0] = _('All');
-        }
-
-        if ($args['blank']) {
-            unset($args['all']);
-            $opts[''] = '';
         }
 
         if (!$args['col_id']) {
