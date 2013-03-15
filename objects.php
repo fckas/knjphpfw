@@ -260,7 +260,7 @@ class knjobjects
 
                     if (is_array($ordermode)) {
                         $sql_order .=  "CASE " . $table
-                            . $colsep . $db->escape_column($feild) . $colsep;
+                            . $colsep . $db->escape_column($field) . $colsep;
                         foreach ($ordermode as $key => $value) {
                             $sql_order .=  " WHEN '" . $db->escape_column($value)
                                 . "' THEN " . $key;
