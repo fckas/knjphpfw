@@ -187,6 +187,7 @@ class knjobjects
      *                          limit_from: Skip number of rows (requires limit)
      *                          orderby:    Array|string of feilds to order by.
      *                          Keys|string is feild, value can be DESC for decending
+     *                          or array for specific order
      *                          Recogniced feilds will be unset form the array.
      * @param array $args       Configuraitions for and table information db: The
      *                          knjdb object the SQL is ment for
@@ -256,7 +257,16 @@ class knjobjects
                         $sql_order .= ", ";
                     }
 
-                    if (mb_strtoupper($ordermode) == 'DESC') {
+                    if (is_array($ordermode)) {
+                        $sql_order .=  "CASE " . $table
+                            . $colsep . $db->escape_column($feild) . $colsep;
+                        foreach ($ordermode as $key => $value) {
+                            $sql_order .=  " WHEN '" . $db->escape_column($value)
+                                . "' THEN " . $key;
+                        }
+                        $sql_order .=  " END";
+                        continue;
+                    } elseif (mb_strtoupper($ordermode) == 'DESC') {
                         $ordermode = " DESC";
                     } else {
                         $ordermode = " ASC";
