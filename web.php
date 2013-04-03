@@ -174,8 +174,10 @@ class web
                 $style .= 'height: ' .$args['height'] .';';
             }
 
-            echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .
-                '<div style="' . $style . '" class="' .$args['class'] .'">';
+            if (!isset($args['td']) || $args['td']) {
+                echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html;
+            }
+            echo '<div style="' . $style . '" class="' .$args['class'] .'">';
 
             self::drawTreeOpts(
                 array(
@@ -187,8 +189,9 @@ class web
                 $value
             );
             echo '</div>';
-
-            echo $td_end_html;
+            if (!isset($args['td']) || $args['td']) {
+                echo $td_end_html;
+            }
         } elseif ($type == 'file') {
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="file" class="input_' .$type .'" name="' .htmlspecialchars($id) .'" id="' .htmlspecialchars($id) .'"' .$js_tags .' />' .$td_end_html;
         } elseif ($type == 'textarea') {
@@ -324,6 +327,7 @@ class web
     {
         $selected = (array) $selected;
         foreach ($opts as $key => $value) {
+            $openParent = false;
             $isSelected = false;
             if (in_array($key, $selected)) {
                 $isSelected = true;
@@ -338,11 +342,20 @@ class web
                 $name .= '[' . $key . ']';
             }
 
-            $id = $args['id'] .'_' .$key;
+            $id = $args['id'] . '_' . $key;
 
             if (!empty($value['subs'])) {
+                if (!$isSelected) {
+                    // Parent not selected, see if a sub item is selected then open
+                    foreach ($selected as $select_item) {
+                        if (isset($value['subs'][$select_item])) {
+                            $openParent = true;
+                            break;
+                        }
+                    }
+                }
                 echo '<div class="pointer';
-                if ($isSelected && $args['multiple']) {
+                if (($openParent || $isSelected) && $args['multiple']) {
                     echo ' open';
                 }
                 echo '"></div>';
@@ -351,16 +364,16 @@ class web
             }
 
             echo '<input id="' .htmlspecialchars($id)
-                .'" name="' .htmlspecialchars($name)
-                .'" value="' .htmlspecialchars($key) . '"';
+                . '" name="' .htmlspecialchars($name)
+                . '" value="' .htmlspecialchars($key) . '"';
             if ($isSelected) {
                 echo ' checked="checked"';
             }
-            echo $args['html'] . ' /><label for="' .htmlspecialchars($id) .'">'
-            .$value['title'] .'</label>';
+            echo $args['html'] . ' /><label for="' . htmlspecialchars($id) . '">'
+                . $value['title'] . '</label>';
             if (!empty($value['subs'])) {
                 echo '<div class="subs"';
-                if (!$isSelected || !$args['multiple']) {
+                if (!$openParent && (!$isSelected || !$args['multiple'])) {
                     echo ' style="display:none;"';
                 }
                 echo '>';
