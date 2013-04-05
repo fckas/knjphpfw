@@ -11,6 +11,7 @@ class knjdb_async
 
     function query($str)
     {
+        knjdb::$queries_called++;
         if ($this->query_ran) {
             $this->read_res();
         }

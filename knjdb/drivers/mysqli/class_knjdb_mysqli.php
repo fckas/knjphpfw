@@ -110,6 +110,7 @@ class knjdb_mysqli
      */
     function query($query)
     {
+        knjdb::$queries_called++;
         $res = $this->conn->query($query);
         if (!$res) {
             $msg = 'Query error: ' .$this->error() ."\n\nSQL: " .$query;
@@ -117,22 +118,6 @@ class knjdb_mysqli
         }
 
         return new knjdb_result($this->_knjdb, $this, $res);
-    }
-
-    /**
-     * TODO
-     *
-     * @param string $query TODO
-     *
-     * @return object TODO
-     */
-    function query_ubuf($query)
-    {
-        if (!$this->conn->real_query($query)) {
-            throw new exception('Query error: ' . $this->error() . "\n\nSQL: " . $query);
-        }
-
-        return new knjdb_result($this->knjdb, $this, $this->conn->use_result());
     }
 
     /**

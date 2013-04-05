@@ -7,9 +7,8 @@ class knjdb
         'col_id' => 'id',
         'autoconnect' => true,
         'stats' => false,
-        'debug' => false,
     );
-    public $queries_called = 0;
+    static $queries_called = 0;
     private $drivers = array();
     public $insert_autocommit, $insert_countcommit; //variables used by the transaction-autocommit-feature.
 
@@ -192,38 +191,7 @@ class knjdb
      */
     function query($sql)
     {
-        if ($this->args['stats'] || $this->args['debug']) {
-            $this->queries_called++;
-
-            if ($this->args['debug']) {
-                $bt = debug_backtrace();
-
-                echo('Query ' . $this->queries_called . "\n");
-                echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
-                echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
-                echo('SQL: ' . $sql . "\n\n");
-            }
-        }
-
         return $this->conn->query($sql);
-    }
-
-    function query_ubuf($sql)
-    {
-        if ($this->args['stats'] || $this->args['debug']) {
-            $this->queries_called++;
-
-            if ($this->args['debug']) {
-                $bt = debug_backtrace();
-
-                echo('Query ' . $this->queries_called . "\n");
-                echo('File: ' . $bt[0]['file'] . ':' . $bt[0]['line'] . "\n");
-                echo('File: ' . $bt[1]['file'] . ':' . $bt[1]['line'] . "\n");
-                echo('SQL: ' . $sql . "\n\n");
-            }
-        }
-
-        return $this->conn->query_ubuf($sql);
     }
 
     /**
