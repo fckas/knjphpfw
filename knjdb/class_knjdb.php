@@ -5,8 +5,7 @@ class knjdb
     public $conn, $rows;
     public $args = array(
         'col_id' => 'id',
-        'autoconnect' => true,
-        'stats' => false,
+        'host' => 'localhost',
     );
     static $queries_called = 0;
     private $drivers = array();
@@ -15,14 +14,12 @@ class knjdb
     /**
      * The constructor.
      */
-    function __construct($args = null)
+    function __construct(array $args = array())
     {
         require_once 'class_knjdb_result.php';
         $this->rows = array();
-
-        if ($args) {
-            $this->setOpts($args);
-        }
+        $this->args = array_merge($this->args, $args);
+        $this->connect();
     }
 
     /**
@@ -167,23 +164,6 @@ class knjdb
     {
         $this->conn->close();
         unset($this->conn);
-    }
-
-    /**
-     * Sets the options of the object.
-     */
-    function setOpts($args)
-    {
-        $this->args = array_merge($this->args, $args);
-
-        if ($this->args['autoconnect'] && !$this->conn) {
-            $this->connect();
-        }
-    }
-
-    function cloneself()
-    {
-        return new knjdb($this->args);
     }
 
     /**
