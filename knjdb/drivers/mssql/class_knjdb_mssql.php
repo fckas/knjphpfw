@@ -60,6 +60,7 @@ class knjdb_mssql
 
     function query($sql)
     {
+        knjdb::$queries_called++;
         $res = mssql_query($sql, $this->conn);
         if (!$res) {
             throw new Exception('Query error: ' . mssql_get_last_message());
