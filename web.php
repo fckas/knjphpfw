@@ -341,11 +341,7 @@ class web
             $id = $args['id'] .'_' .$key;
 
             if (!empty($value['subs'])) {
-                echo '<div class="pointer';
-                if ($isSelected && $args['multiple']) {
-                    echo ' open';
-                }
-                echo '"></div>';
+                echo '<div class="pointer"></div>';
             } else {
                 echo '<div class="blank"></div>';
             }
@@ -359,11 +355,7 @@ class web
             echo $args['html'] . ' /><label for="' .htmlspecialchars($id) .'">'
             .$value['title'] .'</label>';
             if (!empty($value['subs'])) {
-                echo '<div class="subs"';
-                if (!$isSelected || !$args['multiple']) {
-                    echo ' style="display:none;"';
-                }
-                echo '>';
+                echo '<div class="subs">';
                 self::drawTreeOpts($args, $value['subs'], $selected);
                 echo '</div>';
             }
