@@ -355,7 +355,7 @@ class web
             echo $args['html'] . ' /><label for="' .htmlspecialchars($id) .'">'
             .$value['title'] .'</label>';
             if (!empty($value['subs'])) {
-                echo '<div class="subs">';
+                echo '<div class="subs" style="display:none;">';
                 self::drawTreeOpts($args, $value['subs'], $selected);
                 echo '</div>';
             }
