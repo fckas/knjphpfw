@@ -327,6 +327,7 @@ class web
     {
         $selected = (array) $selected;
         foreach ($opts as $key => $value) {
+            //TODO open all parents instead of just the direct parent
             $openParent = false;
             $isSelected = false;
             if (in_array($key, $selected)) {
