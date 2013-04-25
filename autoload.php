@@ -32,7 +32,6 @@ class knj_autoload
         'objects' => 'objects',
         'knjarray' => 'array',
         'knjdb' => 'db',
-        'knjdb_async' => 'knjdb/class_knjdb_async',
         'knjobjects' => 'objects',
         'knj_strings' => 'strings',
         'epay' => 'epay',

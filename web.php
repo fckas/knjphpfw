@@ -55,7 +55,7 @@ class web
         $value = isset($args['value']) ? $args['value'] : '';
         $id = isset($args['name']) ? $args['name'] : '';
         $type = isset($args['type']) ? $args['type'] : 'text';
-        $title = $args['title'];
+        $title = isset($args['title']) ? $args['title'] : '';
 
         if ($type == 'text' && !empty($args['opts'])) {
             $type = 'select';
@@ -139,11 +139,11 @@ class web
             }
 
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<select' .$etags;
-            if ($args['size']) {
+            if (!empty($args['size'])) {
                 echo ' size="' .htmlspecialchars($args['size']) .'"';
             }
             echo ' name="' .htmlspecialchars($id);
-            if ($args['multiple'] && mb_substr($id, -2) != '[]') {
+            if (!empty($args['multiple']) && mb_substr($id, -2) != '[]') {
                 echo '[]';
             }
             echo '" id="' .htmlspecialchars($id) .'" class="' .$args['class'] .'"'
@@ -245,13 +245,13 @@ class web
             echo '<td' .$rowspan .' class="tdheadline" colspan="2">' .$title .'</td>';
         } else {
             echo '<td' .$rowspan .' class="tdt">' .$title .'</td>' .$td_html .'<input type="' .htmlspecialchars($type) .'"';
-            if ($args['readonly']) {
+            if (!empty($args['readonly'])) {
                 echo ' readonly="readonly"';
             }
-            if ($args['disabled']) {
+            if (!empty($args['disabled'])) {
                 echo ' disabled="disabled"';
             }
-            if ($args['maxlength']) {
+            if (!empty($args['maxlength'])) {
                 echo ' maxlength="' .$args['maxlength'] .'"';
             }
             echo ' class="' .$args['class'] .'" id="' .htmlspecialchars($id) .'" name="' .htmlspecialchars($id) .'" value="' .htmlspecialchars($value) .'"' .$js_tags .' />' .$td_end_html;
@@ -265,12 +265,12 @@ class web
         if (!empty($args['descr'])) {
             $descr = $args['descr'];
 
-            if ($args['div']) {
+            if (!empty($args['div'])) {
                 $descr = '<div class="td">' .$descr .'</div>';
             }
 
             echo '<tr><td' .$rowspan .' colspan="2"';
-            if (!$args['div']) {
+            if (empty($args['div'])) {
                 echo ' class="tdd"';
             }
             echo '>' .$descr .'</td></tr>';
@@ -356,7 +356,7 @@ class web
                     }
                 }
                 echo '<div class="pointer';
-                if (($openParent || $isSelected) && $args['multiple']) {
+                if ($openParent && $args['multiple']) {
                     echo ' open';
                 }
                 echo '"></div>';
@@ -374,7 +374,7 @@ class web
                 . $value['title'] . '</label>';
             if (!empty($value['subs'])) {
                 echo '<div class="subs"';
-                if (!$openParent && (!$isSelected || !$args['multiple'])) {
+                if (!$openParent) {
                     echo ' style="display:none;"';
                 }
                 echo '>';

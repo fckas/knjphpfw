@@ -113,10 +113,6 @@ function date_out($unixt = null, $args = null)
 {
     global $functions_knjlocales;
 
-    if ($functions_knjlocales['date_out_callback']) {
-        return call_user_func($functions_knjlocales['date_out_callback']);
-    }
-
     if (!$unixt) {
         $unixt = time();
     }
