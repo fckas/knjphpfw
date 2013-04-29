@@ -396,9 +396,9 @@ class web
     {
         $msg = knj_strings::jsparse($msg);
 
-        echo '<script type="text/javascript"><!--
+        echo '<script type="text/javascript">//<!--
             alert("' .$msg .'");
-        --></script>';
+        //--></script>';
 
         self::$alert_sent = true;
     }
@@ -449,9 +449,9 @@ class web
 
             header('Location: ' . $url, true, $status);
         } else {
-            echo '<script type="text/javascript"><!--
+            echo '<script type="text/javascript">//<!--
                 location.href = "' .$url .'";
-            --></script>';
+            //--></script>';
         }
 
         if ($exit) {
